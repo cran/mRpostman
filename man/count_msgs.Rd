@@ -2,7 +2,7 @@
 % Please edit documentation in R/count-msgs.R
 \name{count_msgs}
 \alias{count_msgs}
-\title{Count Number of Messages}
+\title{Count the Number of Messages}
 \usage{
 count_msgs(imapconf, by = "MSN", flag, retries = 2)
 }
@@ -39,8 +39,8 @@ Counts the number of messages with a respective flag in a mailbox.
 
 # configure IMAP
 library(mRpostman)
-imapconf <- configure_imap(url="imaps://imap.gmail.com",
-                           username="your_gmail_user",
+imapconf <- configure_imap(url="imaps://your.imap.server.com",
+                           username="your_username",
                            password=rstudioapi::askForPassword()
                           )
 

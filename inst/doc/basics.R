@@ -5,13 +5,12 @@
 #  # IMAP settings
 #  # Gmail
 #  imapconf <- configure_imap(url="imaps://imap.gmail.com",
-#                            username="your_user",
-#                            password=rstudioapi::askForPassword(),
-#                            verbose = TRUE
+#                             username="your_user",
+#                             password=rstudioapi::askForPassword()
 #                            )
 #  
 #  # Yahoo Mail
-#  # imapconf <- configure_imap(url="imaps://export.imap.aol.com/",
+#  # imapconf <- configure_imap(url="imaps://imap.mail.yahoo.com/",
 #  #                           username="your_user",
 #  #                           password=rstudioapi::askForPassword()
 #  #                           )
@@ -22,7 +21,13 @@
 #  #                           password=rstudioapi::askForPassword()
 #  #                           )
 #  
-#  # you can try another IMAP server
+#  # Yandex Mail
+#  # imapconf <- configure_imap(url="imaps://imap.yandex.com",
+#  #                           username="your_user",
+#  #                           password=rstudioapi::askForPassword()
+#  #                           )
+#  
+#  # you can try another IMAP server and see if it works
 #  
 
 ## ---- message = FALSE, eval=FALSE----------------------------------------
@@ -71,9 +76,9 @@
 #  result <- imapconf %>%
 #    select_mailbox(mbox = "UC Riverside") %>%
 #    search_before(date_char = "02-May-2019",
-#                 by = "UID",
-#                 flag = "UNANSWERED",
-#                 esearch = TRUE)
+#                  by = "UID",
+#                  flag = "UNANSWERED",
+#                  esearch = TRUE)
 #  
 #  result$msg_id
 
@@ -81,9 +86,9 @@
 #  result <- imapconf %>%
 #    select_mailbox(mbox = "UC Riverside") %>%
 #    search_before(date_char = "02-May-2019",
-#                 by = "UID",
-#                 flag = "UNANSWERED",
-#                 esearch = TRUE, return_imapconf = FALSE)
+#                  by = "UID",
+#                  flag = "UNANSWERED",
+#                  esearch = TRUE, return_imapconf = FALSE)
 #  
 #  result
 
@@ -91,10 +96,10 @@
 #  results <- imapconf %>%
 #    select_mailbox(mbox = "UC Riverside") %>%
 #    search_before(date_char = "02-May-2019",
-#                 negate = TRUE,
-#                 by = "UID",
-#                 flag = "UNANSWERED",
-#                 esearch = TRUE)
+#                  negate = TRUE,
+#                  by = "UID",
+#                  flag = "UNANSWERED",
+#                  esearch = TRUE)
 #  
 #  results$msg_id
 #  
@@ -103,34 +108,34 @@
 #  results <- imapconf %>%
 #    select_mailbox(mbox = "CRAN messages2") %>%
 #    search_since(date_char = "17-Apr-2019",
-#                esearch = TRUE)
+#                 esearch = TRUE)
 #  
 
 ## ---- message = FALSE, eval = FALSE--------------------------------------
 #  results <- imapconf %>%
 #    select_mailbox(mbox = "CRAN messages2") %>%
 #    search_period(since_date_char = "02-Jan-2019",
-#                 before_date_char = "30-Jun-2019",
-#                 flag = "ANSWERED",
-#                 esearch = TRUE)
+#                  before_date_char = "30-Jun-2019",
+#                  flag = "ANSWERED",
+#                  esearch = TRUE)
 #  
 
 ## ---- message = FALSE, eval = FALSE--------------------------------------
 #  results <- imapconf %>%
 #    select_mailbox(mbox = "CRAN messages2") %>%
 #    search_period(since_date_char = "17-Jun-2019",
-#                 before_date_char = "30-Jun-2019",
-#                 negate = TRUE,
-#                 flag = "ANSWERED",
-#                 esearch = TRUE)
+#                  before_date_char = "30-Jun-2019",
+#                  negate = TRUE,
+#                  flag = "ANSWERED",
+#                  esearch = TRUE)
 #  
 
 ## ---- message = FALSE, eval = FALSE--------------------------------------
 #  results <- imapconf %>%
 #    select_mailbox(mbox = "CRAN messages2") %>%
 #    search_on(date_char = "30-Apr-2019",
-#             flag = "SEEN",
-#             esearch = TRUE)
+#              flag = "SEEN",
+#              esearch = TRUE)
 #  
 
 ## ---- message = FALSE, eval = FALSE--------------------------------------
@@ -145,19 +150,19 @@
 #  results <- imapconf %>%
 #    select_mailbox(mbox = "UC Riverside") %>%
 #    search_sent_before(date_char = "02-Jan-2019",
-#                     by = "UID",
-#                     flag = "UNANSWERED",
-#                     esearch = TRUE)
+#                       by = "UID",
+#                       flag = "UNANSWERED",
+#                       esearch = TRUE)
 #  
 
 ## ---- message = FALSE, eval = FALSE--------------------------------------
 #  results <- imapconf %>%
 #    select_mailbox(mbox = "UC Riverside") %>%
 #    search_sent_before(date_char = "02-May-2019",
-#                     negate = TRUE,
-#                     by = "UID",
-#                     flag = "UNANSWERED",
-#                     esearch = TRUE)
+#                       negate = TRUE,
+#                       by = "UID",
+#                       flag = "UNANSWERED",
+#                       esearch = TRUE)
 #  
 
 ## ---- message = FALSE, eval = FALSE--------------------------------------
@@ -170,31 +175,32 @@
 #  results <- imapconf %>%
 #    select_mailbox(mbox = "CRAN messages2") %>%
 #    search_sent_period(since_date_char = "17-Jun-2019",
-#                 before_date_char = "30-Jun-2019",
-#                 flag = "ANSWERED")
+#                       before_date_char = "30-Jun-2019",
+#                       flag = "ANSWERED")
 #  
 
 ## ---- message = FALSE, eval = FALSE--------------------------------------
 #  results <- imapconf %>%
 #    select_mailbox(mbox = "CRAN messages2") %>%
 #    search_sent_period(since_date_char = "17-Jun-2019",
-#                 before_date_char = "30-Jun-2019", negate = TRUE,
-#                 flag = "ANSWERED")
+#                       before_date_char = "30-Jun-2019",
+#                       negate = TRUE,
+#                       flag = "ANSWERED")
 #  
 
 ## ---- message = FALSE, eval = FALSE--------------------------------------
 #  results <- imapconf %>%
 #    select_mailbox(mbox = "CRAN messages2") %>%
 #    search_sent_on(date_char = "30-Apr-2019",
-#                 flag = "SEEN",
-#                 esearch = TRUE)
+#                   flag = "SEEN",
+#                   esearch = TRUE)
 #  
 
 ## ---- message = FALSE, eval=FALSE----------------------------------------
 #  results <- imapconf %>%
 #    select_mailbox(mbox = "CRAN messages2") %>%
 #    search_string(section_or_field = "TO", string = "hadley@rstudio.com",
-#                 negate = TRUE) # not TO "hadley@rstudio.com"
+#                  negate = TRUE) # not TO "hadley@rstudio.com"
 #  
 #  results$msg_id
 #  
@@ -306,8 +312,22 @@
 #    select_mailbox(mbox = "INBOX") %>%
 #    search_on(date_char = "10-may-2019", by = "UID") %$% #exposition pipe operator
 #    fetch_msg_metadata(imapconf, msg_id = msg_id, by = "UID",
-#                     metadata = c("INTERNALDATE", "UID", "ENVELOPE"))
+#                       metadata = c("INTERNALDATE", "UID", "ENVELOPE"))
 #  
+
+## ---- message = FALSE, eval = FALSE--------------------------------------
+#  imapconf %>%
+#    select_mailbox(mbox = "INBOX") %>%
+#    search_since(date_char = "23-Sep-2019") %$%
+#    fetch_full_msg(imapconf, msg_id=msg_id, write_to_disk = TRUE) %>%
+#    list_attachments()
+
+## ---- message = FALSE, eval = FALSE--------------------------------------
+#  imapconf %>%
+#    select_mailbox(mbox = "INBOX") %>%
+#    search_since(date_char = "23-Sep-2019") %$%
+#    fetch_full_msg(imapconf, msg_id=msg_id, write_to_disk = TRUE) %>%
+#    get_attachments()
 
 ## ---- message = FALSE, eval = FALSE--------------------------------------
 #  results <- imapconf %>%

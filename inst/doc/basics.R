@@ -27,6 +27,12 @@
 #  #                           password=rstudioapi::askForPassword()
 #  #                           )
 #  
+#  # Outlook - Office 365
+#  # imapconf <- configure_imap(url="imaps://outlook.office365.com",
+#  #                            username="your_user",
+#  #                            password=rstudioapi::askForPassword()
+#  #                           )
+#  
 #  # you can try another IMAP server and see if it works
 #  
 
@@ -41,7 +47,7 @@
 
 ## ---- message = FALSE, eval=FALSE----------------------------------------
 #  imapconf %>%
-#    select_mailbox(mbox = "UC Riverside") %>% # be careful - case sensitive
+#    select_mailbox(mbox = "Kansas State University") %>% # be careful - case sensitive
 #    examine_mailbox()
 
 ## ---- message = FALSE, eval=FALSE----------------------------------------
@@ -74,7 +80,7 @@
 
 ## ---- message = FALSE, eval=FALSE----------------------------------------
 #  result <- imapconf %>%
-#    select_mailbox(mbox = "UC Riverside") %>%
+#    select_mailbox(mbox = "Kansas State University") %>%
 #    search_before(date_char = "02-May-2019",
 #                  by = "UID",
 #                  flag = "UNANSWERED",
@@ -84,7 +90,7 @@
 
 ## ---- message = FALSE, eval=FALSE----------------------------------------
 #  result <- imapconf %>%
-#    select_mailbox(mbox = "UC Riverside") %>%
+#    select_mailbox(mbox = "Kansas State University") %>%
 #    search_before(date_char = "02-May-2019",
 #                  by = "UID",
 #                  flag = "UNANSWERED",
@@ -94,7 +100,7 @@
 
 ## ---- message = FALSE, eval=FALSE----------------------------------------
 #  results <- imapconf %>%
-#    select_mailbox(mbox = "UC Riverside") %>%
+#    select_mailbox(mbox = "Kansas State University") %>%
 #    search_before(date_char = "02-May-2019",
 #                  negate = TRUE,
 #                  by = "UID",
@@ -148,7 +154,7 @@
 
 ## ---- message = FALSE, eval = FALSE--------------------------------------
 #  results <- imapconf %>%
-#    select_mailbox(mbox = "UC Riverside") %>%
+#    select_mailbox(mbox = "Kansas State University") %>%
 #    search_sent_before(date_char = "02-Jan-2019",
 #                       by = "UID",
 #                       flag = "UNANSWERED",
@@ -157,7 +163,7 @@
 
 ## ---- message = FALSE, eval = FALSE--------------------------------------
 #  results <- imapconf %>%
-#    select_mailbox(mbox = "UC Riverside") %>%
+#    select_mailbox(mbox = "Kansas State University") %>%
 #    search_sent_before(date_char = "02-May-2019",
 #                       negate = TRUE,
 #                       by = "UID",
@@ -207,13 +213,13 @@
 
 ## ---- message = FALSE, eval=FALSE----------------------------------------
 #  results <- imapconf %>%
-#    select_mailbox(mbox = "UC Riverside") %>%
+#    select_mailbox(mbox = "Kansas State University") %>%
 #    search_string(section_or_field = "TEXT", string = "Dear Allan")
 #  
 
 ## ---- message = FALSE, eval=FALSE----------------------------------------
 #  results <- imapconf %>%
-#  select_mailbox(mbox = "UC Riverside") %>%
+#  select_mailbox(mbox = "Kansas State University") %>%
 #    search_string(section_or_field = "BODY", string = "Dear Allan")
 #  
 
@@ -278,7 +284,7 @@
 ## ---- message = FALSE, eval = FALSE--------------------------------------
 #  
 #  results <- imapconf %>%
-#    select_mailbox(mbox = "UC Riverside") %>%
+#    select_mailbox(mbox = "Kansas State University") %>%
 #    search_before(date_char = "10-Mar-2019", by = "UID") %$% #exposition pipe operator
 #    fetch_full_msg(imapconf = imapconf, msg_id = msg_id,
 #                   by="UID", write_to_file = TRUE, keep_in_mem = TRUE,
@@ -288,7 +294,7 @@
 ## ---- message = FALSE, eval=FALSE----------------------------------------
 #  
 #  results <- imapconf %>%
-#    select_mailbox(mbox = "UC Riverside") %>%
+#    select_mailbox(mbox = "Kansas State University") %>%
 #    search_since(date_char = "15-Aug-2019", by = "UID") %$% #exposition pipe operator
 #    fetch_msg_header(imapconf = imapconf,
 #                     msg_id = msg_id,

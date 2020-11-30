@@ -39,8 +39,8 @@ The package is now implemented under a OO framework, using an R6 class. The main
 
 
 * **configuration methods**: `configure_imap()`, `reset_url()`, `reset_username()`, `reset_password()`, `reset_verbose()`, `reset_buffersize()`, `reset_timeout_ms()`, `reset_xoauth2_bearer()`;
-* **server capabilities method**: `list_server_capabilities()`; 
-* **mailbox operations methods**: `list_mail_folders()`, `select_folder()`, `examine_folder()`,
+* **server-capabilities method**: `list_server_capabilities()`; 
+* **mailbox-operations methods**: `list_mail_folders()`, `select_folder()`, `examine_folder()`,
 `rename_folder()`, `create_folder()`, `list_flags()`;
 * **single-search methods**: `search_before()`, `search_since()`, `search_period()`, `search_on()`, 
 `search_sent_before()`,`search_sent_since()`, `search_sent_period()`, `search_sent_on()`,
@@ -218,7 +218,7 @@ con$list_flags()
 All search methods will return a numeric vector containing the results from the search. This allows users to chain fetch operations together with search one. You can also **NEGATE** all search expressions by setting `negate = TRUE`.
 
 If your server supports **ESEARCH**, we recommend you to use it. It will prevent your results from being
-truncated when there are too many messages ids and you didn't set a high `buffersize` in `confiure_imap()`^[This is a known bug of the libcurl library. Please, refer to this [LINK](https://curl.haxx.se/docs/knownbugs.html#IMAP_SEARCH_ALL_truncated_respon)]. With "ESEARCH", the results will be condensed to groups of sequences similar to what \R does. For instance, if your search returns 10000 results, it is better to have condensed groups such as `1:10, 12, 23:27, ...` instead of a sequence of `1, 2, 3, 4, 5, 6, ..., 10, 12, 23, 24, 25, ...`.   If you can't use ESEARCH, or if your results are being truncated even with ESEARCH, you can try to increase your buffersize in `configure_imap()` to avoid this.
+truncated when there are too many messages ids and you didn't set a high `buffersize` in `confiure_imap()`^[This is a known bug of the libcurl library. Please, refer to this [LINK](https://curl.se/docs/knownbugs.html#IMAP_SEARCH_ALL_truncated_respon)]. With "ESEARCH", the results will be condensed to groups of sequences similar to what \R does. For instance, if your search returns 10000 results, it is better to have condensed groups such as `1:10, 12, 23:27, ...` instead of a sequence of `1, 2, 3, 4, 5, 6, ..., 10, 12, 23, 24, 25, ...`.   If you can't use ESEARCH, or if your results are being truncated even with ESEARCH, you can try to increase your buffersize in `configure_imap()` to avoid this.
 
 
 ### 4.1) Search by date
@@ -505,10 +505,10 @@ In the main fetch methods (those that are not related to attachment fetching), y
 ```{r, message = FALSE, eval = FALSE}
 
 # increasing timeout_ms
-con$reset_timeout_ms(30000) # ... to 30 secs
+con$reset_timeout_ms(x = 30000) # ... to 30 secs
 
 # and supposing that you had verbose = TRUE before
-con$reset_verbose(FALSE)
+con$reset_verbose(x = FALSE)
 
 # tidy approach
 con$search_string(expr = "@k-state.edu", where = "FROM") %>%
@@ -564,7 +564,7 @@ con$search_since(date_char = "15-Aug-2019") %>%
 
 ```{r, message = FALSE, eval = FALSE}
 out <- con$search_on(date_char = "15-Aug-2019", use_uid = TRUE) %>%
-  con$fetch_metadata(use_uid = TRUE, metadata = metadata = c("INTERNALDATE", "UID", "ENVELOPE"))
+  con$fetch_metadata(use_uid = TRUE, attribute = c("INTERNALDATE", "UID", "ENVELOPE"))
 ```
 
 If nothing is specified to the `metadata` argument, all the metadata fields are fetched by default. To know which are the metadata options of a message, refer to `metadata_options()`.
@@ -574,7 +574,7 @@ There are two more fetch methods, but they are going to be presented in the next
 
 ## 7) Attachments
 
-Previously, `mRpostman` had two attachment-related functions: `list_attachments()` and `get_attachments()`. Both were to be used after a fetching operation because they would use the content fetched in a previous step to parse the attachments list and/or decode the content to files. These methods are still available in the current version of the package. However, two more methods were implemented in version `0.9.0.0`: `fetch_attachments_list()` and `fetch_attachments()`. These methods are not contingent on a previous fetch operation, since they are a properly fetch operation. Therefore, if the user is only interested in obtaining the attachments list or downloading the attachments of a set of messages, the last two options are considerably more efficient.
+Previously, `mRpostman` had two attachment-related functions: `list_attachments()` and `get_attachments()`. Both were to be used after a fetching operation because they would use the content fetched in a previous step to parse the attachments list and/or decode the content to files. These methods are still available in the current version of the package. However, two more methods were implemented since version `0.9.0.0`: `fetch_attachments_list()` and `fetch_attachments()`. These methods are not contingent on a previous fetch operation, since they are a properly fetch operation.
 
 Let's take a look at the first two attachments functionalities available in `mRpostman`.
 
@@ -607,7 +607,7 @@ In both examples, the whole message body(ies) or text will be saved to the disk,
 
 #### 7.1.2) Extracting Attachments
 
-`get_attachments()` will try to decode base64 text inside your message to the appropriate file extension. This will create a folder with the inside the structure `wd > imap.server.name > mail folder > msg_id`. The attachment(s) will be inside their respective message folder.
+`get_attachments()` will try to decode base64 text inside your message to the appropriate file extension. This will create a folder with the inside the structure `working directory > imap.server.name > mail folder > msg_id`. The attachment(s) will be inside their respective message folder.
 
 
 ```{r, message = FALSE, eval = FALSE}
@@ -629,9 +629,9 @@ The results in your local folder will be like this:
 ![](figures/basics/get-fetch_attachments1.png){width=90%}
 ![](figures/basics/get-fetch_attachments2.png){width=90%}
 
-### 7.2) Optimized attachment operations
+### 7.2) Direct attachment fetch operations
 
-As we stated before, the following two methods are not contingent on a previous fetch step because they execute a fetching operation. Hence, they consist of an optimized alternative for attachments listing and downloading.
+As we stated before, the following two methods are not contingent on a previous fetch step because they execute they own fetching operation. Hence, they consist of an alternative for attachments listing and downloading.
 
 **IMPORTANT**: The same recommendations for the other fetch methods hold in this case: set `verbose = FALSE` and a high `timeout_ms`.
 
@@ -804,4 +804,4 @@ Resnick, P. (2008), _Internet Message Format_, RFC 5322, October 2008, https://t
 
 Ooms, J. (2020), _curl: A Modern and Flexible Web Client for R_. R package version 4.3, https://CRAN.R-project.org/package=curl
 
-Stenberg, D. _Libcurl - The Multiprotocol File Transfer Library_, https://curl.haxx.se/libcurl/
+Stenberg, D. _Libcurl - The Multiprotocol File Transfer Library_, https://curl.se/libcurl/

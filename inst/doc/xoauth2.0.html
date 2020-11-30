@@ -30,6 +30,54 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 </script>
+<style type="text/css">
+a.anchor-section {margin-left: 10px; visibility: hidden; color: inherit;}
+a.anchor-section::before {content: '#';}
+.hasAnchor:hover a.anchor-section {visibility: visible;}
+</style>
+<script>// Anchor sections v1.0 written by Atsushi Yasumoto on Oct 3rd, 2020.
+document.addEventListener('DOMContentLoaded', function() {
+  // Do nothing if AnchorJS is used
+  if (typeof window.anchors === 'object' && anchors.hasOwnProperty('hasAnchorJSLink')) {
+    return;
+  }
+
+  const h = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+
+  // Do nothing if sections are already anchored
+  if (Array.from(h).some(x => x.classList.contains('hasAnchor'))) {
+    return null;
+  }
+
+  // Use section id when pandoc runs with --section-divs
+  const section_id = function(x) {
+    return ((x.classList.contains('section') || (x.tagName === 'SECTION'))
+            ? x.id : '');
+  };
+
+  // Add anchors
+  h.forEach(function(x) {
+    const id = x.id || section_id(x.parentElement);
+    if (id === '') {
+      return null;
+    }
+    let anchor = document.createElement('a');
+    anchor.href = '#' + id;
+    anchor.classList = ['anchor-section'];
+    x.classList.add('hasAnchor');
+    x.appendChild(anchor);
+  });
+});
+</script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
 
 
 <style type="text/css">code{white-space: pre;}</style>
@@ -346,7 +394,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <h2>Introduction</h2>
 <p>More and more mail providers are adopting the OAuth2.0 authentication as for their preferred method. Although there may be some pain involved in the process of configuring and obtaining an access token, it is a more secure way of authenticating your identity during an IMAP session.</p>
 <p>In this vignette, we will describe the process of obtaining, using, and refreshing an OAuth2.0 token to establish a connection with the Gmail IMAP server. This process will be very likely the same when trying to replicate it in other mail providers, such as AOL, Yahoo, Outlook Office 365, and many others.</p>
-<p><strong>IMPORTANT</strong>: Currently, the only drawback with this approach may be your libcurl version. The libcurl functionality responsible for transmitting the token was not working properly in old libcurl versions. If you have version 7.65.0 (released on May 22, 2019) or above installed, you should be fine. Therefore, we recommend checking to which libcurl version, the curl R package is linked by executing:</p>
+<p><strong>IMPORTANT</strong>: Currently, the only drawback with this approach may be your libcurl’s version. The libcurl functionality responsible for transmitting the token was not working properly in old libcurl versions. If you have version 7.65.0 (released on May 22, 2019) or above installed, you should be fine. Therefore, we recommend checking to which libcurl version, the curl R package is linked by executing:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a>curl<span class="op">::</span><span class="kw">curl_version</span>()</span></code></pre></div>
 <pre><code>## $version
 ## [1] &quot;7.68.0&quot;
@@ -470,16 +518,13 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <p>Finally, we configure an IMAP connection and test it:</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a><span class="kw">library</span>(mRpostman)</span>
 <span id="cb6-2"><a href="#cb6-2"></a>con &lt;-<span class="st"> </span><span class="kw">configure_imap</span>(<span class="dt">url=</span><span class="st">&quot;imaps://imap.gmail.com&quot;</span>,</span>
-<span id="cb6-3"><a href="#cb6-3"></a>                      <span class="dt">username =</span> <span class="st">&quot;allanvcq@gmail.com&quot;</span>,</span>
+<span id="cb6-3"><a href="#cb6-3"></a>                      <span class="dt">username =</span> <span class="st">&quot;user@gmail.com&quot;</span>,</span>
 <span id="cb6-4"><a href="#cb6-4"></a>                      <span class="dt">use_ssl =</span> <span class="ot">TRUE</span>,</span>
-<span id="cb6-5"><a href="#cb6-5"></a>                      <span class="co"># use_ssl = FALSE,</span></span>
-<span id="cb6-6"><a href="#cb6-6"></a>                      <span class="dt">verbose =</span> <span class="ot">TRUE</span>,</span>
-<span id="cb6-7"><a href="#cb6-7"></a>                      <span class="co"># password = &quot;g&quot;,</span></span>
-<span id="cb6-8"><a href="#cb6-8"></a>                      <span class="co"># xoauth2_bearer = auth_code_new$access_token,</span></span>
-<span id="cb6-9"><a href="#cb6-9"></a>                      <span class="dt">xoauth2_bearer =</span> token</span>
-<span id="cb6-10"><a href="#cb6-10"></a>                      )</span>
-<span id="cb6-11"><a href="#cb6-11"></a></span>
-<span id="cb6-12"><a href="#cb6-12"></a>con<span class="op">$</span><span class="kw">list_server_capabilities</span>()</span></code></pre></div>
+<span id="cb6-5"><a href="#cb6-5"></a>                      <span class="dt">verbose =</span> <span class="ot">TRUE</span>,</span>
+<span id="cb6-6"><a href="#cb6-6"></a>                      <span class="dt">xoauth2_bearer =</span> token</span>
+<span id="cb6-7"><a href="#cb6-7"></a>                      )</span>
+<span id="cb6-8"><a href="#cb6-8"></a></span>
+<span id="cb6-9"><a href="#cb6-9"></a>con<span class="op">$</span><span class="kw">list_server_capabilities</span>()</span></code></pre></div>
 <pre><code>##  [1] &quot;IMAP4rev1&quot;            &quot;UNSELECT&quot;             &quot;IDLE&quot;                
 ##  [4] &quot;NAMESPACE&quot;            &quot;QUOTA&quot;                &quot;ID&quot;                  
 ##  [7] &quot;XLIST&quot;                &quot;CHILDREN&quot;             &quot;X-GM-EXT-1&quot;          

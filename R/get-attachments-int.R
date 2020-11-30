@@ -23,18 +23,23 @@ get_attachments_int <- function(self, msg_list, content_disposition, override,
   check_args(msg_list = msg_list, content_disposition = content_disposition,
              override = override, mute = mute)
 
-  # retireves only base64 encoded attachments for now
+  # retrieves only base64 encoded attachments for now
 
-  # preparing mbox part of the directory for saving
-  # folder <- adjust_folder_name(self$folder)
+  # self = con
+  # override = FALSE
 
-  # mbox = attr(msg_list, "mbox")
+  # preparing mail folder name part of the directory for saving
+
   folder_clean = gsub("%20", "_", self$con_params$folder)
   forbiden_chars <- "[\\/:*?\"<>|]"
   folder_clean = gsub(forbiden_chars, "", folder_clean)
 
+  # msg_list = body
+  # content_disposition = "both"
+
   for (i in seq_along(msg_list)) {
     # i = 1
+    # print(names(msg_list[i]))
 
     id = names(msg_list[i]) # doing this to conserve name attribute
     id = unlist(regmatches(id, regexec("UID\\d+|\\d+", id)))
@@ -42,6 +47,14 @@ get_attachments_int <- function(self, msg_list, content_disposition, override,
     msg = msg_list[[i]]
 
     if (has_attachment(msg, call_from = "get_attachments")) {
+
+
+      # v0.9.1.0100
+      pattern_content_type = 'Content-Type:[\t|\r|\n|\r\n|a-zA-Z0-9 ]+(.*?)--'
+      full_content_types <- unlist(regmatches(msg, gregexpr(pattern_content_type, msg, ignore.case = TRUE))) # using perl is importnt here in case we have invalid multibyte string error (see msg 4217 (UID 61071) in Office 365)
+
+      full_content_types <- full_content_types[grepl('Content-Transfer-Encoding: base64', full_content_types,
+                                                     ignore.case = TRUE)]
 
       # 1) full attachments excerpts (with attachment "headers")
       # v0.3.1 - added support to inline attachments; added content_disposition argument
@@ -57,7 +70,8 @@ get_attachments_int <- function(self, msg_list, content_disposition, override,
       }
 
       # this REGEX works with IMAP and MS/Exchange protocols
-      full_attachments <- unlist(regmatches(msg, gregexpr(pattern, msg)))
+      full_attachments <- unlist(regmatches(full_content_types, gregexpr(pattern, full_content_types,
+                                                                         ignore.case = TRUE)))
       # substr(full_attachments[1], 1, 1000)
       # starting from full attachments to get filenames and text after
 
@@ -72,51 +86,45 @@ get_attachments_int <- function(self, msg_list, content_disposition, override,
 
 
       attachments_text <- sub('.*Content-', '', full_attachments, ignore.case = TRUE) # sub extracts only the first match
+
+      rm(full_attachments)
+
       # we extract from the last match onwards
 
       pattern2 = "\\r\\n[^ ]+\\r\\n" # lines that do not contain space
 
       attachments_text <- unlist(regmatches(attachments_text,
-                                            regexec(pattern2, attachments_text, perl=TRUE)))
+                                            regexec(pattern2, attachments_text,
+                                                    perl = TRUE)))
 
       # it has to be in this order
 
-      # substr(attachments_text[1], 1, 1000)
-      # deu erro em um do yahoo
-      # 1) podemos ou pegar tudo que vier depois de \\r\\n\\r\\n pq vem sempre pulado linha
-      # 2) ou entao tudo que tiver depois da ultima aparicao da palvra content, depois
-      # descontar tudo que aparece depois do primeiro \\r\\n, depois limpar algum que sobrar
-      # 3) tudo que tiver depois da ultima aparicao da palvra content, depois
-      # descartar tudo que aparece entre content e \\r\\n que contenha primeiro espaco (copiar estrategioa anterior),
-      # depois limpar algum que sobrar
-
-      # pattern2 = "\\r\\n\\r\\n.*"
-      # # pattern2 = "\\r\\n\\r\\n(.*)"
-      # pattern2 = "\r\n+[^\r\n]*\r\n*(?!.*Content).*"
-      #
-      # pattern2 = "[\\r\\n]+(?!.*Content).*"
-      #
-      # pattern2 = ".*[^(Content)]+$"
-
-
       # attachments_text <- gsub("^\r\n","", attachments_text) # "beggining with" #
-      attachments_text <- gsub("^[\r\n]+","", attachments_text) # "beggining with" #V0.9.0.0
+      # attachments_text <- gsub("^[\r\n]+","", attachments_text) # "beggining with" #V0.9.0.0
+      attachments_text <- gsub("^[\r\n\t]+","", attachments_text) # "beggining with" #V0.9.2
+      # attachments_text[8]
 
       # attachments_text <- gsub("^Content-Transfer-Encoding: base64\r\n\r\n","", attachments_text,
       #                          ignore.case = TRUE) # "beggining with"
 
       attachments_text <- gsub("[\r\n]+[-]*$","", attachments_text) # "ending with"
+      # substr(attachments_text, 1, 1000)
+      # substr(full_attachments, 1, 1000)
+      # substr(msg, 1, 1000)
 
 
       # 3) extract attachment filenames:
       # v0.3.1 - simplified REGEX - we do not need to worry about getting ordinary text
       # ..we have already selected only the attachments
-      pattern = 'filename=\"(.*?)\"[\r\n|;]'
+      # pattern = 'filename=\"(.*?)\"[\r\n+|;]'
+      # filenames <- unlist(regmatches(full_attachments, regexec(pattern, full_attachments)))
+      pattern = 'name=\"(.*?)\"[\r\n+|;]' # v0.9.2
       # this REGEX works with IMAP and MS/Exchange protocols
-      filenames <- unlist(regmatches(full_attachments, regexec(pattern, full_attachments)))
+      filenames <- unlist(regmatches(full_content_types, regexec(pattern, full_content_types,
+                                                                 ignore.case = TRUE)))
 
       # sanitizing
-      rm(full_attachments)
+      rm(full_content_types)
 
       # v0.3.1 - to avoid errors in case NULL
       if(!is.null(filenames)){ # here we have to run the rest of the code inside the condition
@@ -125,23 +133,9 @@ get_attachments_int <- function(self, msg_list, content_disposition, override,
 
         # cleaning encoding strings in filenames, e.g. "=?Windows-1252?Q?Termo_de_extra_SIAPE.?=\r\n =?Windows-1252?Q?pdf?="
         # pasting the extension to the name when it is
-        filenames <- gsub("\\?=\r\n\\s*|=\\?[A-Za-z0-9-]+\\?Q\\?|\\?=$","", filenames)
-        # "ending with"
-
-        # substituting URI encoding of a dot (=2E|%2E) -- it happens with yandex mail in some cases
-        # we opted for decoding only dots first to get the correct file extension part
-        filenames <- gsub("=2E|%2E",".", filenames)
-
-        # standard URLdecoding:
-        for (j in seq_along(filenames)) {
-          filenames[j] <- tryCatch({
-            filenames[j] <- utils::URLdecode(filenames[j])
-          }, warning = function(w) {
-            filenames[j]
-          }, error = function(e) {
-            filenames[j]
-          })
-        }
+        # v 0.9.1
+        # rfc2047 mime header decoding
+        filenames <- decode_mime_header(string = filenames)
 
         # removing problematic Win-*NIX-OSX characters from filenames
         # forbiden_chars <- "[\\/:*?\"<>|]"
@@ -164,10 +158,11 @@ get_attachments_int <- function(self, msg_list, content_disposition, override,
         adjusted_filenames <- adjust_repeated_filenames(filenames)
 
         # url <- "imaps://outlook.office365.com/"
-        url_folder <- unlist(regmatches(self$con_params$url, gregexpr("://(.*?)(/|.)$", self$con_params$url)))
-        url_folder = gsub(forbiden_chars, "", url_folder)
+        # url_folder <- unlist(regmatches(self$con_params$url, gregexpr("://(.*?)(/|.)$", self$con_params$url)))
+        user_folder <- self$con_params$username
+        user_folder = gsub(forbiden_chars, "", user_folder)
 
-        complete_path <- paste0("./", url_folder, "/", folder_clean, "/", id)
+        complete_path <- paste0("./", user_folder, "/", folder_clean, "/", id)
         # complete_path <- paste0("./", folder_clean, "/", id)
         dir.create(path = complete_path, showWarnings = FALSE, recursive = TRUE)
 

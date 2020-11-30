@@ -227,10 +227,10 @@
 ## ---- message = FALSE, eval = FALSE-------------------------------------------
 #  
 #  # increasing timeout_ms
-#  con$reset_timeout_ms(30000) # ... to 30 secs
+#  con$reset_timeout_ms(x = 30000) # ... to 30 secs
 #  
 #  # and supposing that you had verbose = TRUE before
-#  con$reset_verbose(FALSE)
+#  con$reset_verbose(x = FALSE)
 #  
 #  # tidy approach
 #  con$search_string(expr = "@k-state.edu", where = "FROM") %>%
@@ -266,7 +266,7 @@
 
 ## ---- message = FALSE, eval = FALSE-------------------------------------------
 #  out <- con$search_on(date_char = "15-Aug-2019", use_uid = TRUE) %>%
-#    con$fetch_metadata(use_uid = TRUE, metadata = metadata = c("INTERNALDATE", "UID", "ENVELOPE"))
+#    con$fetch_metadata(use_uid = TRUE, attribute = c("INTERNALDATE", "UID", "ENVELOPE"))
 
 ## ---- message = FALSE, eval = FALSE-------------------------------------------
 #  

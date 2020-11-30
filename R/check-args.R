@@ -337,16 +337,16 @@ check_args <- function(...) {
   }
 
   # fetch_metadata
-  if ("metadata" %in% names(argg_list)) {
+  if ("attribute" %in% names(argg_list)) {
     # if (!any(is.null(argg_list$metadata), is.character(argg_list$metadata))) {
     #   stop('"metadata" must be NULL or a character vector. See metadata_options().')
     # }
     assertthat::assert_that(
       any(
-        is.null(argg_list$metadata),
-        is.character(argg_list$metadata)
+        is.null(argg_list$attribute),
+        is.character(argg_list$attribute)
       ),
-      msg='"metadata" must be NULL or a character vector. See metadata_options().')
+      msg='"attribute" must be NULL or a character vector. See metadata_options().')
   }
 
   if ("base64_decode" %in% names(argg_list)) {
@@ -359,7 +359,7 @@ check_args <- function(...) {
   }
 
 
-  # ACESSORIAL FUNCTIONS
+  # ACCESSORIAL FUNCTIONS
 
   if ("to_folder" %in% names(argg_list)) {
     # if (!is.character(argg_list$to_folder)) {
@@ -442,6 +442,12 @@ check_args <- function(...) {
     assertthat::assert_that(
       is.logical(argg_list$override),
       msg='"override" must be a logical.')
+  }
+
+  if ("string" %in% names(argg_list)) {
+    assertthat::assert_that(
+      is.character(argg_list$string),
+      msg='"string" must be of type character.')
   }
 
   # if (!missing(negate)) {}

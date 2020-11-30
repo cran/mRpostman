@@ -2,7 +2,6 @@
 #' @param self The R6 connection object.
 #' @param id A message id obtained inside the main loop in \code{fetch_attachments_int}.
 #' @param id_folder The name of the folder containing the message id.
-#' @param url_folder The name of the folder containing the message url of the IMAP server.
 #' @param content_disposition A \code{string} indicating which type of
 #'   "Content-Disposition" attachments should be retrieved. The options are
 #'   \code{both}, \code{attachment}, and \code{inline}. Default is
@@ -20,14 +19,15 @@
 #'   name, which will be uses to create a local folder.
 #' @param retries Number of attempts to connect and execute the command. Default
 #'   is \code{1}.
-#'   @noRd
+#' @noRd
 execute_attachment_fetch <- function(self, id, id_folder, df_meta_to_fetch, fetch_request,
-                                     folder_clean, url_folder, content_disposition,
+                                     folder_clean, content_disposition,
                                      override, retries) {
 
 
   url <- self$con_params$url
   # url <- con$url
+  # override = FALSE
 
   h <- self$con_handle
   # h <- con$con_handle
@@ -47,82 +47,94 @@ execute_attachment_fetch <- function(self, id, id_folder, df_meta_to_fetch, fetc
 
   df_meta_to_fetch$adjusted_filenames <- adjust_repeated_filenames(df_meta_to_fetch$filenames)
 
+  df_meta_to_fetch$adjusted_filenames <- decode_mime_header(string = df_meta_to_fetch$adjusted_filenames)
+
   # loop exec
+  last_level = 0
   for (i in 1:nrow(df_meta_to_fetch)) {
     # print(i)
     # i = 1
     # idx = idx + 1
+    current_level = df_meta_to_fetch$MIME_level[i]
 
-    adjusted_fetch_request <- gsub(pattern = "#", replacement = id, x = fetch_request)
+    if (current_level != last_level) {
 
-    adjusted_fetch_request <- gsub(pattern = "level.MIME",
-                                   replacement = df_meta_to_fetch$MIME_level[i],
-                                   x = adjusted_fetch_request)
+      adjusted_fetch_request <- gsub(pattern = "#", replacement = id, x = fetch_request)
 
-    tryCatch({
-      curl::handle_setopt(
-        handle = h,
-        customrequest = adjusted_fetch_request)
-    }, error = function(e){
-      stop("The connection handle is dead. Please, configure a new IMAP connection with configure_imap().")
-    })
+      adjusted_fetch_request <- gsub(pattern = "level.MIME",
+                                     replacement = df_meta_to_fetch$MIME_level[i],
+                                     x = adjusted_fetch_request)
 
-    # REQUEST
-    response <- tryCatch({
-      curl::curl_fetch_memory(url, handle = h)
-    }, error = function(e){
-      # print(e$message)
-      response_error_handling(e$message[1]) # returns NULL for operation timeout: try reconnection
+      # self$select_folder("INBOX")
+      tryCatch({
+        curl::handle_setopt(
+          handle = h,
+          customrequest = adjusted_fetch_request)
+      }, error = function(e){
+        stop("The connection handle is dead. Please, configure a new IMAP connection with configure_imap().")
+      })
 
-    })
+      # REQUEST
+      response <- tryCatch({
+        curl::curl_fetch_memory(url, handle = h)
+      }, error = function(e){
+        # print(e$message)
+        response_error_handling(e$message[1]) # returns NULL for operation timeout: try reconnection
 
-    # print(exists("response")); print(exists("response")); print(exists("response"))
+      })
 
-    if (!is.null(response)) {
+      # print(exists("response")); print(exists("response")); print(exists("response"))
 
-      attachment <- clean_fetch_results(
-        rawToChar(response$headers))
+      if (!is.null(response)) {
+
+        # msg_text = rawToChar(response$headers)
+        attachment <- clean_fetch_results(
+          rawToChar(response$headers), attachment_fetch = TRUE)
 
 
-    } else {
-      count_retries = 0 #the first try was already counted
-      # FORCE appending fresh_connect
-      # curl::handle_setopt(handle = h, fresh_connect = TRUE)
-      select_folder_int(self, name = self$con_params$folder, mute = TRUE, retries = 0) # ok! v0.0.9
-      # select folder will automatically adjust the folde rname inside
+      } else {
+        count_retries = 0 #the first try was already counted
+        # FORCE appending fresh_connect
+        # curl::handle_setopt(handle = h, fresh_connect = TRUE)
+        select_folder_int(self, name = self$con_params$folder, mute = TRUE, retries = 0) # ok! v0.0.9
+        # select folder will automatically adjust the folde rname inside
 
-      while (is.null(response) && count_retries < retries) {
-        count_retries = count_retries + 1
+        while (is.null(response) && count_retries < retries) {
+          count_retries = count_retries + 1
 
-        # reset customrequest in handle
-        tryCatch({
-          curl::handle_setopt(
-            handle = h,
-            customrequest = adjusted_fetch_request) #bug: response was NULL when recovering from a fetch timeout error
-        }, error = function(e){
-          stop("The connection handle is dead. Please, configure a new IMAP connection with ImapCon$new().")
-        })
+          # reset customrequest in handle
+          tryCatch({
+            curl::handle_setopt(
+              handle = h,
+              customrequest = adjusted_fetch_request) #bug: response was NULL when recovering from a fetch timeout error
+          }, error = function(e){
+            stop("The connection handle is dead. Please, configure a new IMAP connection with configure_imap().")
+          })
 
-        # REQUEST
-        response <- tryCatch({
-          curl::curl_fetch_memory(url, handle = h)
-        }, error = function(e){
-          # print(e$message)
-          response_error_handling(e$message[1]) # returns NULL for operation timeout: try reconnection
+          # REQUEST
+          response <- tryCatch({
+            curl::curl_fetch_memory(url, handle = h)
+          }, error = function(e){
+            # print(e$message)
+            response_error_handling(e$message[1]) # returns NULL for operation timeout: try reconnection
 
-        })
+          })
 
-        if (!is.null(response)) {
+          if (!is.null(response)) {
 
-          attachment <- clean_fetch_results(
-            rawToChar(response$headers))
+            attachment <- clean_fetch_results(
+              rawToChar(response$headers), attachment_fetch = TRUE)
 
-        } else {
-          stop('Fetch error: the server returned an error. Try to increase "timeout_ms".')
+          } else {
+            stop('Fetch error: the server returned an error. Try to increase "timeout_ms".')
 
-        }
-      } #while
-    } #else-response
+          }
+        } #while
+      } #else-response
+
+    }
+
+    last_level = current_level # v0.9.1 # skips leveling up the fetching when there are more than one attachment in a unique level
 
 
     # saving the file:
@@ -140,17 +152,18 @@ execute_attachment_fetch <- function(self, id, id_folder, df_meta_to_fetch, fetc
       self$get_attachments(msg_list = msg_list,
                            content_disposition = content_disposition,
                            override = override, mute = TRUE)
-      # we still have to inform content_disposition in case there is two different type attachments in the same part
+      # we still have to inform content_disposition in case there is two different types of attachments in the same part
       #.. and one is an unwanted type
 
     } else {
 
       forbiden_chars <- "[\\/:*?\"<>|]"
       # url <- "imaps://outlook.office365.com/"
-      url_folder <- regmatches(url, gregexpr("://(.*?)(/|.)$", url))
-      url_folder = gsub(forbiden_chars, "", url_folder)
+      # url_folder <- regmatches(url, gregexpr("://(.*?)(/|.)$", url))
+      user_folder <- self$con_params$username
+      user_folder = gsub(forbiden_chars, "", user_folder)
 
-      complete_path <- paste0("./", url_folder, "/", folder_clean, "/", id_folder)
+      complete_path <- paste0("./", user_folder, "/", folder_clean, "/", id_folder)
       # complete_path <- paste0("./", folder_clean, "/", id)
       dir.create(path = complete_path, showWarnings = FALSE, recursive = TRUE)
 

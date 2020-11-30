@@ -26,12 +26,9 @@ curl::curl_version()
 ## ---- message = FALSE, eval = FALSE-------------------------------------------
 #  library(mRpostman)
 #  con <- configure_imap(url="imaps://imap.gmail.com",
-#                        username = "allanvcq@gmail.com",
+#                        username = "user@gmail.com",
 #                        use_ssl = TRUE,
-#                        # use_ssl = FALSE,
 #                        verbose = TRUE,
-#                        # password = "g",
-#                        # xoauth2_bearer = auth_code_new$access_token,
 #                        xoauth2_bearer = token
 #                        )
 #  

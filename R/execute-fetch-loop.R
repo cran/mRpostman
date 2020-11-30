@@ -25,9 +25,12 @@
 #' @param base64_decode If \code{TRUE}, tries to guess and decode the fetched
 #'   text from base64 format to \code{character}. Default is \code{FALSE}. Only
 #'   used in the \code{fetch_text()} case.
-#'   @noRd
+#' @param metadata_attribute String containing the meta attributes if applicable. Default
+#'   is \code{NULL}.
+#' @noRd
 execute_fetch_loop <- function(self, msg_id, fetch_request, use_uid, write_to_disk,
-                               keep_in_mem, retries, fetch_type, base64_decode = FALSE) {
+                               keep_in_mem, retries, fetch_type, base64_decode = FALSE,
+                               metadata_attribute = NULL) {
 
   # base64_decode is only used for fetch_text_int
 
@@ -61,7 +64,7 @@ execute_fetch_loop <- function(self, msg_id, fetch_request, use_uid, write_to_di
         handle = h,
         customrequest = adjusted_fetch_request)
     }, error = function(e){
-      stop("The connection handle is dead. Please, configure a new IMAP connection with ImapCon$new().")
+      stop("The connection handle is dead. Please, configure a new IMAP connection with configure_imap().")
     })
 
     # REQUEST
@@ -80,13 +83,15 @@ execute_fetch_loop <- function(self, msg_id, fetch_request, use_uid, write_to_di
       if (isTRUE(base64_decode)) {
         msg_list[[idx]] <- decode_base64_text_if_needed(
           clean_fetch_results(
-            rawToChar(response$headers)
+            rawToChar(response$headers),
+            metadata_attribute #v0.9.2
           )
         )
 
       } else {
         msg_list[[idx]] <- clean_fetch_results(
-          rawToChar(response$headers)
+          rawToChar(response$headers),
+          metadata_attribute # v0.9.2
         )
 
       }
@@ -114,10 +119,11 @@ execute_fetch_loop <- function(self, msg_id, fetch_request, use_uid, write_to_di
         folder_clean = gsub(forbiden_chars, "", folder_clean)
 
         # url <- "imaps://outlook.office365.com/"
-        url_folder <- unlist(regmatches(url, gregexpr("://(.*?)(/|.)$", url)))
-        url_folder = gsub(forbiden_chars, "", url_folder)
+        # url_folder <- unlist(regmatches(url, gregexpr("://(.*?)(/|.)$", url)))
+        user_folder <- self$con_params$username
+        user_folder = gsub(forbiden_chars, "", user_folder)
 
-        complete_path <- paste0("./", url_folder, "/", folder_clean)
+        complete_path <- paste0("./", user_folder, "/", folder_clean)
         dir.create(path = complete_path, showWarnings = FALSE, recursive = TRUE)
 
         write(unlist(msg_list[[idx]]), paste0(complete_path, "/",
@@ -180,10 +186,10 @@ execute_fetch_loop <- function(self, msg_id, fetch_request, use_uid, write_to_di
             folder_clean = gsub(forbiden_chars, "", folder_clean)
 
             # url <- "imaps://outlook.office365.com/"
-            url_folder <- regmatches(url, gregexpr("://(.*?)(/|.)$", url))
-            url_folder = gsub(forbiden_chars, "", url_folder)
+            # url_folder <- regmatches(url, gregexpr("://(.*?)(/|.)$", url))
+            user_folder = gsub(forbiden_chars, "", user_folder)
 
-            complete_path <- paste0("./", url_folder, "/", folder_clean)
+            complete_path <- paste0("./", user_folder, "/", folder_clean)
             dir.create(path = complete_path, showWarnings = FALSE, recursive = TRUE)
 
             write(unlist(msg_list[[idx]]), paste0(complete_path, "/",

@@ -256,7 +256,7 @@
 #  con$select_folder(name = "INBOX")
 #  
 #  results <- con$search_since(date_char = "10-May-2019", use_uid = TRUE) %>% #regular pipe
-#    con$fetch_text(use_uid = TRUE, metadata = c("INTERNALDATE", "UID", "ENVELOPE"))
+#    con$fetch_text(use_uid = TRUE, attribute = c("INTERNALDATE", "UID", "ENVELOPE"))
 #  
 
 ## ---- message = FALSE, eval = FALSE-------------------------------------------

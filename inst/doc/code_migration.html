@@ -30,6 +30,54 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 </script>
+<style type="text/css">
+a.anchor-section {margin-left: 10px; visibility: hidden; color: inherit;}
+a.anchor-section::before {content: '#';}
+.hasAnchor:hover a.anchor-section {visibility: visible;}
+</style>
+<script>// Anchor sections v1.0 written by Atsushi Yasumoto on Oct 3rd, 2020.
+document.addEventListener('DOMContentLoaded', function() {
+  // Do nothing if AnchorJS is used
+  if (typeof window.anchors === 'object' && anchors.hasOwnProperty('hasAnchorJSLink')) {
+    return;
+  }
+
+  const h = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+
+  // Do nothing if sections are already anchored
+  if (Array.from(h).some(x => x.classList.contains('hasAnchor'))) {
+    return null;
+  }
+
+  // Use section id when pandoc runs with --section-divs
+  const section_id = function(x) {
+    return ((x.classList.contains('section') || (x.tagName === 'SECTION'))
+            ? x.id : '');
+  };
+
+  // Add anchors
+  h.forEach(function(x) {
+    const id = x.id || section_id(x.parentElement);
+    if (id === '') {
+      return null;
+    }
+    let anchor = document.createElement('a');
+    anchor.href = '#' + id;
+    anchor.classList = ['anchor-section'];
+    x.classList.add('hasAnchor');
+    x.appendChild(anchor);
+  });
+});
+</script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
 
 
 <style type="text/css">code{white-space: pre;}</style>
@@ -368,7 +416,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
 <p>This vignette aims to provide an easy source of code migration examples so old <code>mRpostman</code> users can transition between the old version and the new format which implements an OO approach trough the use of R6 class and methods.</p>
-<p>This is the summary of the main modifications in the package between version <code>0.3.1</code> and <code>0.9.0.0</code>:</p>
+<p>This is the summary of the main modifications in the package between versions <code>0.3.1</code> and <code>0.9.X</code>:</p>
 <ul>
 <li><p>All main functions, except <code>list_attachments</code> and the custom-search helper functions, now are methods of the R6 class <code>ImapConf</code>;</p></li>
 <li><p>The way the connection token is passed through functions (now methods) has changed. The connection handle is created inside <code>configure_imap()</code> (or <code>ImapCon$new()</code>) and modified with custom requests from the methods that trigger IMAP commands. As a consequence, the password is now hidden inside the curl handle C pointer, resulting in a more secure token chain. This resulted in changes in every request function. These functions (that are methods now) do not use <code>config_handle()</code> anymore, and a call to <code>curl::set_opt()</code> is made in every request function so that a custom request is supplied or replaced by a new one in the original handle.</p></li>
@@ -666,9 +714,9 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1"></a>con<span class="op">$</span><span class="kw">select_folder</span>(<span class="dt">name =</span> <span class="st">&quot;INBOX&quot;</span>)</span>
 <span id="cb32-2"><a href="#cb32-2"></a></span>
 <span id="cb32-3"><a href="#cb32-3"></a>results &lt;-<span class="st"> </span>con<span class="op">$</span><span class="kw">search_since</span>(<span class="dt">date_char =</span> <span class="st">&quot;10-May-2019&quot;</span>, <span class="dt">use_uid =</span> <span class="ot">TRUE</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="co">#regular pipe</span></span>
-<span id="cb32-4"><a href="#cb32-4"></a><span class="st">  </span>con<span class="op">$</span><span class="kw">fetch_text</span>(<span class="dt">use_uid =</span> <span class="ot">TRUE</span>, <span class="dt">metadata =</span> <span class="kw">c</span>(<span class="st">&quot;INTERNALDATE&quot;</span>, <span class="st">&quot;UID&quot;</span>, <span class="st">&quot;ENVELOPE&quot;</span>))</span></code></pre></div>
+<span id="cb32-4"><a href="#cb32-4"></a><span class="st">  </span>con<span class="op">$</span><span class="kw">fetch_text</span>(<span class="dt">use_uid =</span> <span class="ot">TRUE</span>, <span class="dt">attribute =</span> <span class="kw">c</span>(<span class="st">&quot;INTERNALDATE&quot;</span>, <span class="st">&quot;UID&quot;</span>, <span class="st">&quot;ENVELOPE&quot;</span>))</span></code></pre></div>
 </div>
-<p>You can check metadata options with <code>metadata_options()</code>.</p>
+<p>You can check the available metadata attributes with <code>metadata_options()</code>.</p>
 </div>
 </div>
 <div id="attachments" class="section level2">
@@ -691,7 +739,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb34-5"><a href="#cb34-5"></a><span class="st">  </span><span class="kw">list_attachments</span>()</span></code></pre></div>
 </div>
 <p>Note that <code>list_attachment()</code> is an independent function. It is not a method of the <code>ImapCon</code> class that depends on the connection object.</p>
-<p>The new version brings an alternative fetching method (<code>fetch_atachments_list()</code>) for listing attachments without the need of previously executing a <code>fetch_body</code> or <code>fetch_text</code> operation:</p>
+<p>The new version brings an alternative fetch method (<code>fetch_atachments_list()</code>) for listing attachments without the need of previously executing a <code>fetch_body</code> or <code>fetch_text</code> operation:</p>
 <div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1"></a>con<span class="op">$</span><span class="kw">select_folder</span>(<span class="dt">name =</span> <span class="st">&quot;INBOX&quot;</span>)</span>
 <span id="cb35-2"><a href="#cb35-2"></a></span>
 <span id="cb35-3"><a href="#cb35-3"></a>con<span class="op">$</span><span class="kw">search_on</span>(<span class="dt">date_char =</span> <span class="st">&quot;23-Sep-2019&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="co">#regular pipe</span></span>
@@ -714,7 +762,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb37-4"><a href="#cb37-4"></a><span class="st">  </span>con<span class="op">$</span><span class="kw">fetch_body</span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="co"># or fetch_text()</span></span>
 <span id="cb37-5"><a href="#cb37-5"></a><span class="st">  </span><span class="kw">get_attachments</span>()</span></code></pre></div>
 </div>
-<p>The new version brings an alternative fetching method (<code>fetch_atachments()</code>) for downloading attachments without the need of previously executing a <code>fetch_body</code> or <code>fetch_text</code> operation:</p>
+<p>The new version brings an alternative fetch method (<code>fetch_atachments()</code>) for downloading attachments without the need of previously executing a <code>fetch_body</code> or <code>fetch_text</code> operation:</p>
 <div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1"></a>con<span class="op">$</span><span class="kw">select_folder</span>(<span class="dt">name =</span> <span class="st">&quot;INBOX&quot;</span>)</span>
 <span id="cb38-2"><a href="#cb38-2"></a></span>
 <span id="cb38-3"><a href="#cb38-3"></a>con<span class="op">$</span><span class="kw">search_on</span>(<span class="dt">date_char =</span> <span class="st">&quot;23-Sep-2019&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="co">#regular pipe</span></span>

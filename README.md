@@ -28,7 +28,7 @@ management, attachment extraction, and several other IMAP features,
 paving the way for email data analysis in R. To do so, this package
 makes extensive use of the {curl} package and the libcurl C library.
 
-mRpostman’s official website: <https://allanvc.github.io/mRpostman>
+mRpostman’s official website: <https://allanvc.github.io/mRpostman/>
 
 **IMPORTANT**:
 
@@ -40,7 +40,7 @@ mRpostman’s official website: <https://allanvc.github.io/mRpostman>
     syntax”*](https://allanvc.github.io/mRpostman/articles/code_migration.html).
 
 2.  Old versions of the libcurl C library ({curl}’s main engine) will
-    cause malfunctioning of this package. If your libcurl’s version is
+    cause the malfunction of this package. If your libcurl’s version is
     above 7.58.0, you should be fine. However, if you intend to use
     OAuth 2.0 authentication, then you will need libcurl \>= 7.65.0. To
     know more about the OAuth 2.0 authentication in this package, refer
@@ -109,7 +109,7 @@ that the `url` parameter in `configure_imap()` should be set as `url =
 
 ![](man/figures/yahoo2.png) <!-- <img src="man/figures/yahoo2.png"> -->
 
-4)  After, set “Allow apps that use less secure sign in” **ON**
+4)  Then, set “Allow apps that use less secure sign in” **ON**
 
 ![](man/figures/yahoo3.png)
 
@@ -141,44 +141,35 @@ IMAP commands.
 The package is divided in 8 groups of operations. Below, we present all
 the available methods and functions:
 
-  - 1.  **configuration**: `configure_imap()`;
-
-  - 2.  **server capabilities**: `list_server_capabilities()`
-
-  - 3.  **mailbox operations**: `list_mail_folders()`,
-        `select_folder()`, `examine_folder()`, `rename_folder()`,
-        `create_folder()`;
-
-  - 4.  **single search**: `search_before()`, `search_since()`,
-        `search_period()`, `search_on()`,
-        `search_sent_before()`,`search_sent_since()`,
-        `search_sent_period()`, `search_sent_on()`, `search_string()`,
-        `search_flag()`, `search_smaller_than()`,
-        `search_larger_than()`, `search_younger_than()`,
-        `search_older_than()`;
-
-  - 5.  **custom search**: `search`
-    
-    <!-- end list -->
-    
-      - **custom search helper functions**:
-          - relational operators functions: `AND()`, `OR()`;
-          - criteria definition functions: `before()`, `since()`,
-            `on()`, `sent_before()`, `sent_since()`, `sent_on()`,
-            `string()`, `flag()`, `smaller_than()`, `larger_than()`,
-            `younger_than()`, `older_than()`;
-
-  - 6.  **fetch**: `fetch_body()`, `fetch_header()`, `fetch_text()`,
-        `fetch_metadata()`, `fetch_attachments_list()`,
-        `fetch_attachments()`;
-
-  - 7.  **attachments**: `list_attachments()`, `get_attachments()`,
-        `fetch_attachments_list()`, `fetch_attachments()`;
-
-  - 8.  **complementary operations**: `copy_msg()`, `move_msg()`,
-        `delete_msg()`, `expunge()`, `esearch_count()`,
-        `esearch_min_id()`, `esearch_max_id()`, `add_flags()`,
-        `remove_flags()`, `replace_flags()`;
+  - **configuration methods**: `configure_imap()`, `reset_url()`,
+    `reset_username()`, `reset_password()`, `reset_verbose()`,
+    `reset_use_ssl()`, `reset_buffersize()`, `reset_timeout_ms()`,
+    `reset_xoauth2_bearer()`;
+  - **server capabilities method**: `list_server_capabilities()`;
+  - **mailbox operations methods**: `list_mail_folders()`,
+    `select_folder()`, `examine_folder()`, `rename_folder()`,
+    `create_folder()`, `list_flags()`;
+  - **single-search methods**: `search_before()`, `search_since()`,
+    `search_period()`, `search_on()`,
+    `search_sent_before()`,`search_sent_since()`,
+    `search_sent_period()`, `search_sent_on()`, `search_string()`,
+    `search_flag()`, `search_smaller_than()`, `search_larger_than()`,
+    `search_younger_than()`, `search_older_than()`;
+  - **the custom-search method and its helper functions**: `search()`;
+      - relational operators functions: `AND()`, `OR()`;
+      - criteria definition functions: `before()`, `since()`, `on()`,
+        `sent_before()`, `sent_since()`, `sent_on()`, `string()`,
+        `flag()`, `smaller_than()`, `larger_than()`, `younger_than()`,
+        `older_than()`;
+  - **fetch methods**: `fetch_body()`, `fetch_header()`, `fetch_text()`,
+    `fetch_metadata()`, `fetch_attachments_list()`,
+    `fetch_attachments()`;
+  - **attachments methods**: `list_attachments()`, `get_attachments()`,
+    `fetch_attachments_list()`, `fetch_attachments()`;
+  - **complementary methods**: `copy_msg()`, `move_msg()`,
+    `esearch_min_id()`, `esearch_max_id()`, `esearch_count_msg()`,
+    `delete_msg()`, `expunge()`, `add_flags()`, `remove_flags()`,
+    `replace_flags()`.
 
 ## Installation
 
@@ -314,15 +305,14 @@ con$search_since(date_char = "02-Jan-2020") %>%
 
 ## Future Improvements
 
-  - add further IMAP functionalities;
+  - add further IMAP features;
   - eliminate the {stringr} dependency in REGEX;
   - implement a progress bar in fetch operations;
-  - implement a function to decode quoted-printable RFC 2047 headers.
 
 ## Known bugs
 
   - *search results truncation*: This is a [libcurl’s known
-    bug](https://curl.haxx.se/docs/knownbugs.html#IMAP_SEARCH_ALL_truncated_respon)
+    bug](https://curl.se/docs/knownbugs.html#IMAP_SEARCH_ALL_truncated_respon)
     which causes the search results to be truncated when there is a
     large number of message ids returned. To circumscribe this problem,
     you can set a higher `buffersize` value, increasing the buffer
@@ -338,16 +328,16 @@ con$search_since(date_char = "02-Jan-2020") %>%
     which causes it to not be shown on the console, or with a
     considerable delay.
 
-  - *shared mailbox access*: This seems to be another [libcurl’s
-    bug](https://github.com/allanvc/mRpostman/issues/2), although more
-    tests need to be done to confirm it. It does not allow the user to
-    connect to a shared mailbox. To circumscribe this, if the shared
-    mailbox has a password associated with it, you can try a direct
-    regular connection.
+  - *shared mailbox access not working*: This seems to be another
+    [libcurl’s bug](https://github.com/allanvc/mRpostman/issues/2),
+    although more tests need to be done to confirm it. It does not allow
+    the user to connect to a shared mailbox. To circumscribe this, if
+    the shared mailbox has a password associated with it, you can try a
+    direct regular connection.
 
   - *`xoauth2_bearer` SASL error*: This is related to [old libcurl’s
-    versions](https://curl.haxx.se/bug/?i=2487) which causes the access
-    token to not be properly passed to the server. This bug was fixed in
+    versions](https://curl.se/bug/?i=2487) which causes the access token
+    to not be properly passed to the server. This bug was fixed in
     libcurl 7.65.0. The problem is that many Linux distributions, such
     as Ubuntu 18.04, still provide libcurl 7.58.0 in their official
     distribution (libcurl4-openssl-dev). If you use a newer Linux distro
@@ -372,4 +362,4 @@ Ooms, J. (2020), *curl: A Modern and Flexible Web Client for R*. R
 package version 4.3, <https://CRAN.R-project.org/package=curl>
 
 Stenberg, D. *Libcurl - The Multiprotocol File Transfer Library*,
-<https://curl.haxx.se/libcurl/>
+<https://curl.se/libcurl/>

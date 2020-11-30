@@ -26,7 +26,7 @@ vignette: >
 
 This vignette aims to provide an easy source of code migration examples so old `mRpostman` users can transition between the old version and the new format which implements an OO approach trough the use of R6 class and methods.
 
-This is the summary of the main modifications in the package between version `0.3.1` and `0.9.0.0`:
+This is the summary of the main modifications in the package between versions `0.3.1` and `0.9.X`:
 
 * All main functions, except `list_attachments` and the custom-search helper functions, now are methods of the R6 class `ImapConf`;
     
@@ -482,14 +482,14 @@ New format:
 con$select_folder(name = "INBOX")
 
 results <- con$search_since(date_char = "10-May-2019", use_uid = TRUE) %>% #regular pipe
-  con$fetch_text(use_uid = TRUE, metadata = c("INTERNALDATE", "UID", "ENVELOPE"))
+  con$fetch_text(use_uid = TRUE, attribute = c("INTERNALDATE", "UID", "ENVELOPE"))
 
 ```
 
 </div>
 
 
-You can check metadata options with `metadata_options()`.
+You can check the available metadata attributes with `metadata_options()`.
 
 
 ## 7) Attachments
@@ -526,7 +526,7 @@ results <- con$search_on(date_char = "23-Sep-2019") %>% #regular pipe
 
 Note that `list_attachment()` is an independent function. It is not a method of the `ImapCon` class that depends on the connection object.
 
-The new version brings an alternative fetching method (`fetch_atachments_list()`) for listing attachments without the need of previously executing a `fetch_body` or `fetch_text` operation:
+The new version brings an alternative fetch method (`fetch_atachments_list()`) for listing attachments without the need of previously executing a `fetch_body` or `fetch_text` operation:
 
 ```{r, message = FALSE, eval=FALSE}
 
@@ -567,7 +567,7 @@ results <- con$search_on(date_char = "23-Sep-2019") %>% #regular pipe
 
 </div>
 
-The new version brings an alternative fetching method (`fetch_atachments()`) for downloading attachments without the need of previously executing a `fetch_body` or `fetch_text` operation:
+The new version brings an alternative fetch method (`fetch_atachments()`) for downloading attachments without the need of previously executing a `fetch_body` or `fetch_text` operation:
 
 ```{r, message = FALSE, eval=FALSE}
 

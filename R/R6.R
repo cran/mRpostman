@@ -6,6 +6,13 @@
 #' @examples
 #' \dontrun{
 #' # w/ Plain authentication
+#' con <- configure_imap(
+#'   url="imaps://outlook.office365.com",
+#'   username="user@agency.gov.br",
+#'   password=rstudioapi::askForPassword(),
+#'   verbose = TRUE)
+#'
+#' # OR
 #' con <- ImapCon$new(
 #'   url="imaps://outlook.office365.com",
 #'   username="user@agency.gov.br",
@@ -13,11 +20,19 @@
 #'   verbose = TRUE)
 #'
 #' # w/ OAuth2.0 authentication
+#' con <- configure_imap(
+#'   url="imaps://outlook.office365.com",
+#'   username="user@agency.gov.br",
+#'   verbose = TRUE,
+#'   xoauth2_bearer = "XX.Ya9...")
+#'
+#' # OR
 #' con <- ImapCon$new(
 #'   url="imaps://outlook.office365.com",
 #'   username="user@agency.gov.br",
 #'   verbose = TRUE,
 #'   xoauth2_bearer = "XX.Ya9...")
+#'
 #' }
 #'
 #'
@@ -45,9 +60,8 @@ ImapCon <- R6::R6Class("ImapCon",
     #'   (or 512000 bytes), but any number passed to \code{buffersize} is treated
     #'   as a request, not an order.
     #' @param timeout_ms Time in milliseconds (ms) to wait for the execution or
-    #'   re-execution of a command. Default is 5000ms (or 5 seconds). If a first
-    #'   execution is unsuccessful, an error handler in each function (depending on
-    #'   the \code{retries} value), will try to reconnect or re-execute the command.
+    #'   re-execution of a command. Default is 0, which means that no timeout limit is
+    #'   set.
     #' @param ... Further curl parameters (see \code{curl::curl_options}) that
     #'   can be used with the IMAP protocol. Only for advanced users.
     #' @note \href{#method-new}{\code{ImapCon$new()}}: The \code{\link{configure_imap}}
@@ -60,22 +74,8 @@ ImapCon <- R6::R6Class("ImapCon",
                           use_ssl = TRUE,
                           verbose = FALSE,
                           buffersize = 16000,
-                          # fresh_connect = FALSE,
-                          timeout_ms = 5000,
+                          timeout_ms = 0,
                           ...) {
-
-      # self$con_params$url <- utils::URLencode(gsub("/+$", "", url))
-      #
-      # self$con_params$verbose <- verbose # so we can call Sys.sleep inside functions
-
-
-      # self$con_params$use_ssl = use_ssl
-      #
-      # self$con_params$verbose <- verbose
-      #
-      # self$con_params$buffersize <- buffersize
-      #
-      # self$con_params$timeout_ms <- timeout_ms
 
       out <- config_con_handle_and_params(url = url, username = username,
                                    password = password, xoauth2_bearer = xoauth2_bearer,
@@ -95,14 +95,17 @@ ImapCon <- R6::R6Class("ImapCon",
     },
     # R6 methods
 
-    ## RESET FUNCTIONS
+    ## RESET methods
 
     #' @description Reset the previously informed url
-    #' @param url A character string containing a new url to be set.
-    reset_url = function(url) {
+    #' @param x A character string containing a new url to be set.
+    reset_url = function(x) {
+
+      url = x
+
       assertthat::assert_that(
         is.character(url),
-        msg='Argument "url" must be a string, e.g. "imaps://imap.servername.com".')
+        msg='Argument "x" must be a string, e.g. "imaps://imap.servername.com".')
 
       url <- utils::URLencode(gsub("/+$", "", url))
       check_url <- grepl("^(imap|imaps)://\\w", url)
@@ -115,66 +118,84 @@ ImapCon <- R6::R6Class("ImapCon",
     },
 
     #' @description Reset the previously informed username
-    #' @param username A character string containing a new username to be set.
-    reset_username = function(username) {
+    #' @param x A character string containing a new username to be set.
+    reset_username = function(x) {
+
+      username = x
 
       modify_con_handle(self, username = username) # same strategy from check_args() to keep a named list
+      self$con_params$username <- username
 
     },
 
     #' @description Reset the previously informed use_ssl parameter
-    #' @param use_ssl A logical indicating the use or not of Secure Sockets Layer
+    #' @param x A logical indicating the use or not of Secure Sockets Layer
     #'   encryption when connecting to the IMAP server. Default is \code{TRUE}.
-    reset_ssl = function(use_ssl) {
+    reset_use_ssl = function(x) {
+
+      use_ssl = x
 
       modify_con_handle(self, use_ssl = use_ssl)
+      self$con_params$use_ssl <- use_ssl
 
     },
 
     #' @description Reset the previously informed verbose parameter
-    #' @param verbose If \code{FALSE}, mutes the flow of information between the
+    #' @param x If \code{FALSE}, mutes the flow of information between the
     #'   server and the client.
-    reset_verbose = function(verbose) {
+    reset_verbose = function(x) {
 
+      verbose = x
+
+      # verbose = to
       modify_con_handle(self, verbose = verbose)
+      self$con_params$verbose <- verbose
 
     },
 
     #' @description Reset the previously informed buffersize parameter
-    #' @param buffersize The size in bytes for the receive buffer. Default is
+    #' @param x The size in bytes for the receive buffer. Default is
     #'   16000 bytes or 16kb, which means it will use the libcurl's default value.
     #'   According to the libcurl's documentation, the maximum buffersize is 512kb
     #'   (or 512000 bytes), but any number passed to \code{buffersize} is treated
     #'   as a request, not an order.
-    reset_buffersize = function(buffersize) {
+    reset_buffersize = function(x) {
+
+      buffersize = x
 
       modify_con_handle(self, buffersize = buffersize)
+      self$con_params$buffersize <- buffersize
 
     },
 
     #' @description Reset the previously informed buffersize parameter
-    #' @param timeout_ms Time in milliseconds (ms) to wait for the execution or
-    #'   re-xecution of a command. Default is 5000ms (or 5 seconds). If a first
-    #'   execution is unsuccessful, an error handler in each function (depending on
-    #'   the \code{retries} value), will try to reconnect or re-execute the command.
-    reset_timeout_ms = function(timeout_ms) {
+    #' @param x Time in milliseconds (ms) to wait for the execution or
+    #'   re-execution of a command. Default is 0, which means that no timeout limit is
+    #'   set.
+    reset_timeout_ms = function(x) {
+
+      timeout_ms = x
 
       modify_con_handle(self, timeout_ms = timeout_ms)
+      self$con_params$timeout_ms <- timeout_ms
 
     },
 
     #' @description Reset the previously informed password
-    #' @param password A character string containing the user's password.
-    #' @param xoauth2_bearer A character string containing the oauth2 bearer token.
-    reset_password = function(password) {
+    #' @param x A character string containing the user's password.
+    reset_password = function(x) {
+
+      password = x
 
       modify_con_handle(self, password = password)
 
     },
 
     #' @description Reset the previously informed oauth2 bearer token
-    #' @param xoauth2_bearer A character string containing the oauth2 bearer token.
-    reset_xoauth2_bearer = function(xoauth2_bearer) {
+    #' @param x A character string containing the oauth2 bearer token.
+    reset_xoauth2_bearer = function(x) {
+
+      xoauth2_bearer = x
 
       modify_con_handle(self, xoauth2_bearer = xoauth2_bearer)
 
@@ -466,8 +487,8 @@ ImapCon <- R6::R6Class("ImapCon",
     ### search by date
     #' @description Search by internal date (BEFORE)
     #' @param date_char A \code{character string} with format "DD-Mon-YYYY", e.g.
-    #'   "01-Apr-2019". We opted for not to use \code{Date} or \code{POSIX*} like
-    #'   objects, since IMAP servers use this unusual date format.
+    #'   "01-Apr-2019". We opt not to use \code{Date} or \code{POSIX*} like
+    #'   objects, since IMAP servers use this uncommon date format.
     #' @param negate If \code{TRUE}, negates the search and seeks for "NOT SEARCH
     #'   CRITERION". Default is \code{FALSE}.
     #' @param use_uid Default is \code{FALSE}. In this case, results will be
@@ -509,9 +530,9 @@ ImapCon <- R6::R6Class("ImapCon",
 
     #' @description Search by internal date (SINCE)
     #' @param date_char A \code{character string} with format "DD-Mon-YYYY", e.g.
-    #'   "01-Apr-2019". We opted for not to use \code{Date} or \code{POSIX*} like
-    #'   objects, since IMAP servers use this unusual date format.
-    #'   \code{POSIX*} like objects, since IMAP servers use this unusual date format.
+    #'   "01-Apr-2019". We opt not to use \code{Date} or \code{POSIX*} like
+    #'   objects, since IMAP servers use this uncommon date format.
+    #'   \code{POSIX*} like objects, since IMAP servers use this uncommon date format.
     #'   \code{POSIX*} like, since IMAP servers like this not so common date format.
     #' @param negate If \code{TRUE}, negates the search and seeks for "NOT SEARCH
     #'   CRITERION". Default is \code{FALSE}.
@@ -554,8 +575,8 @@ ImapCon <- R6::R6Class("ImapCon",
 
     #' @description Search by internal date (ON)
     #' @param date_char A \code{character string} with format "DD-Mon-YYYY", e.g.
-    #'   "01-Apr-2019". We opted for not to use \code{Date} or \code{POSIX*} like
-    #'   objects, since IMAP servers use this unusual date format.
+    #'   "01-Apr-2019". We opt not to use \code{Date} or \code{POSIX*} like
+    #'   objects, since IMAP servers use this uncommon date format.
     #' @param negate If \code{TRUE}, negates the search and seeks for "NOT SEARCH
     #'   CRITERION". Default is \code{FALSE}.
     #' @param use_uid Default is \code{FALSE}. In this case, results will be
@@ -597,11 +618,11 @@ ImapCon <- R6::R6Class("ImapCon",
 
     #' @description Search by internal date (Period)
     #' @param since_date_char A \code{character string} with format "DD-Mon-YYYY", e.g.
-    #'   "01-Apr-2019". We opted for not to use \code{Date} or \code{POSIX*} like
-    #'   objects, since IMAP servers use this unusual date format.
+    #'   "01-Apr-2019". We opt not to use \code{Date} or \code{POSIX*} like
+    #'   objects, since IMAP servers use this uncommon date format.
     #' @param before_date_char A \code{character string} with format "DD-Mon-YYYY", e.g.
-    #'   "01-Apr-2019". We opted for not to use \code{Date} or \code{POSIX*} like
-    #'   objects, since IMAP servers use this unusual date format.
+    #'   "01-Apr-2019". We opt not to use \code{Date} or \code{POSIX*} like
+    #'   objects, since IMAP servers use this uncommon date format.
     #' @param negate If \code{TRUE}, negates the search and seeks for "NOT SEARCH
     #'   CRITERION". Default is \code{FALSE}.
     #' @param use_uid Default is \code{FALSE}. In this case, results will be
@@ -644,10 +665,10 @@ ImapCon <- R6::R6Class("ImapCon",
       return(out)
     },
 
-    #' @description Search by origination (RFC-2822 Header) date (SENT BEFORE)
+    #' @description Search by origination date  (RFC 2822 Header - SENT BEFORE)
     #' @param date_char A \code{character string} with format "DD-Mon-YYYY", e.g.
-    #'   "01-Apr-2019". We opted for not to use \code{Date} or \code{POSIX*} like
-    #'   objects, since IMAP servers use this unusual date format.
+    #'   "01-Apr-2019". We opt not to use \code{Date} or \code{POSIX*} like
+    #'   objects, since IMAP servers use this uncommon date format.
     #' @param negate If \code{TRUE}, negates the search and seeks for "NOT SEARCH
     #'   CRITERION". Default is \code{FALSE}.
     #' @param use_uid Default is \code{FALSE}. In this case, results will be
@@ -694,10 +715,10 @@ ImapCon <- R6::R6Class("ImapCon",
       return(out)
     },
 
-    #' @description Search by origination (RFC-2822 Header) date (SENT SINCE)
+    #' @description Search by origination date (RFC 2822 Header - SENT SINCE)
     #' @param date_char A \code{character string} with format "DD-Mon-YYYY", e.g.
-    #'   "01-Apr-2019". We opted for not to use \code{Date} or \code{POSIX*} like
-    #'   objects, since IMAP servers use this unusual date format.
+    #'   "01-Apr-2019". We opt not to use \code{Date} or \code{POSIX*} like
+    #'   objects, since IMAP servers use this uncommon date format.
     #' @param negate If \code{TRUE}, negates the search and seeks for "NOT SEARCH
     #'   CRITERION". Default is \code{FALSE}.
     #' @param use_uid Default is \code{FALSE}. In this case, results will be
@@ -744,10 +765,10 @@ ImapCon <- R6::R6Class("ImapCon",
       return(out)
     },
 
-    #' @description Search by origination (RFC-2822 Header) date (SENT ON)
+    #' @description Search by origination date (RFC 2822 Header - SENT ON)
     #' @param date_char A \code{character string} with format "DD-Mon-YYYY", e.g.
-    #'   "01-Apr-2019". We opted for not to use \code{Date} or \code{POSIX*} like
-    #'   objects, since IMAP servers use this unusual date format.
+    #'   "01-Apr-2019". We opt not to use \code{Date} or \code{POSIX*} like
+    #'   objects, since IMAP servers use this uncommon date format.
     #' @param negate If \code{TRUE}, negates the search and seeks for "NOT SEARCH
     #'   CRITERION". Default is \code{FALSE}.
     #' @param use_uid Default is \code{FALSE}. In this case, results will be
@@ -795,13 +816,13 @@ ImapCon <- R6::R6Class("ImapCon",
       return(out)
     },
 
-    #' @description Search by origination (RFC-2822 Header) date (SENT Period)
+    #' @description Search by origination date (RFC 2822 Header - SENT Period)
     #' @param since_date_char A \code{character string} with format "DD-Mon-YYYY", e.g.
-    #'   "01-Apr-2019". We opted for not to use \code{Date} or \code{POSIX*} like
-    #'   objects, since IMAP servers use this unusual date format.
+    #'   "01-Apr-2019". We opt not to use \code{Date} or \code{POSIX*} like
+    #'   objects, since IMAP servers use this uncommon date format.
     #' @param before_date_char A \code{character string} with format "DD-Mon-YYYY", e.g.
-    #'   "01-Apr-2019". We opted for not to use \code{Date} or \code{POSIX*} like
-    #'   objects, since IMAP servers use this unusual date format.
+    #'   "01-Apr-2019". We opt not to use \code{Date} or \code{POSIX*} like
+    #'   objects, since IMAP servers use this uncommon date format.
     #' @param negate If \code{TRUE}, negates the search and seeks for "NOT SEARCH
     #'   CRITERION". Default is \code{FALSE}.
     #' @param use_uid Default is \code{FALSE}. In this case, results will be
@@ -1050,6 +1071,8 @@ ImapCon <- R6::R6Class("ImapCon",
     #'   sequence numbers are reordered to fill the gap. If \code{TRUE}, the
     #'   command will be performed using the \code{"UID"} or unique identifier.
     #'   UIDs are always the same during the life cycle of a message in a mail folder.
+    #' @param mime_level An \code{integer} specifying MIME multipart to fetch from
+    #'   the message's body. Default is \code{NULL}, which retrieves the full body content.
     #' @param peek If \code{TRUE}, it does not mark messages as "read" after
     #'   fetching. Default is \code{TRUE}.
     #' @param partial \code{NULL} or a character string with format
@@ -1062,9 +1085,9 @@ ImapCon <- R6::R6Class("ImapCon",
     #'   the operation is being performed with \code{write_to_disk = TRUE}. Default
     #'   is \code{FALSE}, and it can only be set \code{TRUE} when
     #'   \code{write_to_disk = TRUE}.
-    #' @param mute A \code{logical}. It is only effective when \code{write_to_disk = TRUE}
-    #'   and \code{keep_in_mem = FALSE}. It Provides a confirmation message if the
-    #'   command is successfully executed. Default is \code{FALSE}.
+    #' @param mute A \code{logical}. It provides a confirmation message if the
+    #'   command is successfully executed. It is only effective when \code{write_to_disk = TRUE}
+    #'   and \code{keep_in_mem = FALSE}. Default is \code{FALSE}.
     #' @param retries Number of attempts to connect and execute the command. Default
     #'   is \code{1}.
     #' @return A \code{list} with the fetch contents or a logical if
@@ -1083,10 +1106,10 @@ ImapCon <- R6::R6Class("ImapCon",
     #' con$fetch_body(msg = res, write_to_disk = TRUE, keep_in_mem = FALSE)
     #'
     #' }
-    fetch_body = function(msg_id, use_uid = FALSE, peek = TRUE,
+    fetch_body = function(msg_id, use_uid = FALSE, mime_level = NULL, peek = TRUE,
                           partial = NULL, write_to_disk = FALSE,
                           keep_in_mem = TRUE, mute = FALSE, retries = 1) {
-      out <- fetch_body_int(self, msg_id, use_uid, peek, partial, write_to_disk,
+      out <- fetch_body_int(self, msg_id, use_uid, mime_level, peek, partial, write_to_disk,
                             keep_in_mem, mute, retries)
 
       if (isTRUE(write_to_disk)) {
@@ -1123,9 +1146,9 @@ ImapCon <- R6::R6Class("ImapCon",
     #'   the operation is being performed with \code{write_to_disk = TRUE}. Default
     #'   is \code{FALSE}, and it can only be set \code{TRUE} when
     #'   \code{write_to_disk = TRUE}.
-    #' @param mute A \code{logical}. It is only effective when \code{write_to_disk = TRUE}
-    #'   and \code{keep_in_mem = FALSE}. It Provides a confirmation message if the
-    #'   command is successfully executed. Default is \code{FALSE}.
+    #' @param mute A \code{logical}. It provides a confirmation message if the
+    #'   command is successfully executed. It is only effective when \code{write_to_disk = TRUE}
+    #'   and \code{keep_in_mem = FALSE}. Default is \code{FALSE}.
     #' @param retries Number of attempts to connect and execute the command. Default
     #'   is \code{1}.
     #' @return A \code{list} with the fetch contents or a logical if
@@ -1167,8 +1190,8 @@ ImapCon <- R6::R6Class("ImapCon",
     #'   sequence numbers are reordered to fill the gap. If \code{TRUE}, the
     #'   command will be performed using the \code{"UID"} or unique identifier.
     #'   UIDs are always the same during the life cycle of a message in a mail folder.
-    #' @param metadata An optional \code{character vector} specifying one or more
-    #'   items of the metadata of a message to fetch. See \link{metadata_options}.
+    #' @param attribute An optional \code{character vector} specifying one or more
+    #'   attributes of the metadata of a message to fetch. See \link{metadata_options}.
     #' @param peek If \code{TRUE}, it does not mark messages as "read" after
     #'   fetching. Default is \code{TRUE}.
     #' @param partial \code{NULL} or a character string with format
@@ -1181,9 +1204,9 @@ ImapCon <- R6::R6Class("ImapCon",
     #'   the operation is being performed with \code{write_to_disk = TRUE}. Default
     #'   is \code{FALSE}, and it can only be set \code{TRUE} when
     #'   \code{write_to_disk = TRUE}.
-    #' @param mute A \code{logical}. It is only effective when \code{write_to_disk = TRUE}
-    #'   and \code{keep_in_mem = FALSE}. It Provides a confirmation message if the
-    #'   command is successfully executed. Default is \code{FALSE}.
+    #' @param mute A \code{logical}. It provides a confirmation message if the
+    #'   command is successfully executed. It is only effective when \code{write_to_disk = TRUE}
+    #'   and \code{keep_in_mem = FALSE}. Default is \code{FALSE}.
     #' @param retries Number of attempts to connect and execute the command. Default
     #'   is \code{1}.
     #' @return A \code{list} with the fetch contents or a logical if
@@ -1201,10 +1224,10 @@ ImapCon <- R6::R6Class("ImapCon",
     #' out <- con$fetch_metadata(msg = res)
     #'
     #' }
-    fetch_metadata = function(msg_id, use_uid = FALSE, metadata = NULL,
+    fetch_metadata = function(msg_id, use_uid = FALSE, attribute = NULL,
                               write_to_disk = FALSE, keep_in_mem = TRUE,
                               mute = FALSE, retries = 1) {
-      out <- fetch_metadata_int(self, msg_id, use_uid, metadata, write_to_disk,
+      out <- fetch_metadata_int(self, msg_id, use_uid, attribute, write_to_disk,
                                 keep_in_mem, mute, retries)
 
       if (isTRUE(write_to_disk)) {
@@ -1236,9 +1259,9 @@ ImapCon <- R6::R6Class("ImapCon",
     #'   the operation is being performed with \code{write_to_disk = TRUE}. Default
     #'   is \code{FALSE}, and it can only be set \code{TRUE} when
     #'   \code{write_to_disk = TRUE}.
-    #' @param mute A \code{logical}. It is only effective when \code{write_to_disk = TRUE}
-    #'   and \code{keep_in_mem = FALSE}. It Provides a confirmation message if the
-    #'   command is successfully executed. Default is \code{FALSE}.
+    #' @param mute A \code{logical}. It provides a confirmation message if the
+    #'   command is successfully executed. It is only effective when \code{write_to_disk = TRUE}
+    #'   and \code{keep_in_mem = FALSE}. Default is \code{FALSE}.
     #' @param base64_decode If \code{TRUE}, tries to guess and decode the fetched
     #'   text from base64 format to \code{character}. Default is \code{FALSE}.
     #' @param retries Number of attempts to connect and execute the command. Default
@@ -1430,7 +1453,7 @@ ImapCon <- R6::R6Class("ImapCon",
     },
 
 
-    #' @description Expunge the selected mail folder or specific message(s) (by UID)
+    #' @description Permanently removes all or specific messages marked as deleted from the selected folder
     #' @param msg_uid A \code{numeric vector} containing one or more messages UIDs.
     #'   Only UIDs are allowed in this operation (note the "u" in msg_\emph{u}id).
     #' @param mute A \code{logical}. If \code{TRUE}, mutes the confirmation message
@@ -1539,7 +1562,7 @@ ImapCon <- R6::R6Class("ImapCon",
     #'   Default is \code{1}.
     #' @note \href{#method-add_flags}{\code{ImapCon$add_flags()}}: Unlike the
     #'   search operations, the add/replace/delete flags operations
-    #'   demand that system flags' names be preceded by two backslashes \code{"\\\\"}.
+    #'   demand system flag names to be preceded by two backslashes \code{"\\\\"}.
     #' @note \href{#method-add_flags}{\code{ImapCon$add_flags()}}: \code{add_flags},
     #'   \code{remove_flags}, and \code{replace_flags} accept not only flags but
     #'   also keywords (any word not beginning with two backslashes) which are
@@ -1580,7 +1603,7 @@ ImapCon <- R6::R6Class("ImapCon",
     #'   Default is \code{1}.
     #' @note \href{#method-replace_flags}{\code{ImapCon$replace_flags()}}: Unlike the
     #'   search operations, the add/replace/delete flags operations
-    #'   demand that system-flags names be preceded by two backslashes \code{"\\\\"}.
+    #'   demand system flag names to be preceded by two backslashes \code{"\\\\"}.
     #' @note \href{#method-replace_flags}{\code{ImapCon$replace_flags()}}: \code{add_flags},
     #'   \code{remove_flags}, and \code{replace_flags} accept not only flags but
     #'   also keywords (any word not beginning with two backslashes) which are
@@ -1622,7 +1645,7 @@ ImapCon <- R6::R6Class("ImapCon",
     #'   Default is \code{1}.
     #' @note \href{#method-remove_flags}{\code{ImapCon$remove_flags()}}: Unlike the
     #'   search operations, the add/replace/delete flags operations
-    #'   demand that system-flags names be preceded by two backslashes \code{"\\\\"}.
+    #'   demand system flag names to be preceded by two backslashes \code{"\\\\"}.
     #' @note \href{#method-remove_flags}{\code{ImapCon$remove_flags()}}: \code{add_flags},
     #'   \code{remove_flags}, and \code{replace_flags} accept not only flags but
     #'   also keywords (any word not beginning with two backslashes) which are

@@ -171,7 +171,7 @@
 ## ---- message = FALSE, eval=FALSE---------------------------------------------
 #  con$select_folder(name = "K-State")
 #  
-#  con$search_string(expr = "hadley@rstudio.com", where = "TO")
+#  con$search_string(expr = "xpto@k-state.com", where = "TO")
 #  
 
 ## ---- message = FALSE, eval=FALSE---------------------------------------------

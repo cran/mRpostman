@@ -369,7 +369,7 @@ Searching in the "TO" header field:
 ```{r, message = FALSE, eval=FALSE}
 con$select_folder(name = "K-State")
 
-con$search_string(expr = "hadley@rstudio.com", where = "TO")
+con$search_string(expr = "xpto@k-state.com", where = "TO")
 
 ```
 
@@ -526,7 +526,7 @@ Since the goal here is to write the fetch results to disk, it is recommended tha
 
 Our local folder will be populated with the `.txt` files of the fetched messages:
 
-![](figures/basics/fetch_body.png){width=90%}
+![](figures/basics/fetch-body.png){width=80%}
 
 ### 6.2) Fetch header
 
@@ -607,7 +607,7 @@ In both examples, the whole message body(ies) or text will be saved to the disk,
 
 #### 7.1.2) Extracting Attachments
 
-`get_attachments()` will try to decode base64 text inside your message to the appropriate file extension. This will create a folder with the inside the structure `working directory > imap.server.name > mail folder > msg_id`. The attachment(s) will be inside their respective message folder.
+`get_attachments()` will try to decode base64 text inside your message to the appropriate file extension. This will create a folder with the inside the structure `working directory > username > mail folder > msg_id`. The attachment(s) will be inside their respective message folder.
 
 
 ```{r, message = FALSE, eval = FALSE}
@@ -626,8 +626,8 @@ con$search_since(date_char = "23-Sep-2019") %>%
 
 The results in your local folder will be like this:
 
-![](figures/basics/get-fetch_attachments1.png){width=90%}
-![](figures/basics/get-fetch_attachments2.png){width=90%}
+![](figures/basics/attach1.png){width=80%}
+![](figures/basics/attach2.png){width=80%}
 
 ### 7.2) Direct attachment fetch operations
 
@@ -790,17 +790,17 @@ con$search_on(date_char = "07-Sep-2020") %>%
 
 Babcock, N. (2016), _Introduction to IMAP_, Blog, May 2016, https://nbsoftsolutions.com/blog/introduction-to-imap.
 
-Crispin, M. (2003), _INTERNET MESSAGE ACCESS PROTOCOL - VERSION 4rev1_, RFC 3501, March 2003, https://tools.ietf.org/html/rfc3501.
+Crispin, M. (2003), _INTERNET MESSAGE ACCESS PROTOCOL - VERSION 4rev1_, RFC 3501, March 2003, https://www.rfc-editor.org/rfc/rfc3501.
 
-Freed, N. and Borenstein, N. (1996), _Multipurpose Internet Mail Extensions (MIME) Part Two: Media Types_, RFC 2046, November 1996, https://tools.ietf.org/html/rfc2046.
+Freed, N. and Borenstein, N. (1996), _Multipurpose Internet Mail Extensions (MIME) Part Two: Media Types_, RFC 2046, November 1996, https://www.rfc-editor.org/rfc/rfc2046.
 
 Gungor, A. (2018), _Using IMAP Internal Date for Forensic Email Authentication_, Articles, Forensic Focus, https://www.forensicfocus.com/articles/using-imap-internal-date-for-forensic-email-authentication/
 
 Heinlein, P. and Hartleben, P. (2008). _The Book of IMAP: Building a Mail Server with Courier and Cyrus_. No Starch Press. ISBN 978-1-59327-177-0.
 
-Resnick, P. (2001), _Internet Message Format_, RFC 2822, April 2001, https://tools.ietf.org/html/rfc2822.
+Resnick, P. (2001), _Internet Message Format_, RFC 2822, April 2001, https://www.rfc-editor.org/rfc/rfc2822.
 
-Resnick, P. (2008), _Internet Message Format_, RFC 5322, October 2008, https://tools.ietf.org/html/rfc5322.
+Resnick, P. (2008), _Internet Message Format_, RFC 5322, October 2008, https://www.rfc-editor.org/rfc/rfc5322.
 
 Ooms, J. (2020), _curl: A Modern and Flexible Web Client for R_. R package version 4.3, https://CRAN.R-project.org/package=curl
 

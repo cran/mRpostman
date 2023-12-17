@@ -14,25 +14,38 @@
 
 <title>mRpostman basics</title>
 
-<script src="data:application/javascript;base64,Ly8gUGFuZG9jIDIuOSBhZGRzIGF0dHJpYnV0ZXMgb24gYm90aCBoZWFkZXIgYW5kIGRpdi4gV2UgcmVtb3ZlIHRoZSBmb3JtZXIgKHRvCi8vIGJlIGNvbXBhdGlibGUgd2l0aCB0aGUgYmVoYXZpb3Igb2YgUGFuZG9jIDwgMi44KS4KZG9jdW1lbnQuYWRkRXZlbnRMaXN0ZW5lcignRE9NQ29udGVudExvYWRlZCcsIGZ1bmN0aW9uKGUpIHsKICB2YXIgaHMgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yQWxsKCJkaXYuc2VjdGlvbltjbGFzcyo9J2xldmVsJ10gPiA6Zmlyc3QtY2hpbGQiKTsKICB2YXIgaSwgaCwgYTsKICBmb3IgKGkgPSAwOyBpIDwgaHMubGVuZ3RoOyBpKyspIHsKICAgIGggPSBoc1tpXTsKICAgIGlmICghL15oWzEtNl0kL2kudGVzdChoLnRhZ05hbWUpKSBjb250aW51ZTsgIC8vIGl0IHNob3VsZCBiZSBhIGhlYWRlciBoMS1oNgogICAgYSA9IGguYXR0cmlidXRlczsKICAgIHdoaWxlIChhLmxlbmd0aCA+IDApIGgucmVtb3ZlQXR0cmlidXRlKGFbMF0ubmFtZSk7CiAgfQp9KTsK"></script>
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
 
 <style type="text/css">
-  code{white-space: pre-wrap;}
-  span.smallcaps{font-variant: small-caps;}
-  span.underline{text-decoration: underline;}
-  div.column{display: inline-block; vertical-align: top; width: 50%;}
-  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-  ul.task-list{list-style: none;}
-    </style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
 
 
 <style type="text/css">
-  code {
-    white-space: pre;
-  }
-  .sourceCode {
-    overflow: visible;
-  }
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
 </style>
 <style type="text/css" data-origin="pandoc">
 pre > code.sourceCode { white-space: pre; position: relative; }
@@ -50,55 +63,54 @@ pre > code.sourceCode { white-space: pre-wrap; }
 pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
-  { counter-reset: source-line 0; }
+{ counter-reset: source-line 0; }
 pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
+{ position: relative; left: -4em; counter-increment: source-line; }
 pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-    color: #aaaaaa;
-  }
-pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
 div.sourceCode
-  {   }
+{ }
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-code span.al { color: #ff0000; font-weight: bold; } /* Alert */
-code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
-code span.at { color: #7d9029; } /* Attribute */
-code span.bn { color: #40a070; } /* BaseN */
-code span.bu { } /* BuiltIn */
-code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
-code span.ch { color: #4070a0; } /* Char */
-code span.cn { color: #880000; } /* Constant */
-code span.co { color: #60a0b0; font-style: italic; } /* Comment */
-code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
-code span.do { color: #ba2121; font-style: italic; } /* Documentation */
-code span.dt { color: #902000; } /* DataType */
-code span.dv { color: #40a070; } /* DecVal */
-code span.er { color: #ff0000; font-weight: bold; } /* Error */
-code span.ex { } /* Extension */
-code span.fl { color: #40a070; } /* Float */
-code span.fu { color: #06287e; } /* Function */
-code span.im { } /* Import */
-code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
-code span.kw { color: #007020; font-weight: bold; } /* Keyword */
-code span.op { color: #666666; } /* Operator */
-code span.ot { color: #007020; } /* Other */
-code span.pp { color: #bc7a00; } /* Preprocessor */
-code span.sc { color: #4070a0; } /* SpecialChar */
-code span.ss { color: #bb6688; } /* SpecialString */
-code span.st { color: #4070a0; } /* String */
-code span.va { color: #19177c; } /* Variable */
-code span.vs { color: #4070a0; } /* VerbatimString */
-code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
-
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
 </style>
 <script>
 // apply pandoc div.sourceCode style to pre.sourceCode instead
@@ -107,13 +119,20 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   for (var i = 0; i < sheets.length; i++) {
     if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
     try { var rules = sheets[i].cssRules; } catch (e) { continue; }
-    for (var j = 0; j < rules.length; j++) {
+    var j = 0;
+    while (j < rules.length) {
       var rule = rules[j];
       // check if there is a div.sourceCode rule
-      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
       var style = rule.style.cssText;
       // check if color or background-color is set
-      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
       // replace div.sourceCode by a pre.sourceCode rule
       sheets[i].deleteRule(j);
       sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
@@ -125,7 +144,187 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 
 
-<link rel="stylesheet" href="data:text/css,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" type="text/css" />
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
 
 
 
@@ -142,100 +341,190 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 <div id="TOC">
 <ul>
-<li><a href="#introduction">Introduction</a></li>
-<li><a href="#authentication">Authentication</a>
+<li><a href="#introduction" id="toc-introduction">Introduction</a></li>
+<li><a href="#authentication" id="toc-authentication">Authentication</a>
 <ul>
-<li><a href="#allowing-less-secure-apps-access">Allowing less secure apps access</a></li>
+<li><a href="#allowing-less-secure-apps-access" id="toc-allowing-less-secure-apps-access">Allowing less secure apps
+access</a></li>
 </ul></li>
-<li><a href="#package-structure">Package Structure</a></li>
-<li><a href="#how-do-i-start-connection-configuration">1) How do I start? (Connection configuration)</a></li>
-<li><a href="#server-capabilities">2) Server capabilities</a></li>
-<li><a href="#mailbox-commands">3) Mailbox commands</a>
+<li><a href="#package-structure" id="toc-package-structure">Package
+Structure</a></li>
+<li><a href="#how-do-i-start-connection-configuration" id="toc-how-do-i-start-connection-configuration">1) How do I start?
+(Connection configuration)</a></li>
+<li><a href="#server-capabilities" id="toc-server-capabilities">2)
+Server capabilities</a></li>
+<li><a href="#mailbox-commands" id="toc-mailbox-commands">3) Mailbox
+commands</a>
 <ul>
-<li><a href="#listing-folders">3.1) Listing folders</a></li>
-<li><a href="#creating-a-new-folder">3.2) Creating a new folder</a></li>
-<li><a href="#selecting-a-folder">3.3) Selecting a folder</a></li>
-<li><a href="#examining-a-folder">3.4) Examining a folder</a></li>
-<li><a href="#renaming-a-folder">3.5) Renaming a folder</a></li>
-<li><a href="#flags-listing">3.6) Flags listing</a></li>
+<li><a href="#listing-folders" id="toc-listing-folders">3.1) Listing
+folders</a></li>
+<li><a href="#creating-a-new-folder" id="toc-creating-a-new-folder">3.2)
+Creating a new folder</a></li>
+<li><a href="#selecting-a-folder" id="toc-selecting-a-folder">3.3)
+Selecting a folder</a></li>
+<li><a href="#examining-a-folder" id="toc-examining-a-folder">3.4)
+Examining a folder</a></li>
+<li><a href="#renaming-a-folder" id="toc-renaming-a-folder">3.5)
+Renaming a folder</a></li>
+<li><a href="#flags-listing" id="toc-flags-listing">3.6) Flags
+listing</a></li>
 </ul></li>
-<li><a href="#single-search">4) Single-search</a>
+<li><a href="#single-search" id="toc-single-search">4) Single-search</a>
 <ul>
-<li><a href="#search-by-date">4.1) Search by date</a></li>
-<li><a href="#search-by-string">4.2) Search by string</a></li>
-<li><a href="#search-by-flag">4.3) Search by flag</a></li>
-<li><a href="#search-by-size">4.4) Search by size</a></li>
-<li><a href="#search-by-within-extension">4.5) Search by within extension</a></li>
+<li><a href="#search-by-date" id="toc-search-by-date">4.1) Search by
+date</a></li>
+<li><a href="#search-by-string" id="toc-search-by-string">4.2) Search by
+string</a></li>
+<li><a href="#search-by-flag" id="toc-search-by-flag">4.3) Search by
+flag</a></li>
+<li><a href="#search-by-size" id="toc-search-by-size">4.4) Search by
+size</a></li>
+<li><a href="#search-by-within-extension" id="toc-search-by-within-extension">4.5) Search by within
+extension</a></li>
 </ul></li>
-<li><a href="#custom-search">5) Custom-search</a></li>
-<li><a href="#fetch">6) Fetch</a>
+<li><a href="#custom-search" id="toc-custom-search">5)
+Custom-search</a></li>
+<li><a href="#fetch" id="toc-fetch">6) Fetch</a>
 <ul>
-<li><a href="#fetch-body">6.1) Fetch body</a></li>
-<li><a href="#fetch-header">6.2) Fetch header</a></li>
-<li><a href="#fetch-text">6.3) Fetch text</a></li>
-<li><a href="#fetch-metadata">6.4) Fetch metadata</a></li>
+<li><a href="#fetch-body" id="toc-fetch-body">6.1) Fetch body</a></li>
+<li><a href="#fetch-header" id="toc-fetch-header">6.2) Fetch
+header</a></li>
+<li><a href="#fetch-text" id="toc-fetch-text">6.3) Fetch text</a></li>
+<li><a href="#fetch-metadata" id="toc-fetch-metadata">6.4) Fetch
+metadata</a></li>
 </ul></li>
-<li><a href="#attachments">7) Attachments</a>
+<li><a href="#attachments" id="toc-attachments">7) Attachments</a>
 <ul>
-<li><a href="#dependent-attachment-operations">7.1) Dependent attachment operations</a></li>
-<li><a href="#direct-attachment-fetch-operations">7.2) Direct attachment fetch operations</a></li>
+<li><a href="#dependent-attachment-operations" id="toc-dependent-attachment-operations">7.1) Dependent attachment
+operations</a></li>
+<li><a href="#direct-attachment-fetch-operations" id="toc-direct-attachment-fetch-operations">7.2) Direct attachment fetch
+operations</a></li>
 </ul></li>
-<li><a href="#complementary-operations">8) Complementary operations</a>
+<li><a href="#complementary-operations" id="toc-complementary-operations">8) Complementary operations</a>
 <ul>
-<li><a href="#copy-messages">8.1) Copy message(s)</a></li>
-<li><a href="#get-minimum-message-id">8.2) Get minimum message id</a></li>
-<li><a href="#get-maximum-message-id">8.3) Get maximum message id</a></li>
-<li><a href="#count-messages">8.4) Count messages</a></li>
-<li><a href="#delete-messages">8.5) Delete message(s)</a></li>
-<li><a href="#expunge">8.6) Expunge</a></li>
-<li><a href="#addremovereplace-flags">8.7) Add/Remove/Replace flags</a></li>
-<li><a href="#move-messages">8.8) Move message(s)</a></li>
+<li><a href="#copy-messages" id="toc-copy-messages">8.1) Copy
+message(s)</a></li>
+<li><a href="#get-minimum-message-id" id="toc-get-minimum-message-id">8.2) Get minimum message id</a></li>
+<li><a href="#get-maximum-message-id" id="toc-get-maximum-message-id">8.3) Get maximum message id</a></li>
+<li><a href="#count-messages" id="toc-count-messages">8.4) Count
+messages</a></li>
+<li><a href="#delete-messages" id="toc-delete-messages">8.5) Delete
+message(s)</a></li>
+<li><a href="#expunge" id="toc-expunge">8.6) Expunge</a></li>
+<li><a href="#addremovereplace-flags" id="toc-addremovereplace-flags">8.7) Add/Remove/Replace flags</a></li>
+<li><a href="#move-messages" id="toc-move-messages">8.8) Move
+message(s)</a></li>
 </ul></li>
-<li><a href="#references">References</a></li>
+<li><a href="#references" id="toc-references">References</a></li>
 </ul>
 </div>
 
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
-<p><code>mRpostman</code> is an easy-to-use IMAP client that provides tools for message searching, selective fetching of message attributes, mailbox management, attachment extraction, and several other IMAP features, paving the way for email data analysis in R. To do so, this package makes extensive use of the {curl} package and the libcurl C library.</p>
-<p>In this vignette, we present all available methods and functions of this package, but not all the possibilities one can explore.</p>
+<p><code>mRpostman</code> is an easy-to-use IMAP client that provides
+tools for message searching, selective fetching of message attributes,
+mailbox management, attachment extraction, and several other IMAP
+features, paving the way for email data analysis in R. To do so, this
+package makes extensive use of the {curl} package and the libcurl C
+library.</p>
+<p>In this vignette, we present all available methods and functions of
+this package, but not all the possibilities one can explore.</p>
 <p><strong>IMPORTANT</strong>:</p>
 <ol style="list-style-type: decimal">
-<li><p>In version <code>0.9.0.0</code>, <code>mRpostman</code> went trough substantial changes, including ones that have no backward compatibility with versions <code>&lt;= 0.3.1</code>. A detailed vignette on how to migrate your mRpostman’s deprecated code to the new syntax is available at <a href="https://allanvc.github.io/mRpostman/articles/code_migration.html"><em>“Migrating old code to the new mRpostman’s syntax”</em></a>.</p></li>
-<li><p>Old versions of the libcurl C library ({curl}’s main engine) will cause malfunctioning of this package. If your libcurl’s version is above 7.58.0, you should be fine. If you intend to use OAuth 2.0 authentication, then you will need libcurl &gt;= 7.65.0. To know more about the OAuth 2.0 authentication in this package, refer to the <a href="https://allanvc.github.io/mRpostman/articles/xoauth2.0.html"><em>“Using IMAP OAuth2.0 authentication in mRpostman”</em></a> vignette.</p></li>
+<li><p>In version <code>0.9.0.0</code>, <code>mRpostman</code> went
+trough substantial changes, including ones that have no backward
+compatibility with versions <code>&lt;= 0.3.1</code>. A detailed
+vignette on how to migrate your mRpostman’s deprecated code to the new
+syntax is available at <a href="https://allanvc.github.io/mRpostman/articles/code_migration.html"><em>“Migrating
+old code to the new mRpostman’s syntax”</em></a>.</p></li>
+<li><p>Old versions of the libcurl C library ({curl}’s main engine) will
+cause malfunctioning of this package. If your libcurl’s version is above
+7.58.0, you should be fine. If you intend to use OAuth 2.0
+authentication, then you will need libcurl &gt;= 7.65.0. To know more
+about the OAuth 2.0 authentication in this package, refer to the <a href="https://allanvc.github.io/mRpostman/articles/xoauth2.0.html"><em>“Using
+IMAP OAuth2.0 authentication in mRpostman”</em></a> vignette.</p></li>
 </ol>
 </div>
 <div id="authentication" class="section level2">
 <h2>Authentication</h2>
-<p>There are two ways of connecting to your IMAP server: using plain or OAuth2.0 authentication. In this vignette, we only describe the plain authentication process. If you want to use OAuth2.0 authentication, please read the aforementioned vignette.</p>
+<p>There are two ways of connecting to your IMAP server: using plain or
+OAuth2.0 authentication. In this vignette, we only describe the plain
+authentication process. If you want to use OAuth2.0 authentication,
+please read the aforementioned vignette.</p>
 <div id="allowing-less-secure-apps-access" class="section level3">
 <h3>Allowing less secure apps access</h3>
-<p>When using plain authentication, most of the mail providers will require the user to enable <strong>less secure apps</strong> access. Once it is done, you will be able to access your mailbox using a “third party app” as <code>mRpostman</code>.</p>
-<p>See the <strong>README.md</strong> for more details on how to allow less secure apps access in some of the most known mail providers.</p>
-<p>If you are using Outlook - Office 365, there’s no need to make any external configuration.</p>
+<p>When using plain authentication, most of the mail providers will
+require the user to enable <strong>less secure apps</strong> access.
+Once it is done, you will be able to access your mailbox using a “third
+party app” as <code>mRpostman</code>.</p>
+<p>See the <strong>README.md</strong> for more details on how to allow
+less secure apps access in some of the most known mail providers.</p>
+<p>If you are using Outlook - Office 365, there’s no need to make any
+external configuration.</p>
 </div>
 </div>
 <div id="package-structure" class="section level2">
 <h2>Package Structure</h2>
-<p>The package is now implemented under a OO framework, using an R6 class. The main functionalities of <code>mRpostman</code> are implemented as methods of the R6 class called <code>ImapCon</code>. There are also a few independent functions. All methods and functions are described below:</p>
+<p>The package is now implemented under a OO framework, using an R6
+class. The main functionalities of <code>mRpostman</code> are
+implemented as methods of the R6 class called <code>ImapCon</code>.
+There are also a few independent functions. All methods and functions
+are described below:</p>
 <ul>
-<li><strong>configuration methods</strong>: <code>configure_imap()</code>, <code>reset_url()</code>, <code>reset_username()</code>, <code>reset_password()</code>, <code>reset_verbose()</code>, <code>reset_buffersize()</code>, <code>reset_timeout_ms()</code>, <code>reset_xoauth2_bearer()</code>;</li>
-<li><strong>server-capabilities method</strong>: <code>list_server_capabilities()</code>;</li>
-<li><strong>mailbox-operations methods</strong>: <code>list_mail_folders()</code>, <code>select_folder()</code>, <code>examine_folder()</code>, <code>rename_folder()</code>, <code>create_folder()</code>, <code>list_flags()</code>;</li>
-<li><strong>single-search methods</strong>: <code>search_before()</code>, <code>search_since()</code>, <code>search_period()</code>, <code>search_on()</code>, <code>search_sent_before()</code>,<code>search_sent_since()</code>, <code>search_sent_period()</code>, <code>search_sent_on()</code>, <code>search_string()</code>, <code>search_flag()</code>, <code>search_smaller_than()</code>, <code>search_larger_than()</code>, <code>search_younger_than()</code>, <code>search_older_than()</code>;</li>
-<li><strong>the custom-search method and its helper functions</strong>: <code>search()</code>;
+<li><strong>configuration methods</strong>:
+<code>configure_imap()</code>, <code>reset_url()</code>,
+<code>reset_username()</code>, <code>reset_password()</code>,
+<code>reset_verbose()</code>, <code>reset_buffersize()</code>,
+<code>reset_timeout_ms()</code>,
+<code>reset_xoauth2_bearer()</code>;</li>
+<li><strong>server-capabilities method</strong>:
+<code>list_server_capabilities()</code>;</li>
+<li><strong>mailbox-operations methods</strong>:
+<code>list_mail_folders()</code>, <code>select_folder()</code>,
+<code>examine_folder()</code>, <code>rename_folder()</code>,
+<code>create_folder()</code>, <code>list_flags()</code>;</li>
+<li><strong>single-search methods</strong>:
+<code>search_before()</code>, <code>search_since()</code>,
+<code>search_period()</code>, <code>search_on()</code>,
+<code>search_sent_before()</code>,<code>search_sent_since()</code>,
+<code>search_sent_period()</code>, <code>search_sent_on()</code>,
+<code>search_string()</code>, <code>search_flag()</code>,
+<code>search_smaller_than()</code>, <code>search_larger_than()</code>,
+<code>search_younger_than()</code>,
+<code>search_older_than()</code>;</li>
+<li><strong>the custom-search method and its helper functions</strong>:
+<code>search()</code>;
 <ul>
-<li>relational operators functions: <code>AND()</code>, <code>OR()</code>;</li>
-<li>criteria definition functions: <code>before()</code>, <code>since()</code>, <code>on()</code>, <code>sent_before()</code>, <code>sent_since()</code>, <code>sent_on()</code>, <code>string()</code>, <code>flag()</code>, <code>smaller_than()</code>, <code>larger_than()</code>, <code>younger_than()</code>, <code>older_than()</code>;</li>
+<li>relational operators functions: <code>AND()</code>,
+<code>OR()</code>;</li>
+<li>criteria definition functions: <code>before()</code>,
+<code>since()</code>, <code>on()</code>, <code>sent_before()</code>,
+<code>sent_since()</code>, <code>sent_on()</code>,
+<code>string()</code>, <code>flag()</code>, <code>smaller_than()</code>,
+<code>larger_than()</code>, <code>younger_than()</code>,
+<code>older_than()</code>;</li>
 </ul></li>
-<li><strong>fetch methods</strong>: <code>fetch_body()</code>, <code>fetch_header()</code>, <code>fetch_text()</code>, <code>fetch_metadata()</code>, <code>fetch_attachments_list()</code>, <code>fetch_attachments()</code>;</li>
-<li><strong>attachments methods</strong>: <code>list_attachments()</code>, <code>get_attachments()</code>, <code>fetch_attachments_list()</code>, <code>fetch_attachments()</code>;</li>
-<li><strong>complementary methods</strong>: <code>copy_msg()</code>, <code>move_msg()</code>, <code>esearch_min_id()</code>, <code>esearch_max_id()</code>, <code>esearch_count_msg()</code>, <code>delete_msg()</code>, <code>expunge()</code>, <code>add_flags()</code>, <code>remove_flags()</code>, <code>replace_flags()</code>.</li>
+<li><strong>fetch methods</strong>: <code>fetch_body()</code>,
+<code>fetch_header()</code>, <code>fetch_text()</code>,
+<code>fetch_metadata()</code>, <code>fetch_attachments_list()</code>,
+<code>fetch_attachments()</code>;</li>
+<li><strong>attachments methods</strong>:
+<code>list_attachments()</code>, <code>get_attachments()</code>,
+<code>fetch_attachments_list()</code>,
+<code>fetch_attachments()</code>;</li>
+<li><strong>complementary methods</strong>: <code>copy_msg()</code>,
+<code>move_msg()</code>, <code>esearch_min_id()</code>,
+<code>esearch_max_id()</code>, <code>esearch_count_msg()</code>,
+<code>delete_msg()</code>, <code>expunge()</code>,
+<code>add_flags()</code>, <code>remove_flags()</code>,
+<code>replace_flags()</code>.</li>
 </ul>
 </div>
 <div id="how-do-i-start-connection-configuration" class="section level2">
 <h2>1) How do I start? (Connection configuration)</h2>
-<p>After enabling (if needed) “less secure apps access” in your mail provider or obtaining an OAuth2.0 token, you have to configure an IMAP connection:</p>
+<p>After enabling (if needed) “less secure apps access” in your mail
+provider or obtaining an OAuth2.0 token, you have to configure an IMAP
+connection:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(mRpostman)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># IMAP settings</span></span>
@@ -283,14 +572,46 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>  )</span>
 <span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a><span class="co"># ... and any other mail provider with IMAP support</span></span></code></pre></div>
-<p>Other useful options are: <code>timeout_ms</code>, <code>verbose = TRUE</code>, <code>buffersize</code>. Further {curl} options related to IMAP functionalities can be passed to <code>configure_imap()</code>, but you probably won’t need it. See <code>curl::curl_options()</code>.</p>
-<p>Since version <code>0.9.0.0</code>, this package provides more flexibility to the user in the sense that you can modify the connection parameters for specific commands or parts of a script, using the <code>reset_*()</code> methods. This prevents users from having to call <code>configure_imap()</code> multiple times during a session or in a script. It is particularly useful when the user is going to perform some fetch operation, for example. In this case, it is recommended to increase the <code>timeout_ms</code> and set <code>verbose = FALSE</code>.</p>
-<p>The <code>con</code> object that we created in the example above has the <code>ImapCon</code> R6 class. Now, almost 99% of the other IMAP commands to be performed on the server will be called following the structure: <code>con$method()</code>. The exceptions are the <code>list_attachments()</code> function and the helper functions of the custom-search group.</p>
-<p>As you will see, the R6 framework combined with {curl} will make this package works such a session-based IMAP client. Besides this, for some commands, users will be able to use the tidy approach with pipes. All this together provides an elegant way of accessing your IMAP provider, searching and fetching emails, and managing your mailbox as well.</p>
+<p>Other useful options are: <code>timeout_ms</code>,
+<code>verbose = TRUE</code>, <code>buffersize</code>. Further {curl}
+options related to IMAP functionalities can be passed to
+<code>configure_imap()</code>, but you probably won’t need it. See
+<code>curl::curl_options()</code>.</p>
+<p>Since version <code>0.9.0.0</code>, this package provides more
+flexibility to the user in the sense that you can modify the connection
+parameters for specific commands or parts of a script, using the
+<code>reset_*()</code> methods. This prevents users from having to call
+<code>configure_imap()</code> multiple times during a session or in a
+script. It is particularly useful when the user is going to perform some
+fetch operation, for example. In this case, it is recommended to
+increase the <code>timeout_ms</code> and set
+<code>verbose = FALSE</code>.</p>
+<p>The <code>con</code> object that we created in the example above has
+the <code>ImapCon</code> R6 class. Now, almost 99% of the other IMAP
+commands to be performed on the server will be called following the
+structure: <code>con$method()</code>. The exceptions are the
+<code>list_attachments()</code> function and the helper functions of the
+custom-search group.</p>
+<p>As you will see, the R6 framework combined with {curl} will make this
+package works such a session-based IMAP client. Besides this, for some
+commands, users will be able to use the tidy approach with pipes. All
+this together provides an elegant way of accessing your IMAP provider,
+searching and fetching emails, and managing your mailbox as well.</p>
 </div>
 <div id="server-capabilities" class="section level2">
 <h2>2) Server capabilities</h2>
-<p>Once the connection is configured, it is important to know which capabilities your IMAP provider offers to users. This impacts on which type of operations you are allowed to perform. For example, if your server has the <code>WITHIN</code> extension you can use the WITHIN search methods <code>search_younger_than()</code> and <code>search_older_than()</code>; if the server has the <code>ESEARCH</code> capability, besides being allowed to use the <code>esearch_*()</code> methods, you can optimize all your search functions with the <code>esearch = TRUE</code> parameter; if you see the <code>MOVE</code> capability, then you can use the <code>move_msg()</code> method. Therefore, to know all your server capabilities, you can use <code>list_server_capabliltites</code>.</p>
+<p>Once the connection is configured, it is important to know which
+capabilities your IMAP provider offers to users. This impacts on which
+type of operations you are allowed to perform. For example, if your
+server has the <code>WITHIN</code> extension you can use the WITHIN
+search methods <code>search_younger_than()</code> and
+<code>search_older_than()</code>; if the server has the
+<code>ESEARCH</code> capability, besides being allowed to use the
+<code>esearch_*()</code> methods, you can optimize all your search
+functions with the <code>esearch = TRUE</code> parameter; if you see the
+<code>MOVE</code> capability, then you can use the
+<code>move_msg()</code> method. Therefore, to know all your server
+capabilities, you can use <code>list_server_capabliltites</code>.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>con<span class="sc">$</span><span class="fu">list_server_capabilities</span>()</span></code></pre></div>
 </div>
 <div id="mailbox-commands" class="section level2">
@@ -302,20 +623,28 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div id="creating-a-new-folder" class="section level3">
 <h3>3.2) Creating a new folder</h3>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>con<span class="sc">$</span><span class="fu">create_folder</span>(<span class="at">name =</span> <span class="st">&quot;New Folder&quot;</span>)</span></code></pre></div>
-<p>Except for <code>examine_folder()</code> and <code>rename_folder()</code>, from now on, you will have to select a folder to issue further commands.</p>
+<p>Except for <code>examine_folder()</code> and
+<code>rename_folder()</code>, from now on, you will have to select a
+folder to issue further commands.</p>
 </div>
 <div id="selecting-a-folder" class="section level3">
 <h3>3.3) Selecting a folder</h3>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>con<span class="sc">$</span><span class="fu">select_folder</span>(<span class="at">name =</span> <span class="st">&quot;INBOX&quot;</span>)</span></code></pre></div>
-<p>Probably, the main folder in your mailbox will be the <code>&quot;INBOX&quot;</code>. You can select it without having to worry about the case of the letters. However, all the other folders in a mailbox are case sensitive.</p>
+<p>Probably, the main folder in your mailbox will be the
+<code>&quot;INBOX&quot;</code>. You can select it without having to worry about
+the case of the letters. However, all the other folders in a mailbox are
+case sensitive.</p>
 </div>
 <div id="examining-a-folder" class="section level3">
 <h3>3.4) Examining a folder</h3>
-<p>Count the number of existent and recent messages in the previously selected folder.</p>
+<p>Count the number of existent and recent messages in the previously
+selected folder.</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>con<span class="sc">$</span><span class="fu">select_folder</span>(<span class="at">name =</span> <span class="st">&quot;Inbox&quot;</span>)</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>con<span class="sc">$</span><span class="fu">examine_folder</span>()</span></code></pre></div>
-<p>If you want to examine a folder that is not the currently selected one (<code>INBOX</code>), you can achieve this by specifying the name.</p>
+<p>If you want to examine a folder that is not the currently selected
+one (<code>INBOX</code>), you can achieve this by specifying the
+name.</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>con<span class="sc">$</span><span class="fu">examine_folder</span>(<span class="at">name =</span> <span class="st">&quot;Sent&quot;</span>)</span></code></pre></div>
 </div>
 <div id="renaming-a-folder" class="section level3">
@@ -324,23 +653,57 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>con<span class="sc">$</span><span class="fu">select_folder</span>(<span class="at">name =</span> <span class="st">&quot;CRAN Messages&quot;</span>)</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>con<span class="sc">$</span><span class="fu">rename_folder</span>(<span class="at">new_name =</span> <span class="st">&quot;CRAN&quot;</span>)</span></code></pre></div>
-<p>There is a <code>reselect</code> argument, which by default is set to <code>TRUE</code>. This will cause the automatic re-selection of the new folder name.</p>
-<p>If you want to rename a folder that is different from the currently selected one (<code>CRAN</code>), you can achieve this by specifying the name.</p>
+<p>There is a <code>reselect</code> argument, which by default is set to
+<code>TRUE</code>. This will cause the automatic re-selection of the new
+folder name.</p>
+<p>If you want to rename a folder that is different from the currently
+selected one (<code>CRAN</code>), you can achieve this by specifying the
+name.</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>con<span class="sc">$</span><span class="fu">rename_folder</span>(<span class="at">name =</span> <span class="st">&quot;Sent&quot;</span>, <span class="at">new_name =</span> <span class="st">&quot;Sent2&quot;</span>)</span></code></pre></div>
 </div>
 <div id="flags-listing" class="section level3">
 <h3>3.6) Flags listing</h3>
-<p>Flags work like tags or labels attached to messages. After a mail folder is selected, you can check which flags are available, and if you are allowed to set custom flags of your own in this folder with <code>list_flags()</code>.</p>
+<p>Flags work like tags or labels attached to messages. After a mail
+folder is selected, you can check which flags are available, and if you
+are allowed to set custom flags of your own in this folder with
+<code>list_flags()</code>.</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>con<span class="sc">$</span><span class="fu">list_flags</span>()</span></code></pre></div>
 </div>
 </div>
 <div id="single-search" class="section level2">
 <h2>4) Single-search</h2>
-<p>All search methods will return a numeric vector containing the results from the search. This allows users to chain fetch operations together with search one. You can also <strong>NEGATE</strong> all search expressions by setting <code>negate = TRUE</code>.</p>
-<p>If your server supports <strong>ESEARCH</strong>, we recommend you to use it. It will prevent your results from being truncated when there are too many messages ids and you didn’t set a high <code>buffersize</code> in <code>confiure_imap()</code><a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>. With “ESEARCH”, the results will be condensed to groups of sequences similar to what does. For instance, if your search returns 10000 results, it is better to have condensed groups such as <code>1:10, 12, 23:27, ...</code> instead of a sequence of <code>1, 2, 3, 4, 5, 6, ..., 10, 12, 23, 24, 25, ...</code>. If you can’t use ESEARCH, or if your results are being truncated even with ESEARCH, you can try to increase your buffersize in <code>configure_imap()</code> to avoid this.</p>
+<p>All search methods will return a numeric vector containing the
+results from the search. This allows users to chain fetch operations
+together with search one. You can also <strong>NEGATE</strong> all
+search expressions by setting <code>negate = TRUE</code>.</p>
+<p>If your server supports <strong>ESEARCH</strong>, we recommend you to
+use it. It will prevent your results from being truncated when there are
+too many messages ids and you didn’t set a high <code>buffersize</code>
+in <code>confiure_imap()</code><a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>. With “ESEARCH”, the results will be
+condensed to groups of sequences similar to what does. For instance, if
+your search returns 10000 results, it is better to have condensed groups
+such as <code>1:10, 12, 23:27, ...</code> instead of a sequence of
+<code>1, 2, 3, 4, 5, 6, ..., 10, 12, 23, 24, 25, ...</code>. If you
+can’t use ESEARCH, or if your results are being truncated even with
+ESEARCH, you can try to increase your buffersize in
+<code>configure_imap()</code> to avoid this.</p>
 <div id="search-by-date" class="section level3">
 <h3>4.1) Search by date</h3>
-<p><code>search_before()</code>, <code>search_since()</code>, <code>search_on()</code>, and <code>search_period()</code> use internal date, which reflects the moment when the message was received. <code>search_sent_before()</code>, <code>search_sent_since()</code>, <code>search_sent_on()</code>, and <code>search_sent_period()</code> use the RFC-2822 date header (origination date), which “specifies the date and time at which the creator of the message indicated that the message was complete and ready to enter the mail delivery system” (Resnick, 2008). Dates in both methods must be the same most of the time. The difference may occur when you copied or moved some messages between folders. In this case, the RFC-2822 date header of the copied/moved messages in the destination folder will point out to the date of the copy. Another difference is that searching by the internal date will probably be faster because this information is kept in a database outside the message.</p>
+<p><code>search_before()</code>, <code>search_since()</code>,
+<code>search_on()</code>, and <code>search_period()</code> use internal
+date, which reflects the moment when the message was received.
+<code>search_sent_before()</code>, <code>search_sent_since()</code>,
+<code>search_sent_on()</code>, and <code>search_sent_period()</code> use
+the RFC-2822 date header (origination date), which “specifies the date
+and time at which the creator of the message indicated that the message
+was complete and ready to enter the mail delivery system” (Resnick,
+2008). Dates in both methods must be the same most of the time. The
+difference may occur when you copied or moved some messages between
+folders. In this case, the RFC-2822 date header of the copied/moved
+messages in the destination folder will point out to the date of the
+copy. Another difference is that searching by the internal date will
+probably be faster because this information is kept in a database
+outside the message.</p>
 <div id="by-internal-date" class="section level4">
 <h4>4.1.1) By internal date</h4>
 </div>
@@ -351,20 +714,25 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> con<span class="sc">$</span><span class="fu">search_before</span>(<span class="at">date_char =</span> <span class="st">&quot;07-Sep-2020&quot;</span>)</span>
 <span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>res</span></code></pre></div>
-<p>You can use the “UID” (unique identifier) instead of the message sequence number <a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>, and one or more flags as an additional filter to your search. In fact, you can use this in almost every search method of this package.</p>
+<p>You can use the “UID” (unique identifier) instead of the message
+sequence number <a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>, and one or more flags as an additional
+filter to your search. In fact, you can use this in almost every search
+method of this package.</p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> con<span class="sc">$</span><span class="fu">search_before</span>(<span class="at">date_char =</span> <span class="st">&quot;07-Sep-2020&quot;</span>,</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>                         <span class="at">use_uid =</span> <span class="cn">TRUE</span>,</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>                         <span class="at">flag =</span> <span class="fu">c</span>(<span class="st">&quot;ANSWERED&quot;</span>, <span class="st">&quot;SEEN&quot;</span>))</span>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>res</span></code></pre></div>
-<p>Remember that, if your IMAP server has the ESEARCH capability, you can use it. Gmail is one of the mail providers that allow it.</p>
+<p>Remember that, if your IMAP server has the ESEARCH capability, you
+can use it. Gmail is one of the mail providers that allow it.</p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> con<span class="sc">$</span><span class="fu">search_before</span>(<span class="at">date_char =</span> <span class="st">&quot;07-Sep-2020&quot;</span>,</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>                         <span class="at">use_uid =</span> <span class="cn">TRUE</span>,</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>                         <span class="at">flag =</span> <span class="fu">c</span>(<span class="st">&quot;ANSWERED&quot;</span>, <span class="st">&quot;SEEN&quot;</span>),</span>
 <span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>                         <span class="at">esearch =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>res</span></code></pre></div>
-<p>You can also <strong>NEGATE</strong> the statement to search for messages <strong>NOT BEFORE a date</strong>, for example:</p>
+<p>You can also <strong>NEGATE</strong> the statement to search for
+messages <strong>NOT BEFORE a date</strong>, for example:</p>
 <div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> con<span class="sc">$</span><span class="fu">search_before</span>(<span class="at">date_char =</span> <span class="st">&quot;07-Sep-2020&quot;</span>,</span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>                         <span class="at">negate =</span> <span class="cn">TRUE</span>,</span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>                         <span class="at">use_uid =</span> <span class="cn">TRUE</span>)</span>
@@ -373,7 +741,9 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 <div id="since-a-date" class="section level4">
 <h4>4.1.1.2) Since a date</h4>
-<p>The previous operation, in which we have used <code>negate = TRUE</code>, is equivalent to search for messages received <strong>SINCE a DATE</strong>:</p>
+<p>The previous operation, in which we have used
+<code>negate = TRUE</code>, is equivalent to search for messages
+received <strong>SINCE a DATE</strong>:</p>
 <div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> con<span class="sc">$</span><span class="fu">search_since</span>(<span class="at">date_char =</span> <span class="st">&quot;07-Sep-2020&quot;</span>,</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>                        <span class="at">use_uid =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>                         </span>
@@ -385,7 +755,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>                         <span class="at">before_date_char =</span> <span class="st">&quot;30-Jun-2020&quot;</span>)</span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>                         </span>
 <span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>res</span></code></pre></div>
-<p>You can <strong>NEGATE</strong> a period search as well. In this case, the search will exclude messages from the specified period.</p>
+<p>You can <strong>NEGATE</strong> a period search as well. In this
+case, the search will exclude messages from the specified period.</p>
 <div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> con<span class="sc">$</span><span class="fu">search_period</span>(<span class="at">since_date_char =</span> <span class="st">&quot;02-Jan-2020&quot;</span>,</span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>                         <span class="at">before_date_char =</span> <span class="st">&quot;30-Jun-2020&quot;</span>,</span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>                         <span class="at">negate =</span> <span class="cn">TRUE</span>)</span>
@@ -426,9 +797,15 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 <div id="search-by-string" class="section level3">
 <h3>4.2) Search by string</h3>
-<p>You can search for a simple string or compound expression either in the whole message, in a section, or in a specific header field. One important thing to know is that the SEARCH command in the IMAP server is not case sensitive.</p>
-<p>You can also <strong>NEGATE</strong> the statement and search for messages (or a specific part of a message) not containing that string, and add additional flag filters as well.</p>
-<p>For the next examples, we are going to select a different mail folder.</p>
+<p>You can search for a simple string or compound expression either in
+the whole message, in a section, or in a specific header field. One
+important thing to know is that the SEARCH command in the IMAP server is
+not case sensitive.</p>
+<p>You can also <strong>NEGATE</strong> the statement and search for
+messages (or a specific part of a message) not containing that string,
+and add additional flag filters as well.</p>
+<p>For the next examples, we are going to select a different mail
+folder.</p>
 <p>Searching in the “TO” header field:</p>
 <div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>con<span class="sc">$</span><span class="fu">select_folder</span>(<span class="at">name =</span> <span class="st">&quot;K-State&quot;</span>)</span>
 <span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -438,7 +815,9 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>Searching in the “SUBJECT” header field:</p>
 <div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>con<span class="sc">$</span><span class="fu">search_string</span>(<span class="at">expr =</span> <span class="st">&quot;PhD offer&quot;</span>, <span class="at">where =</span> <span class="st">&quot;SUBJECT&quot;</span>)</span></code></pre></div>
 <p>Searching in the “TEXT” section.</p>
-<p><strong>IMPORTANT</strong>: Since the text may contain raw data, it may not be a super-effective search. In this case, searching for a expression in the whole <code>&quot;BODY&quot;</code> may be preferred.</p>
+<p><strong>IMPORTANT</strong>: Since the text may contain raw data, it
+may not be a super-effective search. In this case, searching for a
+expression in the whole <code>&quot;BODY&quot;</code> may be preferred.</p>
 <div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>con<span class="sc">$</span><span class="fu">search_string</span>(<span class="at">expr =</span> <span class="st">&quot;Dear Allan&quot;</span> <span class="at">where =</span> <span class="st">&quot;TEXT&quot;</span>)</span></code></pre></div>
 <p>Searching in the “BODY” section.</p>
 <div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>con<span class="sc">$</span><span class="fu">search_string</span>(<span class="at">expr =</span> <span class="st">&quot;Dear Allan&quot;</span> <span class="at">where =</span> <span class="st">&quot;BODY&quot;</span>)</span></code></pre></div>
@@ -446,7 +825,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div id="search-by-flag" class="section level3">
 <h3>4.3) Search by flag</h3>
 <div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>con<span class="sc">$</span><span class="fu">search_flag</span>(<span class="at">name =</span> <span class="fu">c</span>(<span class="st">&quot;ANSWERED&quot;</span>, <span class="st">&quot;Seen&quot;</span>), <span class="at">use_uid =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
-<p>Remember that you can check the available flags in a mail folder with <code>list_flags()</code>.</p>
+<p>Remember that you can check the available flags in a mail folder with
+<code>list_flags()</code>.</p>
 </div>
 <div id="search-by-size" class="section level3">
 <h3>4.4) Search by size</h3>
@@ -462,7 +842,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 <div id="search-by-within-extension" class="section level3">
 <h3>4.5) Search by within extension</h3>
-<p>Severs with support to the “WITHIN” EXTENSION enable searching for messages within a span, i.e. younger than “x” seconds, or older than “x” seconds. This capability is really rare to find in IMAP servers, but <code>mRpostman</code> has two methods implemented for coping with this capability if it is available.</p>
+<p>Severs with support to the “WITHIN” EXTENSION enable searching for
+messages within a span, i.e. younger than “x” seconds, or older than “x”
+seconds. This capability is really rare to find in IMAP servers, but
+<code>mRpostman</code> has two methods implemented for coping with this
+capability if it is available.</p>
 <div id="younger-than" class="section level4">
 <h4>4.5.1) Younger than</h4>
 <div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>con<span class="sc">$</span><span class="fu">search_younger_than</span>(<span class="at">seconds =</span> <span class="dv">3600</span>) <span class="co"># msgs received less than one hour (3600 sec)</span></span></code></pre></div>
@@ -475,14 +859,34 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 <div id="custom-search" class="section level2">
 <h2>5) Custom-search</h2>
-<p>The <code>search()</code> method and its <strong>helper functions</strong> enable users to create a vast number of complex and customized search requests by combining different criteria, using all the types of searches previously presented in this document.</p>
-<p>These are the helper functions you can use inside <code>search()</code>:</p>
+<p>The <code>search()</code> method and its <strong>helper
+functions</strong> enable users to create a vast number of complex and
+customized search requests by combining different criteria, using all
+the types of searches previously presented in this document.</p>
+<p>These are the helper functions you can use inside
+<code>search()</code>:</p>
 <ol style="list-style-type: decimal">
-<li>Relational operators: <code>AND()</code>, and <code>OR()</code>;</li>
-<li>Criteria definition: <code>before()</code>, <code>since()</code>, <code>on()</code>, <code>sent_before()</code>, <code>sent_since()</code>, <code>sent_on()</code>, <code>string()</code>, <code>flag()</code>, <code>smaller_than()</code>, <code>larger_than()</code>, <code>younger_than()</code>, and <code>older_than()</code>.</li>
+<li>Relational operators: <code>AND()</code>, and
+<code>OR()</code>;</li>
+<li>Criteria definition: <code>before()</code>, <code>since()</code>,
+<code>on()</code>, <code>sent_before()</code>,
+<code>sent_since()</code>, <code>sent_on()</code>,
+<code>string()</code>, <code>flag()</code>, <code>smaller_than()</code>,
+<code>larger_than()</code>, <code>younger_than()</code>, and
+<code>older_than()</code>.</li>
 </ol>
-<p><strong>NOTE</strong>: IMAP queries follows Polish notation, i.e. operators such as <code>OR</code> come before arguments, e.g. “OR argument1 argument2”. Therefore, the relational operators functions in this package should be used like the following examples: <code>OR(before(date_char = &quot;17-Apr-2015&quot;), string(expr = &quot;Jimmy&quot;, where = &quot;FROM&quot;))</code>. Even though there is no “AND” operator in the IMAP protocol, this package adds a helper function <code>AND()</code> to indicate multiple arguments that must be searched together, e.g. <code>AND(since(date_char = &quot;01-Jul-2018&quot;), larger_than(size = 16000))</code>.</p>
-<p><strong>Example 1</strong>: Searching for messages (in “INBOX”) containing the string “Kansas State University” in the “SUBJECT” header field <strong>AND</strong> that were received before “02-Jan-2020”.</p>
+<p><strong>NOTE</strong>: IMAP queries follows Polish notation,
+i.e. operators such as <code>OR</code> come before arguments, e.g. “OR
+argument1 argument2”. Therefore, the relational operators functions in
+this package should be used like the following examples:
+<code>OR(before(date_char = &quot;17-Apr-2015&quot;), string(expr = &quot;Jimmy&quot;, where = &quot;FROM&quot;))</code>.
+Even though there is no “AND” operator in the IMAP protocol, this
+package adds a helper function <code>AND()</code> to indicate multiple
+arguments that must be searched together,
+e.g. <code>AND(since(date_char = &quot;01-Jul-2018&quot;), larger_than(size = 16000))</code>.</p>
+<p><strong>Example 1</strong>: Searching for messages (in “INBOX”)
+containing the string “Kansas State University” in the “SUBJECT” header
+field <strong>AND</strong> that were received before “02-Jan-2020”.</p>
 <div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>con<span class="sc">$</span><span class="fu">select_folder</span>(<span class="at">name =</span> <span class="st">&quot;INBOX&quot;</span>)</span>
 <span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -490,21 +894,48 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>                                <span class="fu">before</span>(<span class="at">date_char =</span> <span class="st">&quot;02-Jan-2020&quot;</span>)))</span>
 <span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>res</span></code></pre></div>
-<p><strong>Example 2</strong>: Searching (using UID) for messages received from “<span class="citation">@k-state.edu</span>” <strong>OR</strong> “<span class="citation">@ksu.edu</span>”.</p>
+<p><strong>Example 2</strong>: Searching (using UID) for messages
+received from “<span class="citation">@k-state.edu</span>”
+<strong>OR</strong> “<span class="citation">@ksu.edu</span>”.</p>
 <div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>con<span class="sc">$</span><span class="fu">search</span>(<span class="at">request =</span> <span class="fu">OR</span>(<span class="fu">string</span>(<span class="at">expr =</span> <span class="st">&quot;@k-state.edu&quot;</span>, <span class="at">where =</span> <span class="st">&quot;FROM&quot;</span>),</span>
 <span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>                        <span class="fu">string</span>(<span class="at">expr =</span> <span class="st">&quot;@ksu.edu&quot;</span>, <span class="at">where =</span> <span class="st">&quot;FROM&quot;</span>)),</span>
 <span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">use_uid =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
 </div>
 <div id="fetch" class="section level2">
 <h2>6) Fetch</h2>
-<p>You can fetch the full content of messages, or their parts, such as the header, text, or specific metadata fields. Besides this, you can also fetch a message attachments list or the attachment files themselves, downloading them to the disk.</p>
-<p>We usually fetch messages after a search operation. Given the output of the search functions in <strong>mRpostman</strong>, you can use the pipe <code>%&gt;%</code> to chain the search and the fetch operations together. Using the base R approach is perfectly possible as well.</p>
-<p>In the main fetch methods (those that are not related to attachment fetching), you can choose to write the fetch results to disk (working directory) using <code>write_to_disk = TRUE</code>. If you opt to do so, <strong>mRpostman</strong> saves the fetched content to a <code>.txt</code> file in the following folder structure: <code>working directory &gt; imap.server.url &gt; mail folder name</code>. The text files will be named after the id of the fetched message. If the operation was executed using the UID, the “UID” prefix is added to the file names.</p>
+<p>You can fetch the full content of messages, or their parts, such as
+the header, text, or specific metadata fields. Besides this, you can
+also fetch a message attachments list or the attachment files
+themselves, downloading them to the disk.</p>
+<p>We usually fetch messages after a search operation. Given the output
+of the search functions in <strong>mRpostman</strong>, you can use the
+pipe <code>%&gt;%</code> to chain the search and the fetch operations
+together. Using the base R approach is perfectly possible as well.</p>
+<p>In the main fetch methods (those that are not related to attachment
+fetching), you can choose to write the fetch results to disk (working
+directory) using <code>write_to_disk = TRUE</code>. If you opt to do so,
+<strong>mRpostman</strong> saves the fetched content to a
+<code>.txt</code> file in the following folder structure:
+<code>working directory &gt; imap.server.url &gt; mail folder name</code>.
+The text files will be named after the id of the fetched message. If the
+operation was executed using the UID, the “UID” prefix is added to the
+file names.</p>
 <p><strong>IMPORTANT</strong>:</p>
 <ol style="list-style-type: decimal">
-<li><p>If the fetch operation is to be chained after a search, the <code>use_uid</code> arguments in the two operations have to be the same. Otherwise, an error will occur or the fetch will be performed on wrong messages’ ids.</p></li>
-<li><p>It is always recommended to increase the timeout_ms before <code>fetch_body()</code>, <code>fetch_text()</code>, and <code>fetch_attachents()</code> operations as sometimes the operation may hang for a few seconds while fetching the message parts.</p></li>
-<li><p>if you have configured a connection with <code>verbose = TRUE</code>, it is extremely recommended that you reset it to <code>FALSE</code> before a fetching operation. The <code>verbose = TRUE</code> option fill the console with the whole flux of information between the server and the client, drastically slowing the speed of the process and your R session.</p></li>
+<li><p>If the fetch operation is to be chained after a search, the
+<code>use_uid</code> arguments in the two operations have to be the
+same. Otherwise, an error will occur or the fetch will be performed on
+wrong messages’ ids.</p></li>
+<li><p>It is always recommended to increase the timeout_ms before
+<code>fetch_body()</code>, <code>fetch_text()</code>, and
+<code>fetch_attachents()</code> operations as sometimes the operation
+may hang for a few seconds while fetching the message parts.</p></li>
+<li><p>if you have configured a connection with
+<code>verbose = TRUE</code>, it is extremely recommended that you reset
+it to <code>FALSE</code> before a fetching operation. The
+<code>verbose = TRUE</code> option fill the console with the whole flux
+of information between the server and the client, drastically slowing
+the speed of the process and your R session.</p></li>
 </ol>
 <div id="fetch-body" class="section level3">
 <h3>6.1) Fetch body</h3>
@@ -524,8 +955,13 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb36-14"><a href="#cb36-14" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> con<span class="sc">$</span><span class="fu">search_string</span>(<span class="at">expr =</span> <span class="st">&quot;@k-state.edu&quot;</span>, <span class="at">where =</span> <span class="st">&quot;FROM&quot;</span>)</span>
 <span id="cb36-15"><a href="#cb36-15" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb36-16"><a href="#cb36-16" aria-hidden="true" tabindex="-1"></a>con<span class="sc">$</span><span class="fu">fetch_body</span>(<span class="at">msg_id =</span> res, <span class="at">write_to_disk =</span> <span class="cn">TRUE</span>, <span class="at">keep_in_mem =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
-<p>Since the goal here is to write the fetch results to disk, it is recommended that we set <code>keep_in_mem = FALSE</code>. This will optimize the whole operation because <code>mRpostman</code> will clean the memory after fetching each message as we are not going to use the results in our R session.</p>
-<p>Our local folder will be populated with the <code>.txt</code> files of the fetched messages:</p>
+<p>Since the goal here is to write the fetch results to disk, it is
+recommended that we set <code>keep_in_mem = FALSE</code>. This will
+optimize the whole operation because <code>mRpostman</code> will clean
+the memory after fetching each message as we are not going to use the
+results in our R session.</p>
+<p>Our local folder will be populated with the <code>.txt</code> files
+of the fetched messages:</p>
 <p><img src="data:image/png;base64,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" style="width:80.0%" /></p>
 </div>
 <div id="fetch-header" class="section level3">
@@ -544,11 +980,16 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb37-12"><a href="#cb37-12" aria-hidden="true" tabindex="-1"></a>out <span class="ot">&lt;-</span> con<span class="sc">$</span><span class="fu">fetch_header</span>(<span class="at">use_uid =</span> <span class="cn">TRUE</span>, <span class="at">fields =</span> <span class="fu">c</span>(<span class="st">&quot;DATE&quot;</span>, <span class="st">&quot;SUBJECT&quot;</span>))</span>
 <span id="cb37-13"><a href="#cb37-13" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb37-14"><a href="#cb37-14" aria-hidden="true" tabindex="-1"></a>out</span></code></pre></div>
-<p>Please, note that, in the example above, we are saving the results to the <code>out</code> object in our R session. Also note that we are setting <code>use_uid = TRUE</code> in both search and fetch requests.</p>
+<p>Please, note that, in the example above, we are saving the results to
+the <code>out</code> object in our R session. Also note that we are
+setting <code>use_uid = TRUE</code> in both search and fetch
+requests.</p>
 </div>
 <div id="fetch-text" class="section level3">
 <h3>6.3) Fetch text</h3>
-<p><code>fetch_text()</code> is almost as costly as <code>fetch_body()</code>. So, it is a good idea to keep a “high” <code>timeout_ms</code>.</p>
+<p><code>fetch_text()</code> is almost as costly as
+<code>fetch_body()</code>. So, it is a good idea to keep a “high”
+<code>timeout_ms</code>.</p>
 <div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>con<span class="sc">$</span><span class="fu">search_since</span>(<span class="at">date_char =</span> <span class="st">&quot;15-Aug-2019&quot;</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>  con<span class="sc">$</span><span class="fu">fetch_text</span>(<span class="at">write_to_disk =</span> <span class="cn">TRUE</span>, <span class="at">keep_in_mem =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
 </div>
@@ -556,21 +997,45 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h3>6.4) Fetch metadata</h3>
 <div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>out <span class="ot">&lt;-</span> con<span class="sc">$</span><span class="fu">search_on</span>(<span class="at">date_char =</span> <span class="st">&quot;15-Aug-2019&quot;</span>, <span class="at">use_uid =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>  con<span class="sc">$</span><span class="fu">fetch_metadata</span>(<span class="at">use_uid =</span> <span class="cn">TRUE</span>, <span class="at">attribute =</span> <span class="fu">c</span>(<span class="st">&quot;INTERNALDATE&quot;</span>, <span class="st">&quot;UID&quot;</span>, <span class="st">&quot;ENVELOPE&quot;</span>))</span></code></pre></div>
-<p>If nothing is specified to the <code>metadata</code> argument, all the metadata fields are fetched by default. To know which are the metadata options of a message, refer to <code>metadata_options()</code>.</p>
-<p>There are two more fetch methods, but they are going to be presented in the next session since they are related to a very special fetch operation.</p>
+<p>If nothing is specified to the <code>metadata</code> argument, all
+the metadata fields are fetched by default. To know which are the
+metadata options of a message, refer to
+<code>metadata_options()</code>.</p>
+<p>There are two more fetch methods, but they are going to be presented
+in the next session since they are related to a very special fetch
+operation.</p>
 </div>
 </div>
 <div id="attachments" class="section level2">
 <h2>7) Attachments</h2>
-<p>Previously, <code>mRpostman</code> had two attachment-related functions: <code>list_attachments()</code> and <code>get_attachments()</code>. Both were to be used after a fetching operation because they would use the content fetched in a previous step to parse the attachments list and/or decode the content to files. These methods are still available in the current version of the package. However, two more methods were implemented since version <code>0.9.0.0</code>: <code>fetch_attachments_list()</code> and <code>fetch_attachments()</code>. These methods are not contingent on a previous fetch operation, since they are a properly fetch operation.</p>
-<p>Let’s take a look at the first two attachments functionalities available in <code>mRpostman</code>.</p>
+<p>Previously, <code>mRpostman</code> had two attachment-related
+functions: <code>list_attachments()</code> and
+<code>get_attachments()</code>. Both were to be used after a fetching
+operation because they would use the content fetched in a previous step
+to parse the attachments list and/or decode the content to files. These
+methods are still available in the current version of the package.
+However, two more methods were implemented since version
+<code>0.9.0.0</code>: <code>fetch_attachments_list()</code> and
+<code>fetch_attachments()</code>. These methods are not contingent on a
+previous fetch operation, since they are a properly fetch operation.</p>
+<p>Let’s take a look at the first two attachments functionalities
+available in <code>mRpostman</code>.</p>
 <div id="dependent-attachment-operations" class="section level3">
 <h3>7.1) Dependent attachment operations</h3>
-<p>The dependent operations are comprised of a function <code>list_atachments()</code> and a R6 method <code>get_attachments()</code>. We call them dependent operations because they dependent on a previous fetch operation with <code>fetch_body()</code> or <code>fetch_text()</code>.</p>
-<p><strong>IMPORTANT:</strong> Since these are fetch-dependent operations, you <strong>cannot</strong> set <code>keep_in_mem = FALSE</code> in the <code>fetch_body()</code>/<code>fetch_text()</code> step if you intend to list or get attachments after fetching your messages.</p>
+<p>The dependent operations are comprised of a function
+<code>list_atachments()</code> and a R6 method
+<code>get_attachments()</code>. We call them dependent operations
+because they dependent on a previous fetch operation with
+<code>fetch_body()</code> or <code>fetch_text()</code>.</p>
+<p><strong>IMPORTANT:</strong> Since these are fetch-dependent
+operations, you <strong>cannot</strong> set
+<code>keep_in_mem = FALSE</code> in the
+<code>fetch_body()</code>/<code>fetch_text()</code> step if you intend
+to list or get attachments after fetching your messages.</p>
 <div id="listing-attachments" class="section level4">
 <h4>7.1.1) Listing attachments</h4>
-<p>This will list your attachments file names for each fetched message.</p>
+<p>This will list your attachments file names for each fetched
+message.</p>
 <div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co"># using fetch_body()</span></span>
 <span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>con<span class="sc">$</span><span class="fu">search_since</span>(<span class="at">date_char =</span> <span class="st">&quot;23-Sep-2019&quot;</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>  con<span class="sc">$</span><span class="fu">fetch_body</span>(<span class="at">write_to_disk =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
@@ -582,11 +1047,19 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a>con<span class="sc">$</span><span class="fu">search_since</span>(<span class="at">date_char =</span> <span class="st">&quot;23-Sep-2019&quot;</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a>  con<span class="sc">$</span><span class="fu">fetch_text</span>(<span class="at">write_to_disk =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb40-11"><a href="#cb40-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list_attachments</span>() <span class="co"># don&#39;t need to specify the connection object here</span></span></code></pre></div>
-<p>In both examples, the whole message body(ies) or text will be saved to the disk, but a copy will be kept in the R session. This copy is passed forward to <code>list_attachments()</code>, which, by its turn, finds and extract the filenames and the type of the “Content-Disposition” for the part where the attachment were found.</p>
+<p>In both examples, the whole message body(ies) or text will be saved
+to the disk, but a copy will be kept in the R session. This copy is
+passed forward to <code>list_attachments()</code>, which, by its turn,
+finds and extract the filenames and the type of the
+“Content-Disposition” for the part where the attachment were found.</p>
 </div>
 <div id="extracting-attachments" class="section level4">
 <h4>7.1.2) Extracting Attachments</h4>
-<p><code>get_attachments()</code> will try to decode base64 text inside your message to the appropriate file extension. This will create a folder with the inside the structure <code>working directory &gt; username &gt; mail folder &gt; msg_id</code>. The attachment(s) will be inside their respective message folder.</p>
+<p><code>get_attachments()</code> will try to decode base64 text inside
+your message to the appropriate file extension. This will create a
+folder with the inside the structure
+<code>working directory &gt; username &gt; mail folder &gt; msg_id</code>.
+The attachment(s) will be inside their respective message folder.</p>
 <div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="co"># using fetch_body()</span></span>
 <span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>con<span class="sc">$</span><span class="fu">search_since</span>(<span class="at">date_char =</span> <span class="st">&quot;23-Sep-2019&quot;</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>  con<span class="sc">$</span><span class="fu">fetch_body</span>(<span class="at">write_to_disk =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
@@ -604,8 +1077,13 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 <div id="direct-attachment-fetch-operations" class="section level3">
 <h3>7.2) Direct attachment fetch operations</h3>
-<p>As we stated before, the following two methods are not contingent on a previous fetch step because they execute they own fetching operation. Hence, they consist of an alternative for attachments listing and downloading.</p>
-<p><strong>IMPORTANT</strong>: The same recommendations for the other fetch methods hold in this case: set <code>verbose = FALSE</code> and a high <code>timeout_ms</code>.</p>
+<p>As we stated before, the following two methods are not contingent on
+a previous fetch step because they execute they own fetching operation.
+Hence, they consist of an alternative for attachments listing and
+downloading.</p>
+<p><strong>IMPORTANT</strong>: The same recommendations for the other
+fetch methods hold in this case: set <code>verbose = FALSE</code> and a
+high <code>timeout_ms</code>.</p>
 <div id="fetch-attachments-list" class="section level4">
 <h4>7.2.1) Fetch attachments list</h4>
 <div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>con<span class="sc">$</span><span class="fu">search_since</span>(<span class="at">date_char =</span> <span class="st">&quot;23-Sep-2019&quot;</span>) <span class="sc">%&gt;%</span></span>
@@ -620,7 +1098,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 <div id="complementary-operations" class="section level2">
 <h2>8) Complementary operations</h2>
-<p>Here we present other functions to perform very useful complementary IMAP operations.</p>
+<p>Here we present other functions to perform very useful complementary
+IMAP operations.</p>
 <div id="copy-messages" class="section level3">
 <h3>8.1) Copy message(s)</h3>
 <p>Copying search results from “INBOX” to “K-State” folder:</p>
@@ -628,26 +1107,36 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>con<span class="sc">$</span><span class="fu">search_since</span>(<span class="at">date_char =</span> <span class="st">&quot;10-may-2019&quot;</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a>  con<span class="sc">$</span><span class="fu">copy_msg</span>(<span class="at">to_folder =</span> <span class="st">&quot;K-State&quot;</span>)</span></code></pre></div>
-<p>It will automatically re-select the destination folder unless the user sets <code>reselect = FALSE</code>.</p>
+<p>It will automatically re-select the destination folder unless the
+user sets <code>reselect = FALSE</code>.</p>
 </div>
 <div id="get-minimum-message-id" class="section level3">
 <h3>8.2) Get minimum message id</h3>
-<p>This operation depends on the ESEARCH capability. It will retrieve the <strong>minimum</strong> message id containing a specific flag(s) in the selected mail folder.</p>
+<p>This operation depends on the ESEARCH capability. It will retrieve
+the <strong>minimum</strong> message id containing a specific flag(s) in
+the selected mail folder.</p>
 <div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>con<span class="sc">$</span><span class="fu">esearch_min_id</span>(<span class="at">flag =</span> <span class="fu">c</span>(<span class="st">&quot;Answered&quot;</span>, <span class="st">&quot;Seen&quot;</span>))</span></code></pre></div>
 </div>
 <div id="get-maximum-message-id" class="section level3">
 <h3>8.3) Get maximum message id</h3>
-<p>This operation also depends on the ESEARCH capability. It will retrieve the <strong>maximum</strong> message id containing a specific flag(s) in the selected mail folder.</p>
+<p>This operation also depends on the ESEARCH capability. It will
+retrieve the <strong>maximum</strong> message id containing a specific
+flag(s) in the selected mail folder.</p>
 <div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>con<span class="sc">$</span><span class="fu">esearch_min_id</span>(<span class="at">flag =</span> <span class="fu">c</span>(<span class="st">&quot;Answered&quot;</span>, <span class="st">&quot;Seen&quot;</span>))</span></code></pre></div>
 </div>
 <div id="count-messages" class="section level3">
 <h3>8.4) Count messages</h3>
-<p>This operation also depends on the ESEARCH capability. It will retrieve the <strong>number</strong> of messages with a specific flag(s) in the selected mail folder.</p>
+<p>This operation also depends on the ESEARCH capability. It will
+retrieve the <strong>number</strong> of messages with a specific flag(s)
+in the selected mail folder.</p>
 <div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>con<span class="sc">$</span><span class="fu">esearch_count</span>(<span class="at">flag =</span> <span class="fu">c</span>(<span class="st">&quot;Answered&quot;</span>, <span class="st">&quot;Seen&quot;</span>))</span></code></pre></div>
 </div>
 <div id="delete-messages" class="section level3">
 <h3>8.5) Delete message(s)</h3>
-<p>This method marks one or more messages with the “\Deleted” system flag. Some servers automatically delete messages marked with this flag, and others require the <code>EXPUNGE</code> command to permanently delete the e-mail.</p>
+<p>This method marks one or more messages with the “\Deleted” system
+flag. Some servers automatically delete messages marked with this flag,
+and others require the <code>EXPUNGE</code> command to permanently
+delete the e-mail.</p>
 <div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>con<span class="sc">$</span><span class="fu">select_folder</span>(<span class="at">name =</span> <span class="st">&quot;Trash&quot;</span>)</span>
 <span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>con<span class="sc">$</span><span class="fu">search_before</span>(<span class="at">date_char =</span> <span class="st">&quot;10-may-2012&quot;</span>) <span class="sc">%&gt;%</span></span>
@@ -657,7 +1146,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 <div id="expunge" class="section level3">
 <h3>8.6) Expunge</h3>
-<p>Expunges message(s) marked with the “DELETED” flag in a mailbox or a specific message using the <code>msg_uid</code> argument. Please, note that the this requires the unique id, not sequence numbers. Therefore, we set <code>use_uid = TRUE</code></p>
+<p>Expunges message(s) marked with the “DELETED” flag in a mailbox or a
+specific message using the <code>msg_uid</code> argument. Please, note
+that the this requires the unique id, not sequence numbers. Therefore,
+we set <code>use_uid = TRUE</code></p>
 <div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="co"># expunge the entire mail folder</span></span>
 <span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>con<span class="sc">$</span><span class="fu">expunge</span>()</span>
 <span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -668,7 +1160,12 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div id="addremovereplace-flags" class="section level3">
 <h3>8.7) Add/Remove/Replace flags</h3>
 <p>Adding, removing and replacing one or more flags to messages.</p>
-<p><strong>IMPORTANT</strong>: Differently from the search functions where the (system) flags passed as additional parameters to search methods did not contain “\”, the <code>add/replace/remove_flags()</code> methods require the double backslash when referring to system flags. You can know which are the flags of a mail folder, and if custom flags are allowed, using <code>list_flags()</code>.</p>
+<p><strong>IMPORTANT</strong>: Differently from the search functions
+where the (system) flags passed as additional parameters to search
+methods did not contain “\”, the <code>add/replace/remove_flags()</code>
+methods require the double backslash when referring to system flags. You
+can know which are the flags of a mail folder, and if custom flags are
+allowed, using <code>list_flags()</code>.</p>
 <div id="add-flags" class="section level4">
 <h4>8.7.1) Add flags</h4>
 <div class="sourceCode" id="cb51"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>con<span class="sc">$</span><span class="fu">select_folder</span>(<span class="at">name =</span> <span class="st">&quot;INBOX&quot;</span>)</span>
@@ -678,7 +1175,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 <div id="replace-flags" class="section level4">
 <h4>8.7.2) Replace flags</h4>
-<p>Replaces the existent flags by the one(s) specified in the method.</p>
+<p>Replaces the existent flags by the one(s) specified in the
+method.</p>
 <div class="sourceCode" id="cb52"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>con<span class="sc">$</span><span class="fu">search_since</span>(<span class="at">date_char =</span> <span class="st">&quot;01-Sep-2020&quot;</span>, <span class="at">use_uid =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>  con<span class="sc">$</span><span class="fu">replace_flags</span>(<span class="at">flags_to_set =</span> <span class="fu">c</span>(<span class="st">&quot;</span><span class="sc">\\</span><span class="st">Seen&quot;</span>, <span class="st">&quot;</span><span class="sc">\\</span><span class="st">Flagged&quot;</span>, <span class="at">use_uid =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
 </div>
@@ -691,10 +1189,14 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 <div id="move-messages" class="section level3">
 <h3>8.8) Move message(s)</h3>
-<p><code>move_msg()</code> uses IMAP “MOVE” EXTENSION. Check if your server supports the “MOVE” capability with <code>list_server_capabilities()</code>.</p>
+<p><code>move_msg()</code> uses IMAP “MOVE” EXTENSION. Check if your
+server supports the “MOVE” capability with
+<code>list_server_capabilities()</code>.</p>
 <div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>con<span class="sc">$</span><span class="fu">search_on</span>(<span class="at">date_char =</span> <span class="st">&quot;07-Sep-2020&quot;</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>  con<span class="sc">$</span><span class="fu">move_msg</span>(<span class="at">to_folder =</span> <span class="st">&quot;K-State&quot;</span>)</span></code></pre></div>
-<p>If your server does not provide “MOVE” capability, the same result can be achieved with a combination of <code>copy_msg</code>, <code>add_flags()</code> and <code>expunge()</code>:</p>
+<p>If your server does not provide “MOVE” capability, the same result
+can be achieved with a combination of <code>copy_msg</code>,
+<code>add_flags()</code> and <code>expunge()</code>:</p>
 <div class="sourceCode" id="cb55"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a>con<span class="sc">$</span><span class="fu">search_on</span>(<span class="at">date_char =</span> <span class="st">&quot;07-Sep-2020&quot;</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a>  con<span class="sc">$</span><span class="fu">copy_msg</span>(<span class="at">to_folder =</span> <span class="st">&quot;K-State&quot;</span>, <span class="at">reselect =</span> <span class="cn">FALSE</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a>  con<span class="sc">$</span><span class="fu">add_flags</span>(<span class="at">flags_to_set =</span> <span class="st">&quot;</span><span class="sc">\\</span><span class="st">Deleted&quot;</span>) <span class="sc">%&gt;%</span></span>
@@ -704,20 +1206,37 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div id="references" class="section level2">
 <h2>References</h2>
 <p>Babcock, N. (2016), <em>Introduction to IMAP</em>, Blog, May 2016, <a href="https://nbsoftsolutions.com/blog/introduction-to-imap" class="uri">https://nbsoftsolutions.com/blog/introduction-to-imap</a>.</p>
-<p>Crispin, M. (2003), <em>INTERNET MESSAGE ACCESS PROTOCOL - VERSION 4rev1</em>, RFC 3501, March 2003, <a href="https://www.rfc-editor.org/rfc/rfc3501" class="uri">https://www.rfc-editor.org/rfc/rfc3501</a>.</p>
-<p>Freed, N. and Borenstein, N. (1996), <em>Multipurpose Internet Mail Extensions (MIME) Part Two: Media Types</em>, RFC 2046, November 1996, <a href="https://www.rfc-editor.org/rfc/rfc2046" class="uri">https://www.rfc-editor.org/rfc/rfc2046</a>.</p>
-<p>Gungor, A. (2018), <em>Using IMAP Internal Date for Forensic Email Authentication</em>, Articles, Forensic Focus, <a href="https://www.forensicfocus.com/articles/using-imap-internal-date-for-forensic-email-authentication/" class="uri">https://www.forensicfocus.com/articles/using-imap-internal-date-for-forensic-email-authentication/</a></p>
-<p>Heinlein, P. and Hartleben, P. (2008). <em>The Book of IMAP: Building a Mail Server with Courier and Cyrus</em>. No Starch Press. ISBN 978-1-59327-177-0.</p>
-<p>Resnick, P. (2001), <em>Internet Message Format</em>, RFC 2822, April 2001, <a href="https://www.rfc-editor.org/rfc/rfc2822" class="uri">https://www.rfc-editor.org/rfc/rfc2822</a>.</p>
-<p>Resnick, P. (2008), <em>Internet Message Format</em>, RFC 5322, October 2008, <a href="https://www.rfc-editor.org/rfc/rfc5322" class="uri">https://www.rfc-editor.org/rfc/rfc5322</a>.</p>
-<p>Ooms, J. (2020), <em>curl: A Modern and Flexible Web Client for R</em>. R package version 4.3, <a href="https://CRAN.R-project.org/package=curl" class="uri">https://CRAN.R-project.org/package=curl</a></p>
-<p>Stenberg, D. <em>Libcurl - The Multiprotocol File Transfer Library</em>, <a href="https://curl.se/libcurl/" class="uri">https://curl.se/libcurl/</a></p>
+<p>Crispin, M. (2003), <em>INTERNET MESSAGE ACCESS PROTOCOL - VERSION
+4rev1</em>, RFC 3501, March 2003, <a href="https://www.rfc-editor.org/rfc/rfc3501" class="uri">https://www.rfc-editor.org/rfc/rfc3501</a>.</p>
+<p>Freed, N. and Borenstein, N. (1996), <em>Multipurpose Internet Mail
+Extensions (MIME) Part Two: Media Types</em>, RFC 2046, November 1996,
+<a href="https://www.rfc-editor.org/rfc/rfc2046" class="uri">https://www.rfc-editor.org/rfc/rfc2046</a>.</p>
+<p>Gungor, A. (2018), <em>Using IMAP Internal Date for Forensic Email
+Authentication</em>, Articles, Forensic Focus, <a href="https://www.forensicfocus.com/articles/using-imap-internal-date-for-forensic-email-authentication/" class="uri">https://www.forensicfocus.com/articles/using-imap-internal-date-for-forensic-email-authentication/</a></p>
+<p>Heinlein, P. and Hartleben, P. (2008). <em>The Book of IMAP: Building
+a Mail Server with Courier and Cyrus</em>. No Starch Press. ISBN
+978-1-59327-177-0.</p>
+<p>Resnick, P. (2001), <em>Internet Message Format</em>, RFC 2822, April
+2001, <a href="https://www.rfc-editor.org/rfc/rfc2822" class="uri">https://www.rfc-editor.org/rfc/rfc2822</a>.</p>
+<p>Resnick, P. (2008), <em>Internet Message Format</em>, RFC 5322,
+October 2008, <a href="https://www.rfc-editor.org/rfc/rfc5322" class="uri">https://www.rfc-editor.org/rfc/rfc5322</a>.</p>
+<p>Ooms, J. (2020), <em>curl: A Modern and Flexible Web Client for
+R</em>. R package version 4.3, <a href="https://CRAN.R-project.org/package=curl" class="uri">https://CRAN.R-project.org/package=curl</a></p>
+<p>Stenberg, D. <em>Libcurl - The Multiprotocol File Transfer
+Library</em>, <a href="https://curl.se/libcurl/" class="uri">https://curl.se/libcurl/</a></p>
 </div>
-<div class="footnotes">
+<div class="footnotes footnotes-end-of-document">
 <hr />
 <ol>
-<li id="fn1"><p>This is a known bug of the libcurl library. Please, refer to this <a href="https://curl.se/docs/knownbugs.html#IMAP_SEARCH_ALL_truncated_respon">LINK</a><a href="#fnref1" class="footnote-back">↩︎</a></p></li>
-<li id="fn2"><p>A message sequence number is a message’s relative position to the oldest message in a mail folder. It may change after deleting or moving messages. If a message is deleted, sequence numbers are reordered to fill the gap. If <code>use_uid = TRUE</code>, the command will be performed using the “UID” or unique identifier, and results are presented as such. UIDs are always the same during the life cycle of a message in a mail folder.<a href="#fnref2" class="footnote-back">↩︎</a></p></li>
+<li id="fn1"><p>This is a known bug of the libcurl library. Please,
+refer to this <a href="https://curl.se/docs/knownbugs.html#IMAP_SEARCH_ALL_truncated_respon">LINK</a><a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+<li id="fn2"><p>A message sequence number is a message’s relative
+position to the oldest message in a mail folder. It may change after
+deleting or moving messages. If a message is deleted, sequence numbers
+are reordered to fill the gap. If <code>use_uid = TRUE</code>, the
+command will be performed using the “UID” or unique identifier, and
+results are presented as such. UIDs are always the same during the life
+cycle of a message in a mail folder.<a href="#fnref2" class="footnote-back">↩︎</a></p></li>
 </ol>
 </div>
 

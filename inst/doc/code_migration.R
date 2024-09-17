@@ -1,4 +1,4 @@
-## ---- message = FALSE, eval=FALSE---------------------------------------------
+## ----message = FALSE, eval=FALSE----------------------------------------------
 #  
 #  library(mRpostman)
 #  
@@ -12,7 +12,7 @@
 #  #   AOL (imaps://export.imap.aol.com/), Yandex (imaps://imap.yandex.com)
 #  
 
-## ---- message = FALSE, eval=FALSE---------------------------------------------
+## ----message = FALSE, eval=FALSE----------------------------------------------
 #  
 #  library(mRpostman)
 #  
@@ -27,54 +27,54 @@
 #                     password=rstudioapi::askForPassword())
 #  
 
-## ---- message = FALSE, eval=FALSE---------------------------------------------
+## ----message = FALSE, eval=FALSE----------------------------------------------
 #  imapconf %>%
 #    list_server_capabilities()
 
-## ---- message = FALSE, eval=FALSE---------------------------------------------
+## ----message = FALSE, eval=FALSE----------------------------------------------
 #  con$list_server_capabilities()
 
-## ---- message = FALSE, eval=FALSE---------------------------------------------
+## ----message = FALSE, eval=FALSE----------------------------------------------
 #  # Listing
 #  imapconf %>%
 #    list_mailboxes()
 
-## ---- message = FALSE, eval=FALSE---------------------------------------------
+## ----message = FALSE, eval=FALSE----------------------------------------------
 #  # Listing
 #  con$list_folders()
 
-## ---- message = FALSE, eval = FALSE-------------------------------------------
+## ----message = FALSE, eval = FALSE--------------------------------------------
 #  imapconf %>%
 #    select_mailbox(mbox = "INBOX") # only INBOX is case sensitive
 
-## ---- message = FALSE, eval = FALSE-------------------------------------------
+## ----message = FALSE, eval = FALSE--------------------------------------------
 #  con$select_folder(name = "INBOX")
 
-## ---- message = FALSE, eval=FALSE---------------------------------------------
+## ----message = FALSE, eval=FALSE----------------------------------------------
 #  imapconf %>%
 #    select_mailbox(mbox = "K-State") %>%
 #    examine_mailbox()
 
-## ---- message = FALSE, eval = FALSE-------------------------------------------
+## ----message = FALSE, eval = FALSE--------------------------------------------
 #  con$select_folder(name = "K-State")
 #  
 #  con$examine_folder()
 
-## ---- message = FALSE, eval=FALSE---------------------------------------------
+## ----message = FALSE, eval=FALSE----------------------------------------------
 #  imapconf %>%
 #    select_mailbox(mbox = "CRAN messages") %>%
 #    rename_mailbox(new_name = "CRAN messages2") %>%
 #    list_mailboxes() # and list again to check
 #  
 
-## ---- message = FALSE, eval = FALSE-------------------------------------------
+## ----message = FALSE, eval = FALSE--------------------------------------------
 #  con$select_folder(name = "CRAN messages")
 #  
 #  con$rename_folder(new_name = "CRAN messages2")
 #  
 #  con$list_mail_folders() # and list again to check
 
-## ---- message = FALSE, eval=FALSE---------------------------------------------
+## ----message = FALSE, eval=FALSE----------------------------------------------
 #  result <- imapconf %>%
 #    select_mailbox(mbox = "K-State") %>%
 #    search_before(date_char = "02-May-2019",
@@ -84,7 +84,7 @@
 #  result$msg_id
 #  
 
-## ---- message = FALSE, eval = FALSE-------------------------------------------
+## ----message = FALSE, eval = FALSE--------------------------------------------
 #  con$select_folder(name = "K-State")
 #  
 #  result <- con$search_before(date_char = "02-May-2019",
@@ -94,7 +94,7 @@
 #  result
 #  
 
-## ---- message = FALSE, eval=FALSE---------------------------------------------
+## ----message = FALSE, eval=FALSE----------------------------------------------
 #  results <- imapconf %>%
 #    select_mailbox(mbox = "K-State") %>%
 #    search_before(date_char = "02-May-2019",
@@ -106,7 +106,7 @@
 #  results$msg_id
 #  
 
-## ---- message = FALSE, eval = FALSE-------------------------------------------
+## ----message = FALSE, eval = FALSE--------------------------------------------
 #  con$select_folder(name = "K-State")
 #  
 #  result <- con$search_before(date_char = "02-May-2019",
@@ -117,7 +117,7 @@
 #  result
 #  
 
-## ---- message = FALSE, eval=FALSE---------------------------------------------
+## ----message = FALSE, eval=FALSE----------------------------------------------
 #  results <- imapconf %>%
 #    select_mailbox(mbox = "INBOX") %>%
 #    search_string(section_or_field = "FROM", string = "hadley@rstudio.com",
@@ -126,7 +126,7 @@
 #  results$msg_id
 #  
 
-## ---- message = FALSE, eval=FALSE---------------------------------------------
+## ----message = FALSE, eval=FALSE----------------------------------------------
 #  con$select_folder(name = "INBOX")
 #  
 #  result <- con$search_string(expr = "hadley@rstudio.com",
@@ -136,13 +136,13 @@
 #  result
 #  
 
-## ---- message = FALSE, eval=FALSE---------------------------------------------
+## ----message = FALSE, eval=FALSE----------------------------------------------
 #  results <- imapconf %>%
 #    select_mailbox(mbox = "K-State") %>%
 #    search_string(section_or_field = "TEXT", string = "Dear Allan")
 #  
 
-## ---- message = FALSE, eval=FALSE---------------------------------------------
+## ----message = FALSE, eval=FALSE----------------------------------------------
 #  con$select_folder(name = "K-State")
 #  
 #  result <- con$search_string(expr = "Dear Allan", where = "TEXT")
@@ -150,13 +150,13 @@
 #  result
 #  
 
-## ---- message = FALSE, eval = FALSE-------------------------------------------
+## ----message = FALSE, eval = FALSE--------------------------------------------
 #  results <- imapconf %>%
 #    select_mailbox(mbox = "INBOX") %>%
 #    search_flag(flag = "RECENT", by = "UID")
 #  
 
-## ---- message = FALSE, eval=FALSE---------------------------------------------
+## ----message = FALSE, eval=FALSE----------------------------------------------
 #  con$select_folder(name = "INBOX")
 #  
 #  result <- con$search_flag(expr = "RECENT", use_uid = TRUE)
@@ -164,7 +164,7 @@
 #  result
 #  
 
-## ---- message = FALSE, eval=FALSE---------------------------------------------
+## ----message = FALSE, eval=FALSE----------------------------------------------
 #  
 #  results <- imapconf %>%
 #    select_mailbox(mbox = "INBOX") %>%
@@ -178,7 +178,7 @@
 #  results$msg_id
 #  
 
-## ---- message = FALSE, eval=FALSE---------------------------------------------
+## ----message = FALSE, eval=FALSE----------------------------------------------
 #  
 #  con$select_folder(name = "INBOX")
 #  
@@ -191,7 +191,7 @@
 #  result
 #  
 
-## ---- message = FALSE, eval = FALSE-------------------------------------------
+## ----message = FALSE, eval = FALSE--------------------------------------------
 #  results <- imapconf %>%
 #    select_mailbox(mbox = "K-State") %>%
 #    search_before(date_char = "10-Mar-2019", by = "UID") %$% #exposition pipe operator
@@ -200,7 +200,7 @@
 #                   partial = "0.789")
 #  
 
-## ---- message = FALSE, eval = FALSE-------------------------------------------
+## ----message = FALSE, eval = FALSE--------------------------------------------
 #  con$select_folder(name = "K-State")
 #  
 #  results <- con$search_before(date_char = "10-Mar-2019", use_uid = TRUE) %>% #regular pipe
@@ -208,7 +208,7 @@
 #                   keep_in_mem = TRUE, partial = "0.789")
 #  
 
-## ---- message = FALSE, eval=FALSE---------------------------------------------
+## ----message = FALSE, eval=FALSE----------------------------------------------
 #  results <- imapconf %>%
 #    select_mailbox(mbox = "K-State") %>%
 #    search_since(date_char = "15-Aug-2019", by = "UID") %$% #exposition pipe operator
@@ -218,7 +218,7 @@
 #                     by = "UID")
 #  
 
-## ---- message = FALSE, eval=FALSE---------------------------------------------
+## ----message = FALSE, eval=FALSE----------------------------------------------
 #  
 #  con$select_folder(name = "K-State")
 #  
@@ -226,7 +226,7 @@
 #    con$fetch_header(use_uid = TRUE, fields = c("DATE", "SUBJECT"))
 #  
 
-## ---- message = FALSE, eval = FALSE-------------------------------------------
+## ----message = FALSE, eval = FALSE--------------------------------------------
 #  
 #  results <- imapconf %>%
 #    select_mailbox(mbox = "INBOX") %>%
@@ -234,7 +234,7 @@
 #    fetch_msg_text(imapconf = imapconf, msg_id = msg_id, by = "UID", try_b64decode = TRUE)
 #  
 
-## ---- message = FALSE, eval=FALSE---------------------------------------------
+## ----message = FALSE, eval=FALSE----------------------------------------------
 #  
 #  con$select_folder(name = "INBOX")
 #  
@@ -242,7 +242,7 @@
 #    con$fetch_text(use_uid = TRUE, base64_decode = TRUE))
 #  
 
-## ---- message = FALSE, eval = FALSE-------------------------------------------
+## ----message = FALSE, eval = FALSE--------------------------------------------
 #  
 #  results <- imapconf %>%
 #    select_mailbox(mbox = "INBOX") %>%
@@ -251,7 +251,7 @@
 #                       metadata = c("INTERNALDATE", "UID", "ENVELOPE"))
 #  
 
-## ---- message = FALSE, eval=FALSE---------------------------------------------
+## ----message = FALSE, eval=FALSE----------------------------------------------
 #  
 #  con$select_folder(name = "INBOX")
 #  
@@ -259,14 +259,14 @@
 #    con$fetch_text(use_uid = TRUE, attribute = c("INTERNALDATE", "UID", "ENVELOPE"))
 #  
 
-## ---- message = FALSE, eval = FALSE-------------------------------------------
+## ----message = FALSE, eval = FALSE--------------------------------------------
 #  imapconf %>%
 #    select_mailbox(mbox = "INBOX") %>%
 #    search_on(date_char = "23-Sep-2019") %$%
 #    fetch_full_msg(imapconf, msg_id=msg_id) %>%
 #    list_attachments()
 
-## ---- message = FALSE, eval=FALSE---------------------------------------------
+## ----message = FALSE, eval=FALSE----------------------------------------------
 #  
 #  con$select_folder(name = "INBOX")
 #  
@@ -275,7 +275,7 @@
 #    list_attachments()
 #  
 
-## ---- message = FALSE, eval=FALSE---------------------------------------------
+## ----message = FALSE, eval=FALSE----------------------------------------------
 #  
 #  con$select_folder(name = "INBOX")
 #  
@@ -283,7 +283,7 @@
 #    con$fetch_attachments_list()
 #  
 
-## ---- message = FALSE, eval = FALSE-------------------------------------------
+## ----message = FALSE, eval = FALSE--------------------------------------------
 #  imapconf %>%
 #    select_mailbox(mbox = "INBOX") %>%
 #    search_on(date_char = "23-Sep-2019") %$%
@@ -291,7 +291,7 @@
 #    get_attachments()
 #  
 
-## ---- message = FALSE, eval=FALSE---------------------------------------------
+## ----message = FALSE, eval=FALSE----------------------------------------------
 #  con$select_folder(name = "INBOX")
 #  
 #  results <- con$search_on(date_char = "23-Sep-2019") %>% #regular pipe
@@ -299,7 +299,7 @@
 #    get_attachments()
 #  
 
-## ---- message = FALSE, eval=FALSE---------------------------------------------
+## ----message = FALSE, eval=FALSE----------------------------------------------
 #  
 #  con$select_folder(name = "INBOX")
 #  
@@ -307,14 +307,14 @@
 #    con$fetch_attachments()
 #  
 
-## ---- message = FALSE, eval = FALSE-------------------------------------------
+## ----message = FALSE, eval = FALSE--------------------------------------------
 #  results <- imapconf %>%
 #    select_mailbox(mbox = "CRAN messages2") %>%
 #    search_since(date_char = "10-May-2019") %$% #exposition pipe operator
 #    copy_msg(imapconf = imapconf, msg_id = msg_id, to_mbox = "INBOX")
 #  
 
-## ---- message = FALSE, eval = FALSE-------------------------------------------
+## ----message = FALSE, eval = FALSE--------------------------------------------
 #  
 #  con$select_folder(name = "CRAN messages2")
 #  
@@ -322,7 +322,7 @@
 #    con$copy_msg(to_folder = "INBOX", reselect = FALSE)
 #  
 
-## ---- message = FALSE, eval = FALSE-------------------------------------------
+## ----message = FALSE, eval = FALSE--------------------------------------------
 #  
 #  results <- imapconf %>%
 #    select_mailbox(mbox = "[Gmail]/Sent") %>%
@@ -331,7 +331,7 @@
 #  
 #  
 
-## ---- message = FALSE, eval = FALSE-------------------------------------------
+## ----message = FALSE, eval = FALSE--------------------------------------------
 #  
 #  con$select_folder(name = "[Gmail]/Sent")
 #  
@@ -339,47 +339,47 @@
 #    con$move_msg(to_folder = "CRAN messages2", reselect = FALSE)
 #  
 
-## ---- message = FALSE, eval = FALSE-------------------------------------------
+## ----message = FALSE, eval = FALSE--------------------------------------------
 #  results <- imapconf %>%
 #    select_mailbox(mbox = "[GMail]/Trash") %>%
 #    get_min_id(flag = "UNSEEN")
 #  
 
-## ---- message = FALSE, eval = FALSE-------------------------------------------
+## ----message = FALSE, eval = FALSE--------------------------------------------
 #  
 #  con$select_folder(name = "[GMail]/Trash")
 #  
 #  con$esearch_min_id(flag = "UNSEEN")
 #  
 
-## ---- message = FALSE, eval = FALSE-------------------------------------------
+## ----message = FALSE, eval = FALSE--------------------------------------------
 #  results <- imapconf %>%
 #    select_mailbox(mbox = "[Gmail]/Trash") %>%
 #    get_max_id(flag = "UNSEEN")
 #  
 
-## ---- message = FALSE, eval = FALSE-------------------------------------------
+## ----message = FALSE, eval = FALSE--------------------------------------------
 #  
 #  con$select_folder(name = "[GMail]/Trash")
 #  
 #  con$esearch_max_id(flag = "UNSEEN")
 #  
 
-## ---- message = FALSE, eval = FALSE-------------------------------------------
+## ----message = FALSE, eval = FALSE--------------------------------------------
 #  
 #  results <- imapconf %>%
 #    select_mailbox(mbox = "INBOX") %>%
 #    delete_msg(msg_id = 66128)
 #  
 
-## ---- message = FALSE, eval = FALSE-------------------------------------------
+## ----message = FALSE, eval = FALSE--------------------------------------------
 #  
 #  con$select_folder(name = "INBOX")
 #  
 #  con$delete_msg(msg_id = 66128)
 #  
 
-## ---- message = FALSE, eval = FALSE-------------------------------------------
+## ----message = FALSE, eval = FALSE--------------------------------------------
 #  
 #  results <- imapconf %>%
 #    select_mailbox(mbox = "[Gmail]/Trash") %>%
@@ -387,7 +387,7 @@
 #    expunge(imapconf = imapconf, specific_UID = msg_id)
 #  
 
-## ---- message = FALSE, eval = FALSE-------------------------------------------
+## ----message = FALSE, eval = FALSE--------------------------------------------
 #  
 #  con$select_folder(name = "[GMail]/Trash")
 #  
@@ -398,7 +398,7 @@
 #  con$expunge()
 #  
 
-## ---- message = FALSE, eval = FALSE-------------------------------------------
+## ----message = FALSE, eval = FALSE--------------------------------------------
 #  
 #  results <- imapconf %>%
 #    select_mailbox(mbox = "INBOX") %>%
@@ -406,7 +406,7 @@
 #    add_flags(imapconf = imapconf, msg_id = msg_id, flags_to_set = "\\Seen")
 #  
 
-## ---- message = FALSE, eval = FALSE-------------------------------------------
+## ----message = FALSE, eval = FALSE--------------------------------------------
 #  
 #  con$select_folder(name = "INBOX")
 #  
@@ -414,7 +414,7 @@
 #    con$add_flags(use_uid = TRUE, flags_to_set = "\\Seen") # system flags need the "\\" prefix
 #  
 
-## ---- message = FALSE, eval = FALSE-------------------------------------------
+## ----message = FALSE, eval = FALSE--------------------------------------------
 #  
 #  results <- imapconf %>%
 #    select_mailbox(mbox = "INBOX") %>%
@@ -422,7 +422,7 @@
 #    remove_flags(imapconf = imapconf, msg_id = msg_id, flags_to_unset = "\\Seen")
 #  
 
-## ---- message = FALSE, eval = FALSE-------------------------------------------
+## ----message = FALSE, eval = FALSE--------------------------------------------
 #  
 #  con$select_folder(name = "INBOX")
 #  
@@ -430,7 +430,7 @@
 #    con$remove_flags(use_uid = TRUE, flags_to_unset = "\\Seen") # system flags need the "\\" prefix
 #  
 
-## ---- message = FALSE, eval = FALSE-------------------------------------------
+## ----message = FALSE, eval = FALSE--------------------------------------------
 #  
 #  results <- imapconf %>%
 #    select_mailbox(mbox = "INBOX") %>%
@@ -438,7 +438,7 @@
 #    replace_flags(imapconf = imapconf, msg_id = msg_id, flags_to_set = "\\Seen")
 #  
 
-## ---- message = FALSE, eval = FALSE-------------------------------------------
+## ----message = FALSE, eval = FALSE--------------------------------------------
 #  
 #  con$select_folder(name = "INBOX")
 #  

@@ -1,12 +1,12 @@
-## ---- message = FALSE---------------------------------------------------------
+## ----message = FALSE----------------------------------------------------------
 curl::curl_version()
 
-## ---- message = FALSE, eval=FALSE---------------------------------------------
+## ----message = FALSE, eval=FALSE----------------------------------------------
 #  secret = "vsV[...]6m7"
 #  
 #  key = "85169[...]9pk.apps.googleusercontent.com"
 
-## ---- message = FALSE, eval=FALSE---------------------------------------------
+## ----message = FALSE, eval=FALSE----------------------------------------------
 #  endpoint <- httr::oauth_endpoints("google")
 #  
 #  gmail_app <- httr::oauth_app(
@@ -19,11 +19,11 @@ curl::curl_version()
 #  
 #  auth_code <- httr::oauth2.0_token(endpoint, app = gmail_app, scope = scope)
 
-## ---- message = FALSE, eval=FALSE---------------------------------------------
+## ----message = FALSE, eval=FALSE----------------------------------------------
 #  token <- auth_code$credentials$access_token
 #  
 
-## ---- message = FALSE, eval = FALSE-------------------------------------------
+## ----message = FALSE, eval = FALSE--------------------------------------------
 #  library(mRpostman)
 #  con <- configure_imap(url="imaps://imap.gmail.com",
 #                        username = "user@gmail.com",
@@ -35,10 +35,10 @@ curl::curl_version()
 #  con$list_server_capabilities()
 #  
 
-## ---- message = FALSE, echo = FALSE-------------------------------------------
+## ----message = FALSE, echo = FALSE--------------------------------------------
 c("IMAP4rev1", "UNSELECT", "IDLE", "NAMESPACE", "QUOTA", "ID", "XLIST", "CHILDREN", "X-GM-EXT-1", "UIDPLUS", "COMPRESS=DEFLATE", "ENABLE", "MOVE", "CONDSTORE", "ESEARCH", "UTF8=ACCEPT", "LIST-EXTENDED", "LIST-STATUS", "LITERAL-", "SPECIAL-USE", "APPENDLIMIT=35651584")
 
-## ---- message = FALSE, eval=FALSE---------------------------------------------
+## ----message = FALSE, eval=FALSE----------------------------------------------
 #  # thanks to jdeboer code at https://github.com/r-lib/httr/issues/31
 #  oauth2.0_refresh <- function(endpoint, app, auth_code, type = NULL) {
 #    req <- httr::POST(

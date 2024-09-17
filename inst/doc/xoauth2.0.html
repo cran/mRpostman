@@ -390,7 +390,7 @@ or above installed, you should be fine. Therefore, we recommend checking
 to which libcurl version, the curl R package is linked by executing:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>curl<span class="sc">::</span><span class="fu">curl_version</span>()</span></code></pre></div>
 <pre><code>## $version
-## [1] &quot;7.68.0&quot;
+## [1] &quot;7.70.0&quot;
 ## 
 ## $ssl_version
 ## [1] &quot;OpenSSL/1.1.1f&quot;
@@ -399,27 +399,27 @@ to which libcurl version, the curl R package is linked by executing:</p>
 ## [1] &quot;1.2.11&quot;
 ## 
 ## $libssh_version
-## [1] &quot;libssh/0.9.3/openssl/zlib&quot;
+## [1] NA
 ## 
 ## $libidn_version
-## [1] &quot;2.2.0&quot;
+## [1] NA
 ## 
 ## $host
 ## [1] &quot;x86_64-pc-linux-gnu&quot;
 ## 
 ## $protocols
 ##  [1] &quot;dict&quot;   &quot;file&quot;   &quot;ftp&quot;    &quot;ftps&quot;   &quot;gopher&quot; &quot;http&quot;   &quot;https&quot;  &quot;imap&quot;  
-##  [9] &quot;imaps&quot;  &quot;ldap&quot;   &quot;ldaps&quot;  &quot;pop3&quot;   &quot;pop3s&quot;  &quot;rtmp&quot;   &quot;rtsp&quot;   &quot;scp&quot;   
-## [17] &quot;sftp&quot;   &quot;smb&quot;    &quot;smbs&quot;   &quot;smtp&quot;   &quot;smtps&quot;  &quot;telnet&quot; &quot;tftp&quot;  
+##  [9] &quot;imaps&quot;  &quot;pop3&quot;   &quot;pop3s&quot;  &quot;rtsp&quot;   &quot;smb&quot;    &quot;smbs&quot;   &quot;smtp&quot;   &quot;smtps&quot; 
+## [17] &quot;telnet&quot; &quot;tftp&quot;  
 ## 
 ## $ipv6
 ## [1] TRUE
 ## 
 ## $http2
-## [1] TRUE
+## [1] FALSE
 ## 
 ## $idn
-## [1] TRUE</code></pre>
+## [1] FALSE</code></pre>
 <p>The steps involved in configuring and obtaining an OAuth2.0 access
 token can be summarized as follows:</p>
 <ul>

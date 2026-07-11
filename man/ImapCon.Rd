@@ -11,13 +11,13 @@ Configure an IMAP connection using the \code{ImapCon} \code{R6}
 \href{#method-new}{\code{ImapCon$new()}}: The \code{\link{configure_imap}}
   should be preferred instead of \code{ImapCon$new()}.
 
-\href{#method-search}{\code{ImapCon$search()}}: IMAP queries follows
+\href{#method-search}{\code{ImapCon$search()}}: IMAP queries follow
   Polish notation, i.e. operators such as \code{OR} come before arguments,
   e.g. "OR argument1 argument2". Therefore, the relational-operator-helper-functions
   in this package should be used like the following examples:
   \code{OR(before("17-Apr-2015"), string("FROM", "John"))}. Even though there
   is no "AND" operator in IMAP, this package adds a helper function
-  \code{\link{AND}} to indicate multiples arguments that must be searched
+  \code{\link{AND}} to indicate multiple arguments that must be searched
   together, e.g. \code{AND(since("01-Jul-2018"), smaller_than(16000))}.
 
 \href{#method-sent_before}{\code{ImapCon$sent_before()}}: Search
@@ -69,7 +69,7 @@ Configure an IMAP connection using the \code{ImapCon} \code{R6}
 \href{#method-search_string}{\code{ImapCon$search_string()}}: Using
   \code{where = "TEXT"}, may produce unexpected results since it
   will perform the search on raw data, i.e. the searched expression may be
-  truncated by special formating characters such as \code{\\r\\n} for example.
+  truncated by special formatting characters such as \code{\\r\\n} for example.
   It is recommended to perform this type of search using \code{where = "BODY"},
   instead of \code{"TEXT"} (\cite{Heinlein, P. and Hartleben, P. (2008)}).
 
@@ -195,12 +195,61 @@ con <- ImapCon$new(
 
 
 ## ------------------------------------------------
+## Method `ImapCon$disconnect`
+## ------------------------------------------------
+
+\dontrun{
+con$disconnect()
+}
+
+## ------------------------------------------------
 ## Method `ImapCon$list_server_capabilities`
 ## ------------------------------------------------
 
 \dontrun{
 cap <- con$list_server_capabilities()
 cap
+}
+
+## ------------------------------------------------
+## Method `ImapCon$namespace`
+## ------------------------------------------------
+
+\dontrun{
+con$namespace()
+}
+
+## ------------------------------------------------
+## Method `ImapCon$id`
+## ------------------------------------------------
+
+\dontrun{
+con$id()
+con$id(fields = c(name = "mRpostman", version = "1.2.1"))
+}
+
+## ------------------------------------------------
+## Method `ImapCon$get_quota_root`
+## ------------------------------------------------
+
+\dontrun{
+con$get_quota_root(name = "INBOX")
+}
+
+## ------------------------------------------------
+## Method `ImapCon$get_quota`
+## ------------------------------------------------
+
+\dontrun{
+con$get_quota(quota_root = "")
+}
+
+## ------------------------------------------------
+## Method `ImapCon$noop`
+## ------------------------------------------------
+
+\dontrun{
+con$noop()
 }
 
 ## ------------------------------------------------
@@ -213,11 +262,46 @@ folders
 }
 
 ## ------------------------------------------------
+## Method `ImapCon$list_subscribed_folders`
+## ------------------------------------------------
+
+\dontrun{
+subscribed <- con$list_subscribed_folders()
+subscribed
+}
+
+## ------------------------------------------------
+## Method `ImapCon$list_special_use_folders`
+## ------------------------------------------------
+
+\dontrun{
+con$list_special_use_folders()
+}
+
+## ------------------------------------------------
 ## Method `ImapCon$select_folder`
 ## ------------------------------------------------
 
 \dontrun{
-con$select_mail_folder(name = "INBOX")
+con$select_folder(name = "INBOX")
+}
+
+## ------------------------------------------------
+## Method `ImapCon$close_folder`
+## ------------------------------------------------
+
+\dontrun{
+con$select_folder("INBOX")
+con$close_folder()
+}
+
+## ------------------------------------------------
+## Method `ImapCon$unselect_folder`
+## ------------------------------------------------
+
+\dontrun{
+con$select_folder("INBOX")
+con$unselect_folder()
 }
 
 ## ------------------------------------------------
@@ -230,6 +314,18 @@ con$examine_folder()
 
 # or directly:
 con$examine_folder("Sent")
+}
+
+## ------------------------------------------------
+## Method `ImapCon$status`
+## ------------------------------------------------
+
+\dontrun{
+con$status(name = "INBOX")
+
+# or, for the selected folder and specific items only:
+con$select_folder("INBOX")
+con$status(items = c("MESSAGES", "UNSEEN"))
 }
 
 ## ------------------------------------------------
@@ -252,12 +348,54 @@ con$rename_folder(name = "Folder A", new_name = "Folder B")
 }
 
 ## ------------------------------------------------
+## Method `ImapCon$delete_folder`
+## ------------------------------------------------
+
+\dontrun{
+con$delete_folder(name = "Folder to remove")
+}
+
+## ------------------------------------------------
+## Method `ImapCon$subscribe_folder`
+## ------------------------------------------------
+
+\dontrun{
+con$subscribe_folder(name = "INBOX")
+}
+
+## ------------------------------------------------
+## Method `ImapCon$unsubscribe_folder`
+## ------------------------------------------------
+
+\dontrun{
+con$unsubscribe_folder(name = "INBOX")
+}
+
+## ------------------------------------------------
 ## Method `ImapCon$list_flags`
 ## ------------------------------------------------
 
 \dontrun{
 con$select_folder(name = "INBOX")
 con$list_flags()
+}
+
+## ------------------------------------------------
+## Method `ImapCon$sort`
+## ------------------------------------------------
+
+\dontrun{
+con$select_folder("INBOX")
+con$sort(by = "DATE", reverse = TRUE)
+}
+
+## ------------------------------------------------
+## Method `ImapCon$thread`
+## ------------------------------------------------
+
+\dontrun{
+con$select_folder("INBOX")
+con$thread(algorithm = "REFERENCES")
 }
 
 ## ------------------------------------------------
@@ -282,7 +420,7 @@ con$search(AND(smaller_than(size = "512000"),
 
 \dontrun{
 # search for messages with size larger than 512Kb
-con$search_larger_than(size = 512000))
+con$search_larger_than(size = 512000)
 }
 
 ## ------------------------------------------------
@@ -292,7 +430,7 @@ con$search_larger_than(size = 512000))
 \dontrun{
 con$select_folder(name = "INBOX")
 # search for messages with size smaller than 512Kb
-con$search_smaller_than(size = 512000))
+con$search_smaller_than(size = 512000)
 }
 
 ## ------------------------------------------------
@@ -338,7 +476,7 @@ con$select_folder(name = "INBOX")
 #... those received between the dates "02-Jan-2020" and "22-Mar-2020"
 con$search_period(since_date_char = "02-Jan-2020",
                   before_date_char = "22-Mar-2020",
-                  negate = TRUE))
+                  negate = TRUE)
 }
 
 ## ------------------------------------------------
@@ -382,7 +520,7 @@ con$select_folder(name = "INBOX")
 #... those received between the dates "02-Jan-2020" and "22-Mar-2020"
 con$search_sent_period(since_date_char = "02-Jan-2020",
                   before_date_char = "22-Mar-2020",
-                  negate = TRUE))
+                  negate = TRUE)
 }
 
 ## ------------------------------------------------
@@ -422,7 +560,7 @@ con$search_younger_than(seconds = 3600)
 
 \dontrun{
 con$select_folder(name = "INBOX")
-# search for all messages received in the last hour (younger than 3600 seconds)
+# search for messages with "@k-state.edu" in the FROM field
 con$search_string(expr = "@k-state.edu", where = "FROM")
 }
 
@@ -530,6 +668,16 @@ con$move(msg = res, to_folder = "Sent")
 }
 
 ## ------------------------------------------------
+## Method `ImapCon$append_msg`
+## ------------------------------------------------
+
+\dontrun{
+msg <- paste("From: me@example.com", "To: you@example.com",
+             "Subject: Hi", "", "Message body.", sep = "\r\n")
+con$append_msg(message = msg, folder = "Drafts")
+}
+
+## ------------------------------------------------
 ## Method `ImapCon$esearch_count`
 ## ------------------------------------------------
 
@@ -599,7 +747,7 @@ con$select_folder(name = "INBOX")
 # Replace the current flags of the messages in the search results for the
 #.. flags "\\UNSEEN" and "\\Flagged"
 con$search_since(date_char = "20-Aug-2020") \%>\%
-  con$replace_flags(flags_to_set = c("\\\\UNSEEN", "\\\\Flagged")
+  con$replace_flags(flags_to_set = c("\\\\UNSEEN", "\\\\Flagged"))
 }
 
 ## ------------------------------------------------
@@ -608,7 +756,7 @@ con$search_since(date_char = "20-Aug-2020") \%>\%
 
 \dontrun{
 con$select_folder(name = "INBOX")
-# Remove the the "\\SEEN" flag from the messages in the search result
+# Remove the "\\SEEN" flag from the messages in the search result
 con$search_since(date_char = "20-Aug-2020") \%>\%
   con$remove_flags(flags_to_unset = "\\\\UNSEEN")
 }
@@ -625,7 +773,7 @@ con$search_string(expr = "@gmail", where = "CC") \%>\%
   con$get_attachments()
 
 # example 2
-res <- con$search_string(expr = "@gmail", where = "CC") \%>\%
+res <- con$search_string(expr = "@gmail", where = "CC")
 out <- con$fetch_body(msg = res)
 con$get_attachments(msg_list = out)
 }
@@ -637,7 +785,7 @@ con$get_attachments(msg_list = out)
 \dontrun{
 con$select_folder(name = "INBOX")
 # do a search and fetch the attachments' list of the messages
-out < con$search_string(expr = "@k-state.edu", where = "FROM") \%>\%
+out <- con$search_string(expr = "@k-state.edu", where = "FROM") \%>\%
   con$fetch_attachments_list()
 out
 
@@ -708,6 +856,7 @@ Other attachments:
 \concept{search by date}
 \concept{search by flag}
 \concept{search by size}
+\concept{search by string}
 \concept{search within}
 \section{Methods}{
 \subsection{Public methods}{
@@ -721,13 +870,29 @@ Other attachments:
 \item \href{#method-ImapCon-reset_timeout_ms}{\code{ImapCon$reset_timeout_ms()}}
 \item \href{#method-ImapCon-reset_password}{\code{ImapCon$reset_password()}}
 \item \href{#method-ImapCon-reset_xoauth2_bearer}{\code{ImapCon$reset_xoauth2_bearer()}}
+\item \href{#method-ImapCon-disconnect}{\code{ImapCon$disconnect()}}
 \item \href{#method-ImapCon-list_server_capabilities}{\code{ImapCon$list_server_capabilities()}}
+\item \href{#method-ImapCon-namespace}{\code{ImapCon$namespace()}}
+\item \href{#method-ImapCon-id}{\code{ImapCon$id()}}
+\item \href{#method-ImapCon-get_quota_root}{\code{ImapCon$get_quota_root()}}
+\item \href{#method-ImapCon-get_quota}{\code{ImapCon$get_quota()}}
+\item \href{#method-ImapCon-noop}{\code{ImapCon$noop()}}
 \item \href{#method-ImapCon-list_mail_folders}{\code{ImapCon$list_mail_folders()}}
+\item \href{#method-ImapCon-list_subscribed_folders}{\code{ImapCon$list_subscribed_folders()}}
+\item \href{#method-ImapCon-list_special_use_folders}{\code{ImapCon$list_special_use_folders()}}
 \item \href{#method-ImapCon-select_folder}{\code{ImapCon$select_folder()}}
+\item \href{#method-ImapCon-close_folder}{\code{ImapCon$close_folder()}}
+\item \href{#method-ImapCon-unselect_folder}{\code{ImapCon$unselect_folder()}}
 \item \href{#method-ImapCon-examine_folder}{\code{ImapCon$examine_folder()}}
+\item \href{#method-ImapCon-status}{\code{ImapCon$status()}}
 \item \href{#method-ImapCon-create_folder}{\code{ImapCon$create_folder()}}
 \item \href{#method-ImapCon-rename_folder}{\code{ImapCon$rename_folder()}}
+\item \href{#method-ImapCon-delete_folder}{\code{ImapCon$delete_folder()}}
+\item \href{#method-ImapCon-subscribe_folder}{\code{ImapCon$subscribe_folder()}}
+\item \href{#method-ImapCon-unsubscribe_folder}{\code{ImapCon$unsubscribe_folder()}}
 \item \href{#method-ImapCon-list_flags}{\code{ImapCon$list_flags()}}
+\item \href{#method-ImapCon-sort}{\code{ImapCon$sort()}}
+\item \href{#method-ImapCon-thread}{\code{ImapCon$thread()}}
 \item \href{#method-ImapCon-search}{\code{ImapCon$search()}}
 \item \href{#method-ImapCon-search_larger_than}{\code{ImapCon$search_larger_than()}}
 \item \href{#method-ImapCon-search_smaller_than}{\code{ImapCon$search_smaller_than()}}
@@ -749,6 +914,7 @@ Other attachments:
 \item \href{#method-ImapCon-fetch_text}{\code{ImapCon$fetch_text()}}
 \item \href{#method-ImapCon-copy_msg}{\code{ImapCon$copy_msg()}}
 \item \href{#method-ImapCon-move_msg}{\code{ImapCon$move_msg()}}
+\item \href{#method-ImapCon-append_msg}{\code{ImapCon$append_msg()}}
 \item \href{#method-ImapCon-esearch_count}{\code{ImapCon$esearch_count()}}
 \item \href{#method-ImapCon-delete_msg}{\code{ImapCon$delete_msg()}}
 \item \href{#method-ImapCon-expunge}{\code{ImapCon$expunge()}}
@@ -963,6 +1129,33 @@ Reset the previously informed oauth2 bearer token
 }
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-ImapCon-disconnect"></a>}}
+\if{latex}{\out{\hypertarget{method-ImapCon-disconnect}{}}}
+\subsection{Method \code{disconnect()}}{
+Disconnect and release the connection handle. After calling
+  this method the connection object can no longer be used to issue
+  commands; a new one must be created with \code{\link{configure_imap}}.
+  Dropping the handle reference lets 'libcurl' close the underlying
+  connection when the handle is garbage-collected.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ImapCon$disconnect()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+\code{TRUE}, invisibly.
+}
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{\dontrun{
+con$disconnect()
+}
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ImapCon-list_server_capabilities"></a>}}
 \if{latex}{\out{\hypertarget{method-ImapCon-list_server_capabilities}{}}}
 \subsection{Method \code{list_server_capabilities()}}{
@@ -987,6 +1180,192 @@ A character \code{vector} containing the server's IMAP capabilities.
 \preformatted{\dontrun{
 cap <- con$list_server_capabilities()
 cap
+}
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-ImapCon-namespace"></a>}}
+\if{latex}{\out{\hypertarget{method-ImapCon-namespace}{}}}
+\subsection{Method \code{namespace()}}{
+Request the server's namespaces (IMAP \code{NAMESPACE}, RFC
+  2342): the personal, other users', and shared namespace prefixes and
+  their hierarchy delimiters. Requires the server \code{NAMESPACE}
+  capability.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ImapCon$namespace(retries = 1)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{retries}}{Number of attempts to connect and execute the command.
+Default is \code{1}.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A named \code{list} with elements \code{personal},
+  \code{other_users} and \code{shared}, each a \code{data.frame} with
+  \code{prefix} and \code{delimiter} columns, or \code{NULL} when the
+  server returns \code{NIL} for that component.
+}
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{\dontrun{
+con$namespace()
+}
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-ImapCon-id"></a>}}
+\if{latex}{\out{\hypertarget{method-ImapCon-id}{}}}
+\subsection{Method \code{id()}}{
+Exchange client/server identification (IMAP \code{ID}, RFC
+  2971). Optionally sends the client's id fields and returns the server's
+  id. Requires the server \code{ID} capability.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ImapCon$id(fields = NULL, retries = 1)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{fields}}{A named \code{character} vector with the client id fields to
+send, e.g. \code{c(name = "mRpostman", version = "1.2.1")}. If
+\code{NULL} (default), sends \code{ID NIL} (asks for the server id
+without disclosing the client id).}
+
+\item{\code{retries}}{Number of attempts to connect and execute the command.
+Default is \code{1}.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A named \code{character} vector with the server's id fields
+  (empty when the server returns \code{NIL}).
+}
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{\dontrun{
+con$id()
+con$id(fields = c(name = "mRpostman", version = "1.2.1"))
+}
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-ImapCon-get_quota_root"></a>}}
+\if{latex}{\out{\hypertarget{method-ImapCon-get_quota_root}{}}}
+\subsection{Method \code{get_quota_root()}}{
+Get the quota root(s) and quota usage/limits of a mail folder
+  (IMAP \code{GETQUOTAROOT}, RFC 2087). Requires the server \code{QUOTA}
+  capability.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ImapCon$get_quota_root(name = NULL, retries = 1)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{name}}{A \code{character} string with the mail folder name. If no
+name is passed, the command uses the previously selected folder.}
+
+\item{\code{retries}}{Number of attempts to connect and execute the command.
+Default is \code{1}.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A \code{data.frame} with columns \code{quota_root},
+  \code{resource}, \code{usage} and \code{limit} (one row per resource;
+  \code{STORAGE} is reported by the server in kibibytes).
+}
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{\dontrun{
+con$get_quota_root(name = "INBOX")
+}
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-ImapCon-get_quota"></a>}}
+\if{latex}{\out{\hypertarget{method-ImapCon-get_quota}{}}}
+\subsection{Method \code{get_quota()}}{
+Get the quota usage/limits of a quota root (IMAP
+  \code{GETQUOTA}, RFC 2087). Requires the server \code{QUOTA} capability.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ImapCon$get_quota(quota_root = "", retries = 1)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{quota_root}}{A \code{character} string with the quota root name.
+Default is \code{""} (the default root). Use \code{get_quota_root()} to
+discover the root(s) of a folder.}
+
+\item{\code{retries}}{Number of attempts to connect and execute the command.
+Default is \code{1}.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A \code{data.frame} with columns \code{quota_root},
+  \code{resource}, \code{usage} and \code{limit}.
+}
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{\dontrun{
+con$get_quota(quota_root = "")
+}
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-ImapCon-noop"></a>}}
+\if{latex}{\out{\hypertarget{method-ImapCon-noop}{}}}
+\subsection{Method \code{noop()}}{
+Issue a \code{NOOP} command. It does nothing on the server
+  other than resetting the inactivity autologout timer, which makes it
+  useful as a keep-alive during long idle periods and as a way to keep
+  the connection handle alive between operations.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ImapCon$noop(retries = 1)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{retries}}{Number of attempts to connect and execute the command.
+Default is \code{1}.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+\code{TRUE} in case the operation is successful.
+}
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{\dontrun{
+con$noop()
 }
 }
 \if{html}{\out{</div>}}
@@ -1028,6 +1407,78 @@ folders
 
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-ImapCon-list_subscribed_folders"></a>}}
+\if{latex}{\out{\hypertarget{method-ImapCon-list_subscribed_folders}{}}}
+\subsection{Method \code{list_subscribed_folders()}}{
+List the subscribed mail folders in a mailbox (IMAP
+  \code{LSUB}). Unlike \code{list_mail_folders()} (which issues
+  \code{LIST} and returns every folder), this returns only the folders
+  the user is subscribed to.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ImapCon$list_subscribed_folders(retries = 1)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{retries}}{Number of attempts to connect and execute the command.
+Default is \code{1}.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A \code{list} containing the subscribed mail folder names and
+  their inherent structure.
+}
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{\dontrun{
+subscribed <- con$list_subscribed_folders()
+subscribed
+}
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-ImapCon-list_special_use_folders"></a>}}
+\if{latex}{\out{\hypertarget{method-ImapCon-list_special_use_folders}{}}}
+\subsection{Method \code{list_special_use_folders()}}{
+List the special-use mail folders (IMAP
+  \code{LIST (SPECIAL-USE)}, RFC 6154), i.e. the folders the server has
+  tagged with a role such as \code{\\Sent}, \code{\\Drafts},
+  \code{\\Junk}, \code{\\Trash}, \code{\\Archive}, \code{\\All}, or
+  \code{\\Flagged}. Requires the server \code{SPECIAL-USE} capability.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ImapCon$list_special_use_folders(retries = 1)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{retries}}{Number of attempts to connect and execute the command.
+Default is \code{1}.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A \code{data.frame} with columns \code{folder} and
+  \code{special_use} (one row per folder/attribute).
+}
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{\dontrun{
+con$list_special_use_folders()
+}
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ImapCon-select_folder"></a>}}
 \if{latex}{\out{\hypertarget{method-ImapCon-select_folder}{}}}
 \subsection{Method \code{select_folder()}}{
@@ -1057,7 +1508,75 @@ A \code{list} containing the mail folder names and their inherent
 \subsection{Examples}{
 \if{html}{\out{<div class="r example copy">}}
 \preformatted{\dontrun{
-con$select_mail_folder(name = "INBOX")
+con$select_folder(name = "INBOX")
+}
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-ImapCon-close_folder"></a>}}
+\if{latex}{\out{\hypertarget{method-ImapCon-close_folder}{}}}
+\subsection{Method \code{close_folder()}}{
+Close the currently selected mail folder (IMAP \code{CLOSE}),
+  permanently removing the messages flagged \code{\\Deleted}. After this,
+  no folder is selected.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ImapCon$close_folder(retries = 1)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{retries}}{Number of attempts to connect and execute the command.
+Default is \code{1}.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+\code{TRUE} in case the operation is successful.
+}
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{\dontrun{
+con$select_folder("INBOX")
+con$close_folder()
+}
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-ImapCon-unselect_folder"></a>}}
+\if{latex}{\out{\hypertarget{method-ImapCon-unselect_folder}{}}}
+\subsection{Method \code{unselect_folder()}}{
+Close the currently selected mail folder \strong{without}
+  expunging (IMAP \code{UNSELECT}, RFC 3691). Requires the server
+  \code{UNSELECT} capability. After this, no folder is selected.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ImapCon$unselect_folder(retries = 1)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{retries}}{Number of attempts to connect and execute the command.
+Default is \code{1}.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+\code{TRUE} in case the operation is successful.
+}
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{\dontrun{
+con$select_folder("INBOX")
+con$unselect_folder()
 }
 }
 \if{html}{\out{</div>}}
@@ -1098,6 +1617,56 @@ con$examine_folder()
 
 # or directly:
 con$examine_folder("Sent")
+}
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-ImapCon-status"></a>}}
+\if{latex}{\out{\hypertarget{method-ImapCon-status}{}}}
+\subsection{Method \code{status()}}{
+Request the status of a mail folder without selecting it.
+  Unlike \code{examine_folder()}, this does not change the currently
+  selected folder.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ImapCon$status(
+  name = NULL,
+  items = c("MESSAGES", "RECENT", "UIDNEXT", "UIDVALIDITY", "UNSEEN"),
+  retries = 1
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{name}}{A \code{character} string containing the name of an existing
+mail folder on the user's mailbox. If no name is passed, the command
+will be executed using the previously selected mail folder name.}
+
+\item{\code{items}}{A \code{character} vector with the status data items to
+request. Must be a subset of \code{"MESSAGES"}, \code{"RECENT"},
+\code{"UIDNEXT"}, \code{"UIDVALIDITY"}, and \code{"UNSEEN"}. Default is
+all of them.}
+
+\item{\code{retries}}{Number of attempts to connect and execute the command.
+Default is \code{1}.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A named \code{numeric} vector with the requested status counts.
+}
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{\dontrun{
+con$status(name = "INBOX")
+
+# or, for the selected folder and specific items only:
+con$select_folder("INBOX")
+con$status(items = c("MESSAGES", "UNSEEN"))
 }
 }
 \if{html}{\out{</div>}}
@@ -1160,7 +1729,7 @@ Rename a mail folder.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{name}}{A string containing the name of the new mail folder to be
+\item{\code{name}}{A string containing the name of the mail folder to be
 renamed. If no name is passed, the command will be executed using the
 previously selected mail folder name.}
 
@@ -1188,6 +1757,119 @@ con$select_folder(name = "Folder A")
 con$rename_folder(new_name = "Folder B")
 # or directly:
 con$rename_folder(name = "Folder A", new_name = "Folder B")
+}
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-ImapCon-delete_folder"></a>}}
+\if{latex}{\out{\hypertarget{method-ImapCon-delete_folder}{}}}
+\subsection{Method \code{delete_folder()}}{
+Delete a mail folder.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ImapCon$delete_folder(name, mute = FALSE, retries = 1)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{name}}{A string containing the name of the mail folder to be
+deleted.}
+
+\item{\code{mute}}{A \code{logical}. If \code{TRUE}, mutes the confirmation message
+when the command is successfully executed. Default is \code{FALSE}.}
+
+\item{\code{retries}}{Number of attempts to connect and execute the command.
+Default is \code{1}.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+\code{TRUE} in case the operation is successful.
+}
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{\dontrun{
+con$delete_folder(name = "Folder to remove")
+}
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-ImapCon-subscribe_folder"></a>}}
+\if{latex}{\out{\hypertarget{method-ImapCon-subscribe_folder}{}}}
+\subsection{Method \code{subscribe_folder()}}{
+Subscribe to a mail folder (IMAP \code{SUBSCRIBE}), adding it
+  to the set returned by \code{list_subscribed_folders()}.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ImapCon$subscribe_folder(name, mute = FALSE, retries = 1)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{name}}{A string containing the name of the mail folder to subscribe
+to.}
+
+\item{\code{mute}}{A \code{logical}. If \code{TRUE}, mutes the confirmation message
+when the command is successfully executed. Default is \code{FALSE}.}
+
+\item{\code{retries}}{Number of attempts to connect and execute the command.
+Default is \code{1}.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+\code{TRUE} in case the operation is successful.
+}
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{\dontrun{
+con$subscribe_folder(name = "INBOX")
+}
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-ImapCon-unsubscribe_folder"></a>}}
+\if{latex}{\out{\hypertarget{method-ImapCon-unsubscribe_folder}{}}}
+\subsection{Method \code{unsubscribe_folder()}}{
+Unsubscribe from a mail folder (IMAP \code{UNSUBSCRIBE}),
+  removing it from the set returned by \code{list_subscribed_folders()}.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ImapCon$unsubscribe_folder(name, mute = FALSE, retries = 1)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{name}}{A string containing the name of the mail folder to
+unsubscribe from.}
+
+\item{\code{mute}}{A \code{logical}. If \code{TRUE}, mutes the confirmation message
+when the command is successfully executed. Default is \code{FALSE}.}
+
+\item{\code{retries}}{Number of attempts to connect and execute the command.
+Default is \code{1}.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+\code{TRUE} in case the operation is successful.
+}
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{\dontrun{
+con$unsubscribe_folder(name = "INBOX")
 }
 }
 \if{html}{\out{</div>}}
@@ -1228,6 +1910,120 @@ con$list_flags()
 
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-ImapCon-sort"></a>}}
+\if{latex}{\out{\hypertarget{method-ImapCon-sort}{}}}
+\subsection{Method \code{sort()}}{
+Sort messages on the server (IMAP \code{SORT}, RFC 5256).
+  Returns the message ids ordered by the server according to the sort
+  keys. Requires the server to advertise the \code{SORT} capability (check
+  with \code{list_server_capabilities()}).
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ImapCon$sort(
+  by = "DATE",
+  reverse = FALSE,
+  criteria = "ALL",
+  use_uid = FALSE,
+  char_set = "UTF-8",
+  retries = 1
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{by}}{A \code{character} vector of sort keys, a subset of
+\code{"ARRIVAL"}, \code{"CC"}, \code{"DATE"}, \code{"FROM"},
+\code{"SIZE"}, \code{"SUBJECT"}, and \code{"TO"}. Default is
+\code{"DATE"}.}
+
+\item{\code{reverse}}{A \code{logical}. If \code{TRUE}, each sort key is prefixed
+with \code{REVERSE} (descending order). Default is \code{FALSE}.}
+
+\item{\code{criteria}}{A \code{character} string with the search criteria that
+restricts the set to be sorted. Default is \code{"ALL"}.}
+
+\item{\code{use_uid}}{A \code{logical}. If \code{TRUE}, issues \code{UID SORT} and
+returns UIDs instead of sequence numbers. Default is \code{FALSE}.}
+
+\item{\code{char_set}}{A \code{character} string with the charset of the search
+criteria. Default is \code{"UTF-8"}.}
+
+\item{\code{retries}}{Number of attempts to connect and execute the command.
+Default is \code{1}.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+An \code{integer} vector of message ids in the server-provided
+  (sorted) order.
+}
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{\dontrun{
+con$select_folder("INBOX")
+con$sort(by = "DATE", reverse = TRUE)
+}
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-ImapCon-thread"></a>}}
+\if{latex}{\out{\hypertarget{method-ImapCon-thread}{}}}
+\subsection{Method \code{thread()}}{
+Thread messages on the server (IMAP \code{THREAD}, RFC 5256).
+  Returns the messages grouped into threads. Requires the server to
+  advertise a \code{THREAD=} capability (check with
+  \code{list_server_capabilities()}).
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ImapCon$thread(
+  algorithm = "REFERENCES",
+  criteria = "ALL",
+  use_uid = FALSE,
+  char_set = "UTF-8",
+  retries = 1
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{algorithm}}{A \code{character} string with the threading algorithm,
+either \code{"REFERENCES"} or \code{"ORDEREDSUBJECT"}. Default is
+\code{"REFERENCES"}.}
+
+\item{\code{criteria}}{A \code{character} string with the search criteria that
+restricts the set to be threaded. Default is \code{"ALL"}.}
+
+\item{\code{use_uid}}{A \code{logical}. If \code{TRUE}, issues \code{UID THREAD}
+and returns UIDs instead of sequence numbers. Default is \code{FALSE}.}
+
+\item{\code{char_set}}{A \code{character} string with the charset of the search
+criteria. Default is \code{"UTF-8"}.}
+
+\item{\code{retries}}{Number of attempts to connect and execute the command.
+Default is \code{1}.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A \code{list} of \code{integer} vectors, one per top-level thread.
+}
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{\dontrun{
+con$select_folder("INBOX")
+con$thread(algorithm = "REFERENCES")
+}
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ImapCon-search"></a>}}
 \if{latex}{\out{\hypertarget{method-ImapCon-search}{}}}
 \subsection{Method \code{search()}}{
@@ -1252,7 +2048,7 @@ and \code{\link{AND}}, and criteria helper functions such as
 \code{\link{sent_before}}, \code{\link{sent_since}}, \code{\link{sent_on}},
 \code{\link{flag}}, \code{\link{string}}, \code{\link{smaller_than}},
 \code{\link{larger_than}}, \code{\link{younger_than}}, or
-\code{\link{younger_than}}.}
+\code{\link{older_than}}.}
 
 \item{\code{negate}}{If \code{TRUE}, negates the search and seeks for "NOT SEARCH
 CRITERIA". Default is \code{FALSE}.}
@@ -1363,7 +2159,7 @@ A \code{numeric vector} containing the message ids.
 \if{html}{\out{<div class="r example copy">}}
 \preformatted{\dontrun{
 # search for messages with size larger than 512Kb
-con$search_larger_than(size = 512000))
+con$search_larger_than(size = 512000)
 }
 }
 \if{html}{\out{</div>}}
@@ -1431,7 +2227,7 @@ A \code{numeric vector} containing the message ids.
 \preformatted{\dontrun{
 con$select_folder(name = "INBOX")
 # search for messages with size smaller than 512Kb
-con$search_smaller_than(size = 512000))
+con$search_smaller_than(size = 512000)
 }
 }
 \if{html}{\out{</div>}}
@@ -1530,9 +2326,7 @@ Search by internal date (SINCE)
 \describe{
 \item{\code{date_char}}{A \code{character string} with format "DD-Mon-YYYY", e.g.
 "01-Apr-2019". We opt not to use \code{Date} or \code{POSIX*} like
-objects, since IMAP servers use this uncommon date format.
-\code{POSIX*} like objects, since IMAP servers use this uncommon date format.
-\code{POSIX*} like, since IMAP servers like this not so common date format.}
+objects, since IMAP servers use this uncommon date format.}
 
 \item{\code{negate}}{If \code{TRUE}, negates the search and seeks for "NOT SEARCH
 CRITERION". Default is \code{FALSE}.}
@@ -1720,7 +2514,7 @@ con$select_folder(name = "INBOX")
 #... those received between the dates "02-Jan-2020" and "22-Mar-2020"
 con$search_period(since_date_char = "02-Jan-2020",
                   before_date_char = "22-Mar-2020",
-                  negate = TRUE))
+                  negate = TRUE)
 }
 }
 \if{html}{\out{</div>}}
@@ -2005,7 +2799,7 @@ con$select_folder(name = "INBOX")
 #... those received between the dates "02-Jan-2020" and "22-Mar-2020"
 con$search_sent_period(since_date_char = "02-Jan-2020",
                   before_date_char = "22-Mar-2020",
-                  negate = TRUE))
+                  negate = TRUE)
 }
 }
 \if{html}{\out{</div>}}
@@ -2277,7 +3071,7 @@ A \code{numeric vector} containing the message ids.
 \if{html}{\out{<div class="r example copy">}}
 \preformatted{\dontrun{
 con$select_folder(name = "INBOX")
-# search for all messages received in the last hour (younger than 3600 seconds)
+# search for messages with "@k-state.edu" in the FROM field
 con$search_string(expr = "@k-state.edu", where = "FROM")
 }
 }
@@ -2761,11 +3555,57 @@ con$move(msg = res, to_folder = "Sent")
 
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-ImapCon-append_msg"></a>}}
+\if{latex}{\out{\hypertarget{method-ImapCon-append_msg}{}}}
+\subsection{Method \code{append_msg()}}{
+Append a full RFC 822 message to a mail folder (IMAP
+  \code{APPEND}). Useful to save a message to folders such as
+  \code{Drafts} or \code{Sent}. Unlike the other operations this is
+  performed by an upload to the folder; the message is stored with the
+  server's default flags.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ImapCon$append_msg(message, folder = NULL, mute = FALSE, retries = 1)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{message}}{A \code{character} string or \code{raw} vector with the
+full RFC 822 message (headers and body).}
+
+\item{\code{folder}}{A \code{character} string with the destination folder. If no
+folder is passed, the previously selected folder is used.}
+
+\item{\code{mute}}{A \code{logical}. If \code{TRUE}, mutes the confirmation message
+when the command is successfully executed. Default is \code{FALSE}.}
+
+\item{\code{retries}}{Number of attempts to connect and execute the command.
+Default is \code{1}.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+\code{TRUE} in case the operation is successful.
+}
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{\dontrun{
+msg <- paste("From: me@example.com", "To: you@example.com",
+             "Subject: Hi", "", "Message body.", sep = "\r\n")
+con$append_msg(message = msg, folder = "Drafts")
+}
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ImapCon-esearch_count"></a>}}
 \if{latex}{\out{\hypertarget{method-ImapCon-esearch_count}{}}}
 \subsection{Method \code{esearch_count()}}{
 Count the number of messages with a specific flag(s) in a
-  folder (depend on ESEARCH capability)
+  folder (depends on ESEARCH capability)
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ImapCon$esearch_count(flag, use_uid = FALSE, retries = 1)}\if{html}{\out{</div>}}
 }
@@ -2898,7 +3738,7 @@ con$esearch_count(flag = c("Flagged", "Answered"))
 \if{latex}{\out{\hypertarget{method-ImapCon-esearch_min_id}{}}}
 \subsection{Method \code{esearch_min_id()}}{
 Search the minimum message id in the selected mail folder
-  (depend on ESEARCH capability)
+  (depends on ESEARCH capability)
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ImapCon$esearch_min_id(flag, use_uid = FALSE, retries = 1)}\if{html}{\out{</div>}}
 }
@@ -2946,7 +3786,7 @@ con$esearch_min_id(flag = "Answered")
 \if{latex}{\out{\hypertarget{method-ImapCon-esearch_max_id}{}}}
 \subsection{Method \code{esearch_max_id()}}{
 Search the maximum message id in the selected mail folder
-  (depend on ESEARCH capability)
+  (depends on ESEARCH capability)
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ImapCon$esearch_max_id(flag, use_uid = FALSE, retries = 1)}\if{html}{\out{</div>}}
 }
@@ -3098,7 +3938,7 @@ con$select_folder(name = "INBOX")
 # Replace the current flags of the messages in the search results for the
 #.. flags "\\UNSEEN" and "\\Flagged"
 con$search_since(date_char = "20-Aug-2020") \%>\%
-  con$replace_flags(flags_to_set = c("\\\\UNSEEN", "\\\\Flagged")
+  con$replace_flags(flags_to_set = c("\\\\UNSEEN", "\\\\Flagged"))
 }
 }
 \if{html}{\out{</div>}}
@@ -3154,7 +3994,7 @@ An invisible \code{numeric vector} containing the message ids.
 \if{html}{\out{<div class="r example copy">}}
 \preformatted{\dontrun{
 con$select_folder(name = "INBOX")
-# Remove the the "\\SEEN" flag from the messages in the search result
+# Remove the "\\SEEN" flag from the messages in the search result
 con$search_since(date_char = "20-Aug-2020") \%>\%
   con$remove_flags(flags_to_unset = "\\\\UNSEEN")
 }
@@ -3175,7 +4015,8 @@ Extract attached file(s) from fetched message(s)
   content_disposition = "both",
   override = FALSE,
   mute = FALSE,
-  as_is = FALSE
+  as_is = FALSE,
+  local_dir = "."
 )}\if{html}{\out{</div>}}
 }
 
@@ -3199,6 +4040,11 @@ when the command is successfully executed. Default is \code{FALSE}.}
 
 \item{\code{as_is}}{If \code{TRUE} then write out attachments without base64
 decoding. Default is \code{FALSE}.}
+
+\item{\code{local_dir}}{A \code{character} string with the base directory where the
+attachments will be saved. A subfolder tree
+\code{<local_dir>/<username>/<mail folder>/<msg id>} is created inside it.
+Default is \code{"."} (the current working directory).}
 }
 \if{html}{\out{</div>}}
 }
@@ -3216,7 +4062,7 @@ con$search_string(expr = "@gmail", where = "CC") \%>\%
   con$get_attachments()
 
 # example 2
-res <- con$search_string(expr = "@gmail", where = "CC") \%>\%
+res <- con$search_string(expr = "@gmail", where = "CC")
 out <- con$fetch_body(msg = res)
 con$get_attachments(msg_list = out)
 }
@@ -3261,7 +4107,7 @@ A \code{list} with the fetch contents.
 \preformatted{\dontrun{
 con$select_folder(name = "INBOX")
 # do a search and fetch the attachments' list of the messages
-out < con$search_string(expr = "@k-state.edu", where = "FROM") \%>\%
+out <- con$search_string(expr = "@k-state.edu", where = "FROM") \%>\%
   con$fetch_attachments_list()
 out
 
@@ -3290,7 +4136,8 @@ Fetch message attachments
   override = FALSE,
   mute = FALSE,
   retries = 1,
-  as_is = FALSE
+  as_is = FALSE,
+  local_dir = "."
 )}\if{html}{\out{</div>}}
 }
 
@@ -3324,6 +4171,11 @@ is \code{1}.}
 
 \item{\code{as_is}}{If \code{TRUE} then write out attachments without base64
 decoding. Default is \code{FALSE}.}
+
+\item{\code{local_dir}}{A \code{character} string with the base directory where the
+attachments will be saved. A subfolder tree
+\code{<local_dir>/<username>/<mail folder>/<msg id>} is created inside it.
+Default is \code{"."} (the current working directory).}
 }
 \if{html}{\out{</div>}}
 }

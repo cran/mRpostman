@@ -16,7 +16,7 @@
 #' @param fetch_request A string containing the fetch request to the server that
 #'   will be added to the curl handle.
 #' @param folder_clean A \code{character} string containing the cleaned folder
-#'   name, which will be uses to create a local folder.
+#'   name, which will be used to create a local folder.
 #' @param retries Number of attempts to connect and execute the command. Default
 #'   is \code{1}.
 #' @param as_is If \code{TRUE} then write out attachments without base64
@@ -24,7 +24,7 @@
 #' @noRd
 execute_attachment_fetch <- function(self, id, id_folder, df_meta_to_fetch, fetch_request,
                                      folder_clean, content_disposition,
-                                     override, retries, as_is) {
+                                     override, retries, as_is, local_dir = ".") {
 
 
   url <- self$con_params$url
@@ -165,7 +165,7 @@ execute_attachment_fetch <- function(self, id, id_folder, df_meta_to_fetch, fetc
       user_folder <- self$con_params$username
       user_folder = gsub(forbiden_chars, "", user_folder)
 
-      complete_path <- paste0("./", user_folder, "/", folder_clean, "/", id_folder)
+      complete_path <- paste0(sub("/+$", "", local_dir), "/", user_folder, "/", folder_clean, "/", id_folder)
       # complete_path <- paste0("./", folder_clean, "/", id)
       dir.create(path = complete_path, showWarnings = FALSE, recursive = TRUE)
 

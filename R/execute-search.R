@@ -17,6 +17,14 @@ execute_search <- function(self, url, handle, customrequest, esearch, retries) {
     !is.na(self$con_params$folder),
     msg='No folder previously selected.')
 
+  # ESEARCH is an optional extension (RFC 4731). Only the esearch = TRUE path
+  # relies on it; gate it here so any search_*() call fails early with a clear
+  # message on a server that does not advertise ESEARCH.
+  if (isTRUE(esearch)) {
+    assert_capability(self, "ESEARCH", command = "search (esearch = TRUE)",
+                      rfc = "RFC 4731", retries = retries)
+  }
+
   # searching
   # REQUEST
   response <- tryCatch({
@@ -28,8 +36,7 @@ execute_search <- function(self, url, handle, customrequest, esearch, retries) {
 
   if (!is.null(response)) {
     if (isTRUE(esearch)) {
-      pre_response <- stringr::str_match_all(rawToChar(response$content), 'ALL (.*)')[[1]][,2]
-      pre_response <- eval(parse(text = paste0("c(", pre_response, ")")))
+      pre_response <- parse_esearch_all(rawToChar(response$content))
 
     } else {
       pre_response <- as.numeric(
@@ -39,8 +46,8 @@ execute_search <- function(self, url, handle, customrequest, esearch, retries) {
       )
 
     }
-    # note to self: changed the SEARCH METHOD FOR ESEARCH
-    # that optimizes the response, but we need to use eval(parse(.))
+    # ESEARCH condenses the response (e.g. "ALL 1:5,8"); parse_esearch_all()
+    # expands the sequence-set without eval()-ing server-provided text.
 
     if (length(pre_response) > 0) {
       response <- pre_response
@@ -92,8 +99,7 @@ execute_search <- function(self, url, handle, customrequest, esearch, retries) {
 
     if (!is.null(response)) {
       if (isTRUE(esearch)) {
-        pre_response <- stringr::str_match_all(rawToChar(response$content), 'ALL (.*)')[[1]][,2]
-        pre_response <- eval(parse(text = paste0("c(", pre_response, ")")))
+        pre_response <- parse_esearch_all(rawToChar(response$content))
 
       } else {
         pre_response <- as.numeric(
@@ -103,8 +109,8 @@ execute_search <- function(self, url, handle, customrequest, esearch, retries) {
         )
 
       }
-      # note to self: changed the SEARCH METHOD FOR ESEARCH
-      # that optimizes the response, but we need to use eval(parse(.))
+      # ESEARCH condenses the response (e.g. "ALL 1:5,8"); parse_esearch_all()
+      # expands the sequence-set without eval()-ing server-provided text.
 
       if (length(pre_response) > 0) {
         response <- pre_response

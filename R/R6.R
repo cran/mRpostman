@@ -201,6 +201,22 @@ ImapCon <- R6::R6Class("ImapCon",
 
     },
 
+    #' @description Disconnect and release the connection handle. After calling
+    #'   this method the connection object can no longer be used to issue
+    #'   commands; a new one must be created with \code{\link{configure_imap}}.
+    #'   Dropping the handle reference lets 'libcurl' close the underlying
+    #'   connection when the handle is garbage-collected.
+    #' @return \code{TRUE}, invisibly.
+    #' @examples
+    #' \dontrun{
+    #' con$disconnect()
+    #' }
+    disconnect = function() {
+      self$con_handle <- NULL
+      self$con_params$folder <- NA
+      invisible(TRUE)
+    },
+
     # List elements
     # access = function() {
     #   list(
@@ -226,6 +242,98 @@ ImapCon <- R6::R6Class("ImapCon",
       return(out)
     },
 
+    #' @description Request the server's namespaces (IMAP \code{NAMESPACE}, RFC
+    #'   2342): the personal, other users', and shared namespace prefixes and
+    #'   their hierarchy delimiters. Requires the server \code{NAMESPACE}
+    #'   capability.
+    #' @param retries Number of attempts to connect and execute the command.
+    #'   Default is \code{1}.
+    #' @return A named \code{list} with elements \code{personal},
+    #'   \code{other_users} and \code{shared}, each a \code{data.frame} with
+    #'   \code{prefix} and \code{delimiter} columns, or \code{NULL} when the
+    #'   server returns \code{NIL} for that component.
+    #' @examples
+    #' \dontrun{
+    #' con$namespace()
+    #' }
+    namespace = function(retries = 1) {
+      out <- namespace_int(self, retries)
+      return(out)
+    },
+
+    #' @description Exchange client/server identification (IMAP \code{ID}, RFC
+    #'   2971). Optionally sends the client's id fields and returns the server's
+    #'   id. Requires the server \code{ID} capability.
+    #' @param fields A named \code{character} vector with the client id fields to
+    #'   send, e.g. \code{c(name = "mRpostman", version = "1.2.1")}. If
+    #'   \code{NULL} (default), sends \code{ID NIL} (asks for the server id
+    #'   without disclosing the client id).
+    #' @param retries Number of attempts to connect and execute the command.
+    #'   Default is \code{1}.
+    #' @return A named \code{character} vector with the server's id fields
+    #'   (empty when the server returns \code{NIL}).
+    #' @examples
+    #' \dontrun{
+    #' con$id()
+    #' con$id(fields = c(name = "mRpostman", version = "1.2.1"))
+    #' }
+    id = function(fields = NULL, retries = 1) {
+      out <- id_int(self, fields, retries)
+      return(out)
+    },
+
+    #' @description Get the quota root(s) and quota usage/limits of a mail folder
+    #'   (IMAP \code{GETQUOTAROOT}, RFC 2087). Requires the server \code{QUOTA}
+    #'   capability.
+    #' @param name A \code{character} string with the mail folder name. If no
+    #'   name is passed, the command uses the previously selected folder.
+    #' @param retries Number of attempts to connect and execute the command.
+    #'   Default is \code{1}.
+    #' @return A \code{data.frame} with columns \code{quota_root},
+    #'   \code{resource}, \code{usage} and \code{limit} (one row per resource;
+    #'   \code{STORAGE} is reported by the server in kibibytes).
+    #' @examples
+    #' \dontrun{
+    #' con$get_quota_root(name = "INBOX")
+    #' }
+    get_quota_root = function(name = NULL, retries = 1) {
+      out <- get_quota_root_int(self, name, retries)
+      return(out)
+    },
+
+    #' @description Get the quota usage/limits of a quota root (IMAP
+    #'   \code{GETQUOTA}, RFC 2087). Requires the server \code{QUOTA} capability.
+    #' @param quota_root A \code{character} string with the quota root name.
+    #'   Default is \code{""} (the default root). Use \code{get_quota_root()} to
+    #'   discover the root(s) of a folder.
+    #' @param retries Number of attempts to connect and execute the command.
+    #'   Default is \code{1}.
+    #' @return A \code{data.frame} with columns \code{quota_root},
+    #'   \code{resource}, \code{usage} and \code{limit}.
+    #' @examples
+    #' \dontrun{
+    #' con$get_quota(quota_root = "")
+    #' }
+    get_quota = function(quota_root = "", retries = 1) {
+      out <- get_quota_int(self, quota_root, retries)
+      return(out)
+    },
+
+    #' @description Issue a \code{NOOP} command. It does nothing on the server
+    #'   other than resetting the inactivity autologout timer, which makes it
+    #'   useful as a keep-alive during long idle periods and as a way to keep
+    #'   the connection handle alive between operations.
+    #' @param retries Number of attempts to connect and execute the command.
+    #'   Default is \code{1}.
+    #' @return \code{TRUE} in case the operation is successful.
+    #' @examples
+    #' \dontrun{
+    #' con$noop()
+    #' }
+    noop = function(retries = 1) {
+      invisible(noop_int(self, retries))
+    },
+
     ## mailbox operations
     #' @description List mail folders in a mailbox.
     #' @param retries Number of attempts to connect and execute the command.
@@ -242,6 +350,42 @@ ImapCon <- R6::R6Class("ImapCon",
       return(out)
     },
 
+    #' @description List the subscribed mail folders in a mailbox (IMAP
+    #'   \code{LSUB}). Unlike \code{list_mail_folders()} (which issues
+    #'   \code{LIST} and returns every folder), this returns only the folders
+    #'   the user is subscribed to.
+    #' @param retries Number of attempts to connect and execute the command.
+    #'   Default is \code{1}.
+    #' @return A \code{list} containing the subscribed mail folder names and
+    #'   their inherent structure.
+    #' @examples
+    #' \dontrun{
+    #' subscribed <- con$list_subscribed_folders()
+    #' subscribed
+    #' }
+    list_subscribed_folders = function(retries = 1) {
+      out <- list_subscribed_folders_int(self, retries)
+      return(out)
+    },
+
+    #' @description List the special-use mail folders (IMAP
+    #'   \code{LIST (SPECIAL-USE)}, RFC 6154), i.e. the folders the server has
+    #'   tagged with a role such as \code{\\Sent}, \code{\\Drafts},
+    #'   \code{\\Junk}, \code{\\Trash}, \code{\\Archive}, \code{\\All}, or
+    #'   \code{\\Flagged}. Requires the server \code{SPECIAL-USE} capability.
+    #' @param retries Number of attempts to connect and execute the command.
+    #'   Default is \code{1}.
+    #' @return A \code{data.frame} with columns \code{folder} and
+    #'   \code{special_use} (one row per folder/attribute).
+    #' @examples
+    #' \dontrun{
+    #' con$list_special_use_folders()
+    #' }
+    list_special_use_folders = function(retries = 1) {
+      out <- list_special_use_folders_int(self, retries)
+      return(out)
+    },
+
     #' @description Select a mail folder.
     #' @param name A string containing the name of an existing mail folder on the
     #'   user's mailbox.
@@ -253,10 +397,44 @@ ImapCon <- R6::R6Class("ImapCon",
     #'   structure.
     #' @examples
     #' \dontrun{
-    #' con$select_mail_folder(name = "INBOX")
+    #' con$select_folder(name = "INBOX")
     #' }
     select_folder = function(name, mute = FALSE, retries = 1) {
       self$con_params$folder <- select_folder_int(self, name, mute, retries)
+      invisible(TRUE)
+    },
+
+    #' @description Close the currently selected mail folder (IMAP \code{CLOSE}),
+    #'   permanently removing the messages flagged \code{\\Deleted}. After this,
+    #'   no folder is selected.
+    #' @param retries Number of attempts to connect and execute the command.
+    #'   Default is \code{1}.
+    #' @return \code{TRUE} in case the operation is successful.
+    #' @examples
+    #' \dontrun{
+    #' con$select_folder("INBOX")
+    #' con$close_folder()
+    #' }
+    close_folder = function(retries = 1) {
+      close_folder_int(self, retries)
+      self$con_params$folder <- NA
+      invisible(TRUE)
+    },
+
+    #' @description Close the currently selected mail folder \strong{without}
+    #'   expunging (IMAP \code{UNSELECT}, RFC 3691). Requires the server
+    #'   \code{UNSELECT} capability. After this, no folder is selected.
+    #' @param retries Number of attempts to connect and execute the command.
+    #'   Default is \code{1}.
+    #' @return \code{TRUE} in case the operation is successful.
+    #' @examples
+    #' \dontrun{
+    #' con$select_folder("INBOX")
+    #' con$unselect_folder()
+    #' }
+    unselect_folder = function(retries = 1) {
+      unselect_folder_int(self, retries)
+      self$con_params$folder <- NA
       invisible(TRUE)
     },
 
@@ -281,6 +459,34 @@ ImapCon <- R6::R6Class("ImapCon",
       return(out)
     },
 
+    #' @description Request the status of a mail folder without selecting it.
+    #'   Unlike \code{examine_folder()}, this does not change the currently
+    #'   selected folder.
+    #' @param name A \code{character} string containing the name of an existing
+    #'   mail folder on the user's mailbox. If no name is passed, the command
+    #'   will be executed using the previously selected mail folder name.
+    #' @param items A \code{character} vector with the status data items to
+    #'   request. Must be a subset of \code{"MESSAGES"}, \code{"RECENT"},
+    #'   \code{"UIDNEXT"}, \code{"UIDVALIDITY"}, and \code{"UNSEEN"}. Default is
+    #'   all of them.
+    #' @param retries Number of attempts to connect and execute the command.
+    #'   Default is \code{1}.
+    #' @return A named \code{numeric} vector with the requested status counts.
+    #' @examples
+    #' \dontrun{
+    #' con$status(name = "INBOX")
+    #'
+    #' # or, for the selected folder and specific items only:
+    #' con$select_folder("INBOX")
+    #' con$status(items = c("MESSAGES", "UNSEEN"))
+    #' }
+    status = function(name = NULL, items = c("MESSAGES", "RECENT", "UIDNEXT",
+                                             "UIDVALIDITY", "UNSEEN"),
+                      retries = 1) {
+      out <- status_int(self, name, items, retries)
+      return(out)
+    },
+
     #' @description Create a new mail folder.
     #' @param name A string containing the name of the new mail folder to be
     #'   created.
@@ -298,7 +504,7 @@ ImapCon <- R6::R6Class("ImapCon",
     },
 
     #' @description Rename a mail folder.
-    #' @param name A string containing the name of the new mail folder to be
+    #' @param name A string containing the name of the mail folder to be
     #'   renamed. If no name is passed, the command will be executed using the
     #'   previously selected mail folder name.
     #' @param new_name A string containing the new name to be assigned.
@@ -324,6 +530,56 @@ ImapCon <- R6::R6Class("ImapCon",
       invisible(TRUE)
     },
 
+    #' @description Delete a mail folder.
+    #' @param name A string containing the name of the mail folder to be
+    #'   deleted.
+    #' @param mute A \code{logical}. If \code{TRUE}, mutes the confirmation message
+    #'   when the command is successfully executed. Default is \code{FALSE}.
+    #' @param retries Number of attempts to connect and execute the command.
+    #'   Default is \code{1}.
+    #' @return \code{TRUE} in case the operation is successful.
+    #' @examples
+    #' \dontrun{
+    #' con$delete_folder(name = "Folder to remove")
+    #' }
+    delete_folder = function(name, mute = FALSE, retries = 1) {
+      invisible(delete_folder_int(self, name, mute, retries))
+    },
+
+    #' @description Subscribe to a mail folder (IMAP \code{SUBSCRIBE}), adding it
+    #'   to the set returned by \code{list_subscribed_folders()}.
+    #' @param name A string containing the name of the mail folder to subscribe
+    #'   to.
+    #' @param mute A \code{logical}. If \code{TRUE}, mutes the confirmation message
+    #'   when the command is successfully executed. Default is \code{FALSE}.
+    #' @param retries Number of attempts to connect and execute the command.
+    #'   Default is \code{1}.
+    #' @return \code{TRUE} in case the operation is successful.
+    #' @examples
+    #' \dontrun{
+    #' con$subscribe_folder(name = "INBOX")
+    #' }
+    subscribe_folder = function(name, mute = FALSE, retries = 1) {
+      invisible(subscribe_folder_int(self, name, mute, retries))
+    },
+
+    #' @description Unsubscribe from a mail folder (IMAP \code{UNSUBSCRIBE}),
+    #'   removing it from the set returned by \code{list_subscribed_folders()}.
+    #' @param name A string containing the name of the mail folder to
+    #'   unsubscribe from.
+    #' @param mute A \code{logical}. If \code{TRUE}, mutes the confirmation message
+    #'   when the command is successfully executed. Default is \code{FALSE}.
+    #' @param retries Number of attempts to connect and execute the command.
+    #'   Default is \code{1}.
+    #' @return \code{TRUE} in case the operation is successful.
+    #' @examples
+    #' \dontrun{
+    #' con$unsubscribe_folder(name = "INBOX")
+    #' }
+    unsubscribe_folder = function(name, mute = FALSE, retries = 1) {
+      invisible(unsubscribe_folder_int(self, name, mute, retries))
+    },
+
     #' @description List flags in a selected mail folder
     #' @param retries Number of attempts to connect and execute the command.
     #'   Default is \code{1}.
@@ -338,6 +594,65 @@ ImapCon <- R6::R6Class("ImapCon",
       return(out)
     },
 
+    ## SORT and THREAD (RFC 5256)
+    #' @description Sort messages on the server (IMAP \code{SORT}, RFC 5256).
+    #'   Returns the message ids ordered by the server according to the sort
+    #'   keys. Requires the server to advertise the \code{SORT} capability (check
+    #'   with \code{list_server_capabilities()}).
+    #' @param by A \code{character} vector of sort keys, a subset of
+    #'   \code{"ARRIVAL"}, \code{"CC"}, \code{"DATE"}, \code{"FROM"},
+    #'   \code{"SIZE"}, \code{"SUBJECT"}, and \code{"TO"}. Default is
+    #'   \code{"DATE"}.
+    #' @param reverse A \code{logical}. If \code{TRUE}, each sort key is prefixed
+    #'   with \code{REVERSE} (descending order). Default is \code{FALSE}.
+    #' @param criteria A \code{character} string with the search criteria that
+    #'   restricts the set to be sorted. Default is \code{"ALL"}.
+    #' @param use_uid A \code{logical}. If \code{TRUE}, issues \code{UID SORT} and
+    #'   returns UIDs instead of sequence numbers. Default is \code{FALSE}.
+    #' @param char_set A \code{character} string with the charset of the search
+    #'   criteria. Default is \code{"UTF-8"}.
+    #' @param retries Number of attempts to connect and execute the command.
+    #'   Default is \code{1}.
+    #' @return An \code{integer} vector of message ids in the server-provided
+    #'   (sorted) order.
+    #' @examples
+    #' \dontrun{
+    #' con$select_folder("INBOX")
+    #' con$sort(by = "DATE", reverse = TRUE)
+    #' }
+    sort = function(by = "DATE", reverse = FALSE, criteria = "ALL",
+                    use_uid = FALSE, char_set = "UTF-8", retries = 1) {
+      out <- sort_int(self, by, reverse, criteria, use_uid, char_set, retries)
+      return(out)
+    },
+
+    #' @description Thread messages on the server (IMAP \code{THREAD}, RFC 5256).
+    #'   Returns the messages grouped into threads. Requires the server to
+    #'   advertise a \code{THREAD=} capability (check with
+    #'   \code{list_server_capabilities()}).
+    #' @param algorithm A \code{character} string with the threading algorithm,
+    #'   either \code{"REFERENCES"} or \code{"ORDEREDSUBJECT"}. Default is
+    #'   \code{"REFERENCES"}.
+    #' @param criteria A \code{character} string with the search criteria that
+    #'   restricts the set to be threaded. Default is \code{"ALL"}.
+    #' @param use_uid A \code{logical}. If \code{TRUE}, issues \code{UID THREAD}
+    #'   and returns UIDs instead of sequence numbers. Default is \code{FALSE}.
+    #' @param char_set A \code{character} string with the charset of the search
+    #'   criteria. Default is \code{"UTF-8"}.
+    #' @param retries Number of attempts to connect and execute the command.
+    #'   Default is \code{1}.
+    #' @return A \code{list} of \code{integer} vectors, one per top-level thread.
+    #' @examples
+    #' \dontrun{
+    #' con$select_folder("INBOX")
+    #' con$thread(algorithm = "REFERENCES")
+    #' }
+    thread = function(algorithm = "REFERENCES", criteria = "ALL",
+                      use_uid = FALSE, char_set = "UTF-8", retries = 1) {
+      out <- thread_int(self, algorithm, criteria, use_uid, char_set, retries)
+      return(out)
+    },
+
     ## SEARCH
     ### custom search
     #' @description Execute a custom search
@@ -348,7 +663,7 @@ ImapCon <- R6::R6Class("ImapCon",
     #'   \code{\link{sent_before}}, \code{\link{sent_since}}, \code{\link{sent_on}},
     #'   \code{\link{flag}}, \code{\link{string}}, \code{\link{smaller_than}},
     #'   \code{\link{larger_than}}, \code{\link{younger_than}}, or
-    #'   \code{\link{younger_than}}.
+    #'   \code{\link{older_than}}.
     #' @param negate If \code{TRUE}, negates the search and seeks for "NOT SEARCH
     #'   CRITERIA". Default is \code{FALSE}.
     #' @param use_uid Default is \code{FALSE}. In this case, results will be
@@ -369,13 +684,13 @@ ImapCon <- R6::R6Class("ImapCon",
     #'   \href{#method-list_server_capabilities}{\code{ImapCon$list_server_capabilities()}}.
     #' @param retries Number of attempts to connect and execute the command.
     #'   Default is \code{1}.
-    #' @note \href{#method-search}{\code{ImapCon$search()}}: IMAP queries follows
+    #' @note \href{#method-search}{\code{ImapCon$search()}}: IMAP queries follow
     #'   Polish notation, i.e. operators such as \code{OR} come before arguments,
     #'   e.g. "OR argument1 argument2". Therefore, the relational-operator-helper-functions
     #'   in this package should be used like the following examples:
     #'   \code{OR(before("17-Apr-2015"), string("FROM", "John"))}. Even though there
     #'   is no "AND" operator in IMAP, this package adds a helper function
-    #'   \code{\link{AND}} to indicate multiples arguments that must be searched
+    #'   \code{\link{AND}} to indicate multiple arguments that must be searched
     #'   together, e.g. \code{AND(since("01-Jul-2018"), smaller_than(16000))}.
     #' @return A \code{list} containing the flags (\code{character vector}),
     #'   the permanent flags (\code{character vector}), and an indication if custom
@@ -434,7 +749,7 @@ ImapCon <- R6::R6Class("ImapCon",
     #' @examples
     #' \dontrun{
     #' # search for messages with size larger than 512Kb
-    #' con$search_larger_than(size = 512000))
+    #' con$search_larger_than(size = 512000)
     #' }
     search_larger_than = function(size, negate = FALSE, use_uid = FALSE,
                                   flag = NULL, esearch = FALSE, retries = 1) {
@@ -475,7 +790,7 @@ ImapCon <- R6::R6Class("ImapCon",
     #' \dontrun{
     #' con$select_folder(name = "INBOX")
     #' # search for messages with size smaller than 512Kb
-    #' con$search_smaller_than(size = 512000))
+    #' con$search_smaller_than(size = 512000)
     #' }
     search_smaller_than = function(size, negate = FALSE, use_uid = FALSE,
                                   flag = NULL, esearch = FALSE, retries = 1) {
@@ -532,8 +847,6 @@ ImapCon <- R6::R6Class("ImapCon",
     #' @param date_char A \code{character string} with format "DD-Mon-YYYY", e.g.
     #'   "01-Apr-2019". We opt not to use \code{Date} or \code{POSIX*} like
     #'   objects, since IMAP servers use this uncommon date format.
-    #'   \code{POSIX*} like objects, since IMAP servers use this uncommon date format.
-    #'   \code{POSIX*} like, since IMAP servers like this not so common date format.
     #' @param negate If \code{TRUE}, negates the search and seeks for "NOT SEARCH
     #'   CRITERION". Default is \code{FALSE}.
     #' @param use_uid Default is \code{FALSE}. In this case, results will be
@@ -655,7 +968,7 @@ ImapCon <- R6::R6Class("ImapCon",
     #' #... those received between the dates "02-Jan-2020" and "22-Mar-2020"
     #' con$search_period(since_date_char = "02-Jan-2020",
     #'                   before_date_char = "22-Mar-2020",
-    #'                   negate = TRUE))
+    #'                   negate = TRUE)
     #' }
     search_period = function(since_date_char, before_date_char, negate = FALSE,
                              use_uid = FALSE, flag = NULL, esearch = FALSE,
@@ -801,7 +1114,7 @@ ImapCon <- R6::R6Class("ImapCon",
     #'   executing this type of search. Despite this fact, both dates tend to be the
     #'   same.
     #' @return A \code{numeric vector} containing the message ids.
-    #' @family search by size
+    #' @family search by date
     #' @examples
     #' \dontrun{
     #' con$select_folder(name = "INBOX")
@@ -863,7 +1176,7 @@ ImapCon <- R6::R6Class("ImapCon",
     #' #... those received between the dates "02-Jan-2020" and "22-Mar-2020"
     #' con$search_sent_period(since_date_char = "02-Jan-2020",
     #'                   before_date_char = "22-Mar-2020",
-    #'                   negate = TRUE))
+    #'                   negate = TRUE)
     #' }
     search_sent_period = function(since_date_char, before_date_char, negate = FALSE,
                                   use_uid = FALSE, flag = NULL, esearch = FALSE,
@@ -1039,18 +1352,18 @@ ImapCon <- R6::R6Class("ImapCon",
     #' @note \href{#method-search_string}{\code{ImapCon$search_string()}}: Using
     #'   \code{where = "TEXT"}, may produce unexpected results since it
     #'   will perform the search on raw data, i.e. the searched expression may be
-    #'   truncated by special formating characters such as \code{\\r\\n} for example.
+    #'   truncated by special formatting characters such as \code{\\r\\n} for example.
     #'   It is recommended to perform this type of search using \code{where = "BODY"},
     #'   instead of \code{"TEXT"} (\cite{Heinlein, P. and Hartleben, P. (2008)}).
     #' @references \href{#method-search_string}{\code{ImapCon$search_string()}}:
     #'   Heinlein, P. and Hartleben, P. (2008). The Book of IMAP: Building a
     #'   Mail Server with Courier and Cyrus. No Starch Press. ISBN 978-1-59327-177-0.
     #' @return A \code{numeric vector} containing the message ids.
-    #' @family search by date
+    #' @family search by string
     #' @examples
     #' \dontrun{
     #' con$select_folder(name = "INBOX")
-    #' # search for all messages received in the last hour (younger than 3600 seconds)
+    #' # search for messages with "@k-state.edu" in the FROM field
     #' con$search_string(expr = "@k-state.edu", where = "FROM")
     #' }
     search_string = function(expr, where, negate = FALSE, use_uid = FALSE,
@@ -1274,7 +1587,7 @@ ImapCon <- R6::R6Class("ImapCon",
     #' con$select_folder(name = "INBOX")
     #' # do a search and partially fetch the results using the pipe
     #' # first 200 characters, writing to disk, silence results in the console
-    #'con$search_string(expr = "@k-state.edu", where = "FROM") %>%
+    #' con$search_string(expr = "@k-state.edu", where = "FROM") %>%
     #'   con$fetch_text(partial = "0.200",
     #'                  write_to_disk = TRUE,
     #'                  keep_in_mem = FALSE)
@@ -1391,8 +1704,32 @@ ImapCon <- R6::R6Class("ImapCon",
 
     },
 
+    #' @description Append a full RFC 822 message to a mail folder (IMAP
+    #'   \code{APPEND}). Useful to save a message to folders such as
+    #'   \code{Drafts} or \code{Sent}. Unlike the other operations this is
+    #'   performed by an upload to the folder; the message is stored with the
+    #'   server's default flags.
+    #' @param message A \code{character} string or \code{raw} vector with the
+    #'   full RFC 822 message (headers and body).
+    #' @param folder A \code{character} string with the destination folder. If no
+    #'   folder is passed, the previously selected folder is used.
+    #' @param mute A \code{logical}. If \code{TRUE}, mutes the confirmation message
+    #'   when the command is successfully executed. Default is \code{FALSE}.
+    #' @param retries Number of attempts to connect and execute the command.
+    #'   Default is \code{1}.
+    #' @return \code{TRUE} in case the operation is successful.
+    #' @examples
+    #' \dontrun{
+    #' msg <- paste("From: me@example.com", "To: you@example.com",
+    #'              "Subject: Hi", "", "Message body.", sep = "\r\n")
+    #' con$append_msg(message = msg, folder = "Drafts")
+    #' }
+    append_msg = function(message, folder = NULL, mute = FALSE, retries = 1) {
+      invisible(append_int(self, message, folder, mute, retries))
+    },
+
     #' @description Count the number of messages with a specific flag(s) in a
-    #'   folder (depend on ESEARCH capability)
+    #'   folder (depends on ESEARCH capability)
     #' @param flag A mandatory parameter that specifies one or more flags as a
     #'   filter to the counting operation. Use \href{#method-list_flags}{\code{ImapCon$list_flags()}}
     #'   to list the flags in a selected mail folder.
@@ -1476,7 +1813,7 @@ ImapCon <- R6::R6Class("ImapCon",
     },
 
     #' @description Search the minimum message id in the selected mail folder
-    #'   (depend on ESEARCH capability)
+    #'   (depends on ESEARCH capability)
     #' @param flag A mandatory parameter that specifies one or more flags as a
     #'   filter to the searching operation. Use \href{#method-list_flags}{\code{ImapCon$list_flags()}}
     #'   to list the flags in a selected mail folder.
@@ -1509,7 +1846,7 @@ ImapCon <- R6::R6Class("ImapCon",
     },
 
     #' @description Search the maximum message id in the selected mail folder
-    #'   (depend on ESEARCH capability)
+    #'   (depends on ESEARCH capability)
     #' @param flag A mandatory parameter that specifies one or more flags as a
     #'   filter to the searching operation. Use \href{#method-list_flags}{\code{ImapCon$list_flags()}}
     #'   to list the flags in a selected mail folder.
@@ -1616,7 +1953,7 @@ ImapCon <- R6::R6Class("ImapCon",
     #' # Replace the current flags of the messages in the search results for the
     #' #.. flags "\\UNSEEN" and "\\Flagged"
     #' con$search_since(date_char = "20-Aug-2020") %>%
-    #'   con$replace_flags(flags_to_set = c("\\UNSEEN", "\\Flagged")
+    #'   con$replace_flags(flags_to_set = c("\\UNSEEN", "\\Flagged"))
     #' }
     replace_flags = function(msg_id, use_uid = FALSE, flags_to_set, mute = FALSE,
                              retries = 1) {
@@ -1655,7 +1992,7 @@ ImapCon <- R6::R6Class("ImapCon",
     #' @examples
     #' \dontrun{
     #' con$select_folder(name = "INBOX")
-    #' # Remove the the "\\SEEN" flag from the messages in the search result
+    #' # Remove the "\\SEEN" flag from the messages in the search result
     #' con$search_since(date_char = "20-Aug-2020") %>%
     #'   con$remove_flags(flags_to_unset = "\\UNSEEN")
     #' }
@@ -1683,6 +2020,10 @@ ImapCon <- R6::R6Class("ImapCon",
     #'   when the command is successfully executed. Default is \code{FALSE}.
     #' @param as_is If \code{TRUE} then write out attachments without base64
     #'   decoding. Default is \code{FALSE}.
+    #' @param local_dir A \code{character} string with the base directory where the
+    #'   attachments will be saved. A subfolder tree
+    #'   \code{<local_dir>/<username>/<mail folder>/<msg id>} is created inside it.
+    #'   Default is \code{"."} (the current working directory).
     #' @note \href{#method-get_attachments}{\code{ImapCon$get_attachments()}}:
     #'   This method is to be used after the body or the
     #'   text part of one or more messages were fetched. This makes sense if the
@@ -1727,14 +2068,15 @@ ImapCon <- R6::R6Class("ImapCon",
     #'   con$get_attachments()
     #'
     #' # example 2
-    #' res <- con$search_string(expr = "@gmail", where = "CC") %>%
+    #' res <- con$search_string(expr = "@gmail", where = "CC")
     #' out <- con$fetch_body(msg = res)
     #' con$get_attachments(msg_list = out)
     #' }
     get_attachments = function(msg_list, content_disposition = "both",
-                               override = FALSE, mute = FALSE, as_is = FALSE) {
+                               override = FALSE, mute = FALSE, as_is = FALSE,
+                               local_dir = ".") {
       out <- get_attachments_int(self, msg_list, content_disposition, override,
-                                 mute, as_is)
+                                 mute, as_is, local_dir)
 
       invisible(out)
 
@@ -1762,7 +2104,7 @@ ImapCon <- R6::R6Class("ImapCon",
     #' \dontrun{
     #' con$select_folder(name = "INBOX")
     #' # do a search and fetch the attachments' list of the messages
-    #' out < con$search_string(expr = "@k-state.edu", where = "FROM") %>%
+    #' out <- con$search_string(expr = "@k-state.edu", where = "FROM") %>%
     #'   con$fetch_attachments_list()
     #' out
     #'
@@ -1801,6 +2143,10 @@ ImapCon <- R6::R6Class("ImapCon",
     #'   is \code{1}.
     #' @param as_is If \code{TRUE} then write out attachments without base64
     #'   decoding. Default is \code{FALSE}.
+    #' @param local_dir A \code{character} string with the base directory where the
+    #'   attachments will be saved. A subfolder tree
+    #'   \code{<local_dir>/<username>/<mail folder>/<msg id>} is created inside it.
+    #'   Default is \code{"."} (the current working directory).
     #' @note \href{#method-fetch_attachments}{\code{ImapCon$fetch_attachments()}}: All
     #'   attachments will be stored in a folder labeled with the message id
     #'   inside the \code{working directory > servername > foldername}.
@@ -1841,9 +2187,9 @@ ImapCon <- R6::R6Class("ImapCon",
     #' }
     fetch_attachments = function(msg_id, use_uid = FALSE, content_disposition = "both",
                                  override = FALSE, mute = FALSE, retries = 1,
-                                 as_is = FALSE) {
+                                 as_is = FALSE, local_dir = ".") {
       out <- fetch_attachments_int(self, msg_id, use_uid, content_disposition,
-                                   override, mute, retries, as_is)
+                                   override, mute, retries, as_is, local_dir)
 
       invisible(out)
 

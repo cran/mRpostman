@@ -1,5 +1,5 @@
 #' Search the maximum message id in the selected mail folder
-#'   (depend on ESEARCH capability) (INTERNAL HELPER)
+#'   (depends on ESEARCH capability) (INTERNAL HELPER)
 #' @param flag Mandatory parameter that specifies one or more flags as a
 #'   filter to the searching operation. Use \href{#method-list_flags}{\code{ImapCon$list_flags()}}
 #'   to list the flags in a selected mail folder.
@@ -18,13 +18,17 @@ esearch_max_id_int <- function(self, flag, use_uid, retries) {
 
   # previous folder selection checking
   # if (!is.character(flag)) {
-  #   stop('"flag" argument must of type character.')
+  #   stop('"flag" argument must be of type character.')
   # }
   assertthat::assert_that(
     is.character(flag),
-    msg='"flag" argument must of type character.')
+    msg='"flag" argument must be of type character.')
 
   check_args(use_uid = use_uid, retries = retries)
+
+  # ESEARCH is an optional extension (RFC 4731) -- fail early if unsupported.
+  assert_capability(self, "ESEARCH", command = "esearch_max_id",
+                    rfc = "RFC 4731", retries = retries)
 
   flag_string <- paste(flag, collapse = " ") #v0.9.0 (for more than one flag passed)
   flag_string = paste0(flag_string, "") # different here because flag is the main parameter of search

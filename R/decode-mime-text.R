@@ -6,7 +6,7 @@
 #'   other than ASCII. According to the manual, non-ASCII content is encoded as
 #'   an ASCII text string as follows: \code{=?<charset>?<encoding>?<encoded-text>?=}.
 #'   The encoding can be of two types: "B" for "BASE64", or "Q" for quoted-
-#'   printable content (Freed and Borentein, 1996). Besides the standard RFC 2047
+#'   printable content (Freed and Borenstein, 1996). Besides the standard RFC 2047
 #'   decoding, this function also enables users to decode content that does not
 #'   strictly follow the \code{=?<charset>?<encoding>?<encoded-text>?=} RFC 2047
 #'   syntax, i.e. cases where only the encoded text part is present, such as the
@@ -21,8 +21,11 @@
 #' @references Internal parts of this object, regarding the quoted printable type,
 #'   were borrowed from https://github.com/hrbrmstr/hrbrmisc/blob/master/R/qp.r with
 #'   slight modifications.
+#' @param charset A \code{character} string with the charset declared in the
+#'   MIME \code{Content-Type}. When supplied it is honored (via
+#'   \code{\link{apply_charset}}) instead of the legacy heuristic detection.
 #' @noRd
-decode_mime_text <- function(string) {
+decode_mime_text <- function(string, charset = NULL) {
 
   # check if it is a character vector
   #check
@@ -40,14 +43,14 @@ decode_mime_text <- function(string) {
     if (grepl(pattern = "^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)$", x = content)) {
       # sol: https://stackoverflow.com/questions/8571501/how-to-check-whether-a-string-is-base64-encoded-or-not
       decoded_string <- tryCatch({
-        rawToChar(base64enc::base64decode(content))
+        apply_charset(rawToChar(base64enc::base64decode(content)), charset)
       }, error = function(e) {
         content
       })
 
     # } else if (grepl(pattern = "[\\x80-\\xff]", x = content)) { # assim reconhece direto sem precisar transformar!!
     } else if (grepl(pattern = "[\\x80-\\xD1\\x8F]", x = content)) { # assim reconhece direto sem precisar transformar!!
-      decoded_string <- decode_quoted_printable_text(qp_encoded = content)
+      decoded_string <- decode_quoted_printable_text(qp_encoded = content, charset = charset)
 
     } else {
       decoded_string <- content

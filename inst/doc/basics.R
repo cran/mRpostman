@@ -88,6 +88,50 @@
 #  con$list_flags()
 
 ## ----message = FALSE, eval=FALSE----------------------------------------------
+#  con$delete_folder(name = "Old Folder")
+
+## ----message = FALSE, eval=FALSE----------------------------------------------
+#  con$subscribe_folder(name = "INBOX")
+
+## ----message = FALSE, eval=FALSE----------------------------------------------
+#  con$unsubscribe_folder(name = "INBOX")
+
+## ----message = FALSE, eval=FALSE----------------------------------------------
+#  con$list_subscribed_folders()
+
+## ----message = FALSE, eval=FALSE----------------------------------------------
+#  con$status(name = "INBOX")
+#  
+#  # or only some items, for the currently selected folder:
+#  con$select_folder("INBOX")
+#  con$status(items = c("MESSAGES", "UNSEEN"))
+
+## ----message = FALSE, eval=FALSE----------------------------------------------
+#  con$list_special_use_folders()
+
+## ----message = FALSE, eval=FALSE----------------------------------------------
+#  con$namespace()
+
+## ----message = FALSE, eval=FALSE----------------------------------------------
+#  con$get_quota_root(name = "INBOX")
+#  
+#  # or, for a known quota root:
+#  con$get_quota(quota_root = "")
+
+## ----message = FALSE, eval=FALSE----------------------------------------------
+#  con$select_folder("INBOX")
+#  
+#  con$close_folder()      # closes and expunges \Deleted
+#  # or:
+#  con$unselect_folder()   # closes without expunging
+
+## ----message = FALSE, eval=FALSE----------------------------------------------
+#  con$id()
+#  
+#  # optionally disclosing the client id:
+#  con$id(fields = c(name = "mRpostman", version = "1.2.1"))
+
+## ----message = FALSE, eval=FALSE----------------------------------------------
 #  con$select_folder(name = "INBOX")
 #  
 #  res <- con$search_before(date_char = "07-Sep-2020")
@@ -207,6 +251,20 @@
 
 ## ----message = FALSE, eval = FALSE--------------------------------------------
 #  con$search_older_than(seconds = 3600) # msgs received more than one hour ago (3600 sec)
+
+## ----message = FALSE, eval = FALSE--------------------------------------------
+#  con$select_folder(name = "INBOX")
+#  
+#  # most recent first:
+#  con$sort(by = "DATE", reverse = TRUE)
+#  
+#  # sort a restricted set (search criteria) by sender:
+#  con$sort(by = "FROM", criteria = "SINCE 01-Jan-2020")
+
+## ----message = FALSE, eval = FALSE--------------------------------------------
+#  con$select_folder(name = "INBOX")
+#  
+#  con$thread(algorithm = "REFERENCES")
 
 ## ----message = FALSE, eval=FALSE----------------------------------------------
 #  con$select_folder(name = "INBOX")
@@ -364,5 +422,20 @@
 #    con$copy_msg(to_folder = "K-State", reselect = FALSE) %>%
 #    con$add_flags(flags_to_set = "\\Deleted") %>%
 #    con$expunge()
+#  
+
+## ----message = FALSE, eval = FALSE--------------------------------------------
+#  con$noop()
+
+## ----message = FALSE, eval = FALSE--------------------------------------------
+#  
+#  msg <- paste("From: me@example.com",
+#               "To: you@example.com",
+#               "Subject: Hi",
+#               "",
+#               "Message body.",
+#               sep = "\r\n")
+#  
+#  con$append_msg(message = msg, folder = "Drafts")
 #  
 

@@ -194,6 +194,32 @@ if (!require('remotes')) install.packages('remotes')
 remotes::install_github("allanvc/mRpostman")
 ```
 
+## Trying it without a mail account
+
+The package ships a disposable local IMAP server (Dovecot, in a Docker
+container) plus a deterministic synthetic corpus generator, so every
+feature can be exercised offline and reproducibly — no credentials,
+OAuth2 setup, or provider rate limits involved:
+
+``` r
+# after starting the container (see the "sandbox" vignette):
+con <- configure_imap(url = "imap://localhost:1430", username = "testuser",
+                      password = "sandbox", use_ssl = FALSE)
+populate_sandbox(con, n = 200) # uploads the corpus with the package's own APPEND
+```
+
+Real data works too: `ingest_maildir()` uploads any local maildir-style
+directory to the server via `APPEND`, and `enron_sandbox()` builds on it
+to download (once, with consent, cached) the public Enron corpus and
+ingest a subset selected by custodian, folder, and date — turning the
+sandbox into a full e-mail data-analysis laboratory.
+
+See the [*“A reproducible IMAP sandbox with
+Docker”*](https://allanvc.github.io/mRpostman/articles/sandbox.html)
+vignette for the guided tour. The sandbox’s Dovecot server also
+advertises `SORT` and `THREAD`, making it a convenient place to try the
+extensions your provider may lack.
+
 ## Basic Usage
 
 ### 1\) Configure an IMAP connection and list the server’s capabilities

@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>A reproducible IMAP sandbox with Docker</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+<script>// Hide empty <a> tag within highlighted CodeBlock for screen reader accessibility (see https://github.com/jgm/pandoc/issues/6352#issuecomment-626106786) -->
+// v0.0.1
+// Written by JooYoung Seo (jooyoung@psu.edu) and Atsushi Yasumoto on June 1st, 2020.
+
+document.addEventListener('DOMContentLoaded', function() {
+  const codeList = document.getElementsByClassName("sourceCode");
+  for (var i = 0; i < codeList.length; i++) {
+    var linkList = codeList[i].getElementsByTagName('a');
+    for (var j = 0; j < linkList.length; j++) {
+      if (linkList[j].innerHTML === "") {
+        linkList[j].setAttribute('aria-hidden', 'true');
+      }
+    }
+  }
+});
+</script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">A reproducible IMAP sandbox with Docker</h1>
+
+
+<div id="TOC">
+<ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#starting-the-server">Starting the server</a></li>
+<li><a href="#connecting">Connecting</a></li>
+<li><a href="#populating-the-mailbox">Populating the mailbox</a>
+<ul>
+<li><a href="#a-note-on-dates">A note on dates</a></li>
+</ul></li>
+<li><a href="#ingesting-real-data-maildirs-and-the-enron-corpus">Ingesting real data: maildirs and the Enron corpus</a></li>
+<li><a href="#a-guided-tour">A guided tour</a>
+<ul>
+<li><a href="#mailbox-structure">Mailbox structure</a></li>
+<li><a href="#searching">Searching</a></li>
+<li><a href="#fetching-and-decoding">Fetching and decoding</a></li>
+<li><a href="#attachments">Attachments</a></li>
+<li><a href="#server-side-sorting-and-threading">Server-side sorting and threading</a></li>
+<li><a href="#flags-and-mailbox-management">Flags and mailbox management</a></li>
+</ul></li>
+<li><a href="#resetting-and-tearing-down">Resetting and tearing down</a></li>
+</ul>
+</div>
+
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<p>Trying an IMAP client requires a mail server and a populated mailbox — which usually means real credentials, a provider’s rate limits, and results that cannot be reproduced anywhere else. This vignette shows how to run <code>mRpostman</code> against a <strong>disposable local IMAP server</strong> (Dovecot, in a Docker container) whose mailbox is populated <strong>deterministically by the package itself</strong>: <code>populate_sandbox()</code> uploads a fixed synthetic corpus with the package’s own <code>APPEND</code> implementation, so any user, on any machine, obtains exactly the same messages — and therefore exactly the same search, fetch, and decoding results shown here.</p>
+<p>This is useful for:</p>
+<ul>
+<li>trying every feature of the package without a real mail account (no OAuth2 setup, no “less secure apps” hurdles);</li>
+<li>teaching and demonstrations, with reproducible outputs;</li>
+<li>testing code that uses <code>mRpostman</code> against a fast, offline, rate-limit-free server.</li>
+</ul>
+<p>None of the code chunks in this vignette are evaluated when the package is built (there is no Docker server on CRAN’s machines); copy and paste them into your session.</p>
+<p><strong>NOTE</strong>: the sandbox server is for local experimentation only — it uses plaintext authentication, no TLS, and a static password.</p>
+</div>
+<div id="starting-the-server" class="section level2">
+<h2>Starting the server</h2>
+<p>You will need <a href="https://docs.docker.com/get-docker/">Docker</a>. The <code>Dockerfile</code> and the Dovecot configuration ship with the package; find them with:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="kw">system.file</span>(<span class="st">&quot;docker&quot;</span>, <span class="dt">package =</span> <span class="st">&quot;mRpostman&quot;</span>)</span></code></pre></div>
+<p>From that folder, build the image and start a container, exposing the IMAP port as <code>1430</code> on the host:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="ex">docker</span> build -t mrpostman-sandbox .</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a><span class="ex">docker</span> run -d --name mrpostman-sandbox -p 1430:143 mrpostman-sandbox</span></code></pre></div>
+<p>The server accepts <strong>any username</strong> with the password <code>sandbox</code>, and each username gets its own empty mailbox.</p>
+</div>
+<div id="connecting" class="section level2">
+<h2>Connecting</h2>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="kw">library</span>(mRpostman)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a>con &lt;-<span class="st"> </span><span class="kw">configure_imap</span>(<span class="dt">url =</span> <span class="st">&quot;imap://localhost:1430&quot;</span>,</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true"></a>                      <span class="dt">username =</span> <span class="st">&quot;testuser&quot;</span>,</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true"></a>                      <span class="dt">password =</span> <span class="st">&quot;sandbox&quot;</span>,</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true"></a>                      <span class="dt">use_ssl =</span> <span class="ot">FALSE</span>)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true"></a>con<span class="op">$</span><span class="kw">list_server_capabilities</span>()</span></code></pre></div>
+<p>Note the <code>use_ssl = FALSE</code> and the <code>imap://</code> (not <code>imaps://</code>) scheme: the sandbox has no TLS. Dovecot advertises, among others, the <code>ESEARCH</code>, <code>SORT</code>, <code>THREAD</code>, <code>MOVE</code>, <code>UNSELECT</code>, and <code>SPECIAL-USE</code> capabilities, so the package’s extension-based methods can be exercised too.</p>
+</div>
+<div id="populating-the-mailbox" class="section level2">
+<h2>Populating the mailbox</h2>
+<p><code>populate_sandbox()</code> generates the synthetic corpus of <code>sandbox_corpus()</code> — 200 RFC 822 messages by default, driven by a fixed RNG seed — and stores it using the package’s own IMAP operations (<code>APPEND</code>, <code>CREATE</code>, <code>STORE</code>):</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a>info &lt;-<span class="st"> </span><span class="kw">populate_sandbox</span>(con, <span class="dt">n =</span> <span class="dv">200</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a><span class="co">#&gt; Appending 200 synthetic messages to INBOX at imap://localhost:1430 ...</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a><span class="co">#&gt;   50/200</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true"></a><span class="co">#&gt;   100/200</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true"></a><span class="co">#&gt;   150/200</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true"></a><span class="co">#&gt;   200/200</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true"></a><span class="co">#&gt;</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true"></a><span class="co">#&gt; Done. INBOX now reports:</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true"></a><span class="co">#&gt; $EXISTS</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true"></a><span class="co">#&gt; [1] 200</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true"></a><span class="co">#&gt; ...</span></span></code></pre></div>
+<p>The returned (invisible) <code>info</code> data.frame describes what was embedded in each message, so every result below can be checked against it:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a><span class="kw">head</span>(info)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a><span class="co">#&gt;   id                     from                  subject ...</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true"></a><span class="co">#&gt; 1  1 felipe.duarte@example.com     Meeting minutes     ...</span></span></code></pre></div>
+<p>The corpus is designed so that each feature of the package has matching messages to act upon:</p>
+<ul>
+<li><code>Date:</code> headers spread over the year <strong>2020</strong>, for the <code>SENT*</code> date searches;</li>
+<li>a subset of large bodies, for size searches;</li>
+<li>accented subjects in MIME encoded-words and quoted-printable bodies, for the decoding helpers;</li>
+<li>CSV, PNG, and one-page PDF attachments (some with repeated filenames), for the attachment methods, binary base64 decoding, and filename deduplication — see <code>info$attachment_type</code>;</li>
+<li>reply chains (<code>In-Reply-To</code>/<code>References</code>), for <code>SORT</code> and <code>THREAD</code>;</li>
+<li><code>\Seen</code>, <code>\Flagged</code>, and <code>\Answered</code> flags, adjusted after the upload, for flag searches. (libcurl’s <code>APPEND</code> stores every message with the <code>\Seen</code> flag, so <code>populate_sandbox()</code> <em>removes</em> it from the messages planned as unread — exercising <code>STORE</code> in both directions.)</li>
+</ul>
+<p>For use from the shell, the wrapper script <code>inst/docker/populate_mailbox.R</code> does the same: <code>Rscript populate_mailbox.R 200</code>.</p>
+<div id="a-note-on-dates" class="section level3">
+<h3>A note on dates</h3>
+<p><code>APPEND</code> stores messages with the <em>current</em> internal date. Searches on the <strong>internal date</strong> (<code>search_before()</code>, <code>search_since()</code>, <code>search_on()</code>, <code>search_older_than()</code>, <code>search_younger_than()</code>) therefore relate to the moment you populated the mailbox. Searches on the <strong><code>Date:</code> header</strong> (<code>search_sent_before()</code>, <code>search_sent_since()</code>, <code>search_sent_on()</code>, <code>search_sent_period()</code>) act on the fixed 2020 dates of the corpus and always return the same results.</p>
+</div>
+</div>
+<div id="ingesting-real-data-maildirs-and-the-enron-corpus" class="section level2">
+<h2>Ingesting real data: maildirs and the Enron corpus</h2>
+<p>The synthetic corpus is not the only way to fill the sandbox. <code>ingest_maildir()</code> uploads any local maildir-style directory (one RFC 5322 message per file) to a server folder via <code>APPEND</code> — mail server backups, exported archives, or public corpora:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true"></a>manifest &lt;-<span class="st"> </span><span class="kw">ingest_maildir</span>(con, <span class="dt">path =</span> <span class="st">&quot;~/backup/maildir/archive2020&quot;</span>,</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true"></a>                           <span class="dt">folder =</span> <span class="st">&quot;archive2020&quot;</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true"></a><span class="kw">table</span>(manifest<span class="op">$</span>appended)</span></code></pre></div>
+<p>Built on top of it, <code>enron_sandbox()</code> turns the sandbox into a real-data laboratory: it downloads the public Enron e-mail corpus once (~423 MB, with your consent, cached under <code>tools::R_user_dir(&quot;mRpostman&quot;, &quot;cache&quot;)</code>), selects a subset by custodian, folder-name pattern, and <code>Date:</code> header window, and ingests it — one server folder per custodian:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true"></a>con2 &lt;-<span class="st"> </span><span class="kw">configure_imap</span>(<span class="dt">url =</span> <span class="st">&quot;imap://localhost:1430&quot;</span>,</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true"></a>                       <span class="dt">username =</span> <span class="st">&quot;enron&quot;</span>, <span class="dt">password =</span> <span class="st">&quot;sandbox&quot;</span>,</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true"></a>                       <span class="dt">use_ssl =</span> <span class="ot">FALSE</span>)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true"></a>manifest &lt;-<span class="st"> </span><span class="kw">enron_sandbox</span>(con2,</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true"></a>                          <span class="dt">custodians  =</span> <span class="kw">c</span>(<span class="st">&quot;kaminski-v&quot;</span>, <span class="st">&quot;lay-k&quot;</span>, <span class="st">&quot;skilling-j&quot;</span>),</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true"></a>                          <span class="dt">sent_since  =</span> <span class="st">&quot;2000-01-01&quot;</span>,</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true"></a>                          <span class="dt">sent_before =</span> <span class="st">&quot;2002-07-01&quot;</span>)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true"></a><span class="kw">table</span>(manifest<span class="op">$</span>custodian, manifest<span class="op">$</span>appended)</span></code></pre></div>
+<p>After the ingestion, everything shown in the guided tour below works on real data too — e.g. <code>con2$search_string(expr = &quot;SEC&quot;, where = &quot;TEXT&quot;)</code> on a custodian’s folder. The same internal-date caveat applies: query ingested corpora by date through the <code>SENT*</code> searches, which read the <code>Date:</code> header.</p>
+</div>
+<div id="a-guided-tour" class="section level2">
+<h2>A guided tour</h2>
+<div id="mailbox-structure" class="section level3">
+<h3>Mailbox structure</h3>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true"></a>con<span class="op">$</span><span class="kw">list_mail_folders</span>()</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true"></a>con<span class="op">$</span><span class="kw">examine_folder</span>(<span class="st">&quot;INBOX&quot;</span>)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true"></a>con<span class="op">$</span><span class="kw">select_folder</span>(<span class="st">&quot;INBOX&quot;</span>)</span></code></pre></div>
+<p>Besides <code>INBOX</code>, <code>populate_sandbox()</code> creates a <code>ProjectAtlas</code> folder with a small subset of the corpus, for folder, <code>copy_msg()</code>, and <code>move_msg()</code> demonstrations.</p>
+</div>
+<div id="searching" class="section level3">
+<h3>Searching</h3>
+<p>Single-criterion searches:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true"></a><span class="co"># messages &quot;sent&quot; in the first quarter of 2020 (Date: header)</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true"></a>ids_q1 &lt;-<span class="st"> </span>con<span class="op">$</span><span class="kw">search_sent_period</span>(<span class="dt">since_date_char =</span> <span class="st">&quot;01-Jan-2020&quot;</span>,</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true"></a>                                 <span class="dt">before_date_char =</span> <span class="st">&quot;01-Apr-2020&quot;</span>)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true"></a><span class="co"># large messages</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true"></a>ids_large &lt;-<span class="st"> </span>con<span class="op">$</span><span class="kw">search_larger_than</span>(<span class="dt">size =</span> <span class="dv">8000</span>)</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true"></a></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true"></a><span class="co"># flagged messages</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true"></a>ids_flagged &lt;-<span class="st"> </span>con<span class="op">$</span><span class="kw">search_flag</span>(<span class="st">&quot;FLAGGED&quot;</span>)</span></code></pre></div>
+<p>Composable custom searches:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true"></a>ids &lt;-<span class="st"> </span>con<span class="op">$</span><span class="kw">search</span>(<span class="dt">request =</span> <span class="kw">OR</span>(<span class="kw">string</span>(<span class="dt">expr =</span> <span class="st">&quot;sales&quot;</span>, <span class="dt">where =</span> <span class="st">&quot;SUBJECT&quot;</span>),</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true"></a>                               <span class="kw">string</span>(<span class="dt">expr =</span> <span class="st">&quot;alice.fontes@example.com&quot;</span>,</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true"></a>                                      <span class="dt">where =</span> <span class="st">&quot;FROM&quot;</span>)))</span></code></pre></div>
+<p>The <code>ESEARCH</code> extension can condense results server-side:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true"></a>con<span class="op">$</span><span class="kw">esearch_count</span>(<span class="dt">flag =</span> <span class="st">&quot;SEEN&quot;</span>)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true"></a>con<span class="op">$</span><span class="kw">esearch_min_id</span>(<span class="dt">flag =</span> <span class="st">&quot;FLAGGED&quot;</span>)</span></code></pre></div>
+</div>
+<div id="fetching-and-decoding" class="section level3">
+<h3>Fetching and decoding</h3>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true"></a>meta &lt;-<span class="st"> </span>ids_q1[<span class="dv">1</span><span class="op">:</span><span class="dv">5</span>] <span class="op">%&gt;%</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true"></a><span class="st">  </span>con<span class="op">$</span><span class="kw">fetch_metadata</span>(<span class="dt">attribute =</span> <span class="kw">c</span>(<span class="st">&quot;INTERNALDATE&quot;</span>, <span class="st">&quot;RFC822.SIZE&quot;</span>))</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true"></a></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true"></a>texts &lt;-<span class="st"> </span>ids_q1[<span class="dv">1</span><span class="op">:</span><span class="dv">5</span>] <span class="op">%&gt;%</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true"></a><span class="st">  </span>con<span class="op">$</span><span class="kw">fetch_text</span>()</span></code></pre></div>
+<p>The corpus includes quoted-printable bodies and MIME encoded-word subjects with accented characters — fetch one of the messages flagged as <code>is_utf8_body</code> in <code>info</code> and decode it with <code>clean_msg_text()</code>:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true"></a>utf8_ids &lt;-<span class="st"> </span>info<span class="op">$</span>id[info<span class="op">$</span>is_utf8_body]</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true"></a>raw_text &lt;-<span class="st"> </span>con<span class="op">$</span><span class="kw">fetch_text</span>(<span class="dt">msg_id =</span> utf8_ids[<span class="dv">1</span>])</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true"></a><span class="kw">clean_msg_text</span>(raw_text)</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true"></a><span class="co">#&gt; [[1]]</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true"></a><span class="co">#&gt; [1] &quot;Segue em anexo o relatório com os números consolidados. ...&quot;</span></span></code></pre></div>
+</div>
+<div id="attachments" class="section level3">
+<h3>Attachments</h3>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true"></a>att_ids &lt;-<span class="st"> </span>info<span class="op">$</span>id[info<span class="op">$</span>has_attachment]</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true"></a></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true"></a><span class="co"># list attachment filenames without downloading</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true"></a>con<span class="op">$</span><span class="kw">fetch_attachments_list</span>(<span class="dt">msg_id =</span> att_ids[<span class="dv">1</span><span class="op">:</span><span class="dv">5</span>])</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true"></a></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true"></a><span class="co"># download them (note the automatic deduplication of repeated filenames)</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true"></a>con<span class="op">$</span><span class="kw">fetch_attachments</span>(<span class="dt">msg_id =</span> att_ids[<span class="dv">1</span><span class="op">:</span><span class="dv">5</span>])</span></code></pre></div>
+</div>
+<div id="server-side-sorting-and-threading" class="section level3">
+<h3>Server-side sorting and threading</h3>
+<p>Dovecot implements the <code>SORT</code> and <code>THREAD</code> extensions (which, for instance, Gmail does not), so the sandbox is a convenient place to try them:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true"></a>con<span class="op">$</span><span class="kw">sort</span>(<span class="dt">by =</span> <span class="st">&quot;SUBJECT&quot;</span>, <span class="dt">use_uid =</span> <span class="ot">TRUE</span>)</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true"></a>con<span class="op">$</span><span class="kw">thread</span>(<span class="dt">algorithm =</span> <span class="st">&quot;REFERENCES&quot;</span>)</span></code></pre></div>
+</div>
+<div id="flags-and-mailbox-management" class="section level3">
+<h3>Flags and mailbox management</h3>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true"></a>con<span class="op">$</span><span class="kw">copy_msg</span>(<span class="dt">msg_id =</span> ids_flagged[<span class="dv">1</span>], <span class="dt">to_folder =</span> <span class="st">&quot;ProjectAtlas&quot;</span>)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true"></a>con<span class="op">$</span><span class="kw">add_flags</span>(<span class="dt">msg_id =</span> ids_flagged[<span class="dv">1</span>], <span class="dt">flags_to_set =</span> <span class="st">&quot;</span><span class="ch">\\</span><span class="st">Deleted&quot;</span>)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true"></a>con<span class="op">$</span><span class="kw">expunge</span>()</span></code></pre></div>
+</div>
+</div>
+<div id="resetting-and-tearing-down" class="section level2">
+<h2>Resetting and tearing down</h2>
+<p>Since the server accepts <strong>any username</strong> — and each one gets its own independent mailbox — the quickest way to start over is to simply connect with a new username, with no need to touch the container:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true"></a>con2 &lt;-<span class="st"> </span><span class="kw">configure_imap</span>(<span class="dt">url =</span> <span class="st">&quot;imap://localhost:1430&quot;</span>,</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true"></a>                       <span class="dt">username =</span> <span class="st">&quot;testuser2&quot;</span>, <span class="co"># any new name = pristine mailbox</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true"></a>                       <span class="dt">password =</span> <span class="st">&quot;sandbox&quot;</span>,</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true"></a>                       <span class="dt">use_ssl =</span> <span class="ot">FALSE</span>)</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true"></a><span class="kw">populate_sandbox</span>(con2, <span class="dt">n =</span> <span class="dv">200</span>)</span></code></pre></div>
+<p>This is also handy for keeping several corpora side by side (e.g. one mailbox per experiment or per <code>seed</code>).</p>
+<p>Alternatively, the mailboxes live inside the container, so recreating it resets everything at once:</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true"></a><span class="ex">docker</span> rm -f mrpostman-sandbox</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true"></a><span class="ex">docker</span> run -d --name mrpostman-sandbox -p 1430:143 mrpostman-sandbox</span></code></pre></div>
+<p>Either way, a new <code>populate_sandbox()</code> call recreates the exact same corpus.</p>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

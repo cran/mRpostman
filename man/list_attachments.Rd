@@ -24,7 +24,7 @@ Please, note that this is an independent function and not an R6 method
 }
 \examples{
 \dontrun{
-con$select_folder(name = "INBOX")
+con$select_folder(folder = "INBOX")
 # do a search followed by a fetch operation, then extract the attachments' list
 out <- con$search_string(expr = "@k-state.edu", where = "FROM") \%>\%
   con$fetch_body()
@@ -37,7 +37,8 @@ att_list <- con$search_string(expr = "@k-state.edu", where = "FROM") \%>\%
 }
 }
 \seealso{
-Other attachments: 
-\code{\link{ImapCon}}
+Other attachments:
+\code{\link{ImapCon}},
+\code{\link[=extract_attachments]{extract_attachments()}}
 }
 \concept{attachments}

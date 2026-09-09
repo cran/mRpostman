@@ -20,9 +20,17 @@
 #' @noRd
 config_con_handle_and_params <- function(url, username, password, xoauth2_bearer,
                                          use_ssl, verbose, buffersize, timeout_ms,
+                                         oauth_mechanism = c("XOAUTH2", "OAUTHBEARER"),
                                          ...) {
 
   other_argg_list <- list(...)
+
+  oauth_mechanism <- toupper(match.arg(oauth_mechanism))
+  if (!is.null(xoauth2_bearer) && oauth_mechanism == "OAUTHBEARER") {
+    # libcurl selects the SASL mechanism through CURLOPT_LOGIN_OPTIONS; the
+    # token itself is still passed as xoauth2_bearer
+    other_argg_list$login_options <- "AUTH=OAUTHBEARER"
+  }
 
   default_params <- list()
 
@@ -138,6 +146,9 @@ config_con_handle_and_params <- function(url, username, password, xoauth2_bearer
   }
 
   default_params <- c(default_params, other_argg_list)
+  if (!is.null(xoauth2_bearer)) {
+    default_params <- c(default_params, "oauth_mechanism" = oauth_mechanism)
+  }
 
   # print(default_params)
 
@@ -145,7 +156,7 @@ config_con_handle_and_params <- function(url, username, password, xoauth2_bearer
   id_to_drop <- c()
   for (i in 1:length(default_params)) {
 
-    if (is.null(default_params[[i]]) || names(default_params)[i] == "url") {
+    if (is.null(default_params[[i]]) || names(default_params)[i] %in% c("url", "oauth_mechanism")) {
       id_to_drop <- append(id_to_drop, i)
     }
 
@@ -155,9 +166,26 @@ config_con_handle_and_params <- function(url, username, password, xoauth2_bearer
 
   handle_params <- default_params[-id_to_drop]
 
+  # use_ssl = TRUE means TLS is required: on imap:// URLs libcurl must upgrade
+  # the connection with STARTTLS and fail if the server does not offer it
+  # (CURLUSESSL_ALL = 3). A plain TRUE would map to CURLUSESSL_TRY, which
+  # silently falls back to a plaintext login when STARTTLS is unavailable.
+  handle_params$use_ssl <- ssl_level(handle_params$use_ssl)
+
   h <- curl::new_handle()
 
   do.call(curl::handle_setopt, c(h, handle_params))
+
+  # the handle is always verbose at the libcurl level: a debug callback records
+  # the server's response lines (so that NO/BAD replies can be reported with
+  # their reason) and prints them only when the user asked for verbose output
+  con_debug <- new.env(parent = emptyenv())
+  con_debug$verbose <- isTRUE(verbose)
+  con_debug$lines <- character(0)
+  con_debug$epoch <- 0L
+  con_debug$last_in <- NULL
+  curl::handle_setopt(h, verbose = TRUE,
+                      debugfunction = make_debug_function(con_debug))
 
   # cleaning default_params to assign to self
 
@@ -192,5 +220,10 @@ config_con_handle_and_params <- function(url, username, password, xoauth2_bearer
   # assign to self
   # print(con_params)
 
-  return(list("con_params" = con_params, "con_handle" = h))
+  return(list("con_params" = con_params, "con_handle" = h,
+              "con_debug" = con_debug))
 }
+
+# the CURLOPT_USE_SSL level for a use_ssl flag: 3 (CURLUSESSL_ALL, TLS
+# required) or 0 (no STARTTLS attempt)
+ssl_level <- function(use_ssl) if (isTRUE(use_ssl)) 3L else 0L

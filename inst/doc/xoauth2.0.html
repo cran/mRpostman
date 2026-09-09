@@ -363,7 +363,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <li><a href="#step-3---create-the-oauth-client-credentials">Step 3 - Create the OAuth client credentials</a></li>
 <li><a href="#step-4---obtain-an-access-token">Step 4 - Obtain an access token</a>
 <ul>
-<li><a href="#option-a---httrs-built-in-flow-recommended">Option A - <code>httr</code>’s built-in flow (recommended)</a></li>
+<li><a href="#option-a---httr2s-built-in-flow-recommended">Option A - <code>httr2</code>’s built-in flow (recommended)</a></li>
 <li><a href="#option-b---manual-loopback-flow-no-local-server">Option B - Manual loopback flow (no local server)</a></li>
 </ul></li>
 <li><a href="#step-5---open-the-imap-connection">Step 5 - Open the IMAP connection</a></li>
@@ -376,11 +376,11 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <h2>Introduction</h2>
 <p>Most major mail providers have moved to OAuth2.0 as their preferred (and, in many cases, only) authentication method for IMAP. Instead of sending your password, you send a short-lived <strong>access token</strong> that authorizes a specific scope of access to your mailbox.</p>
 <p>This vignette shows the exact steps and R code to obtain, use, and refresh an OAuth2.0 access token for the <strong>Gmail</strong> IMAP server. The same logic applies to other providers (Outlook/Office 365, Yahoo, AOL, …) by swapping the authorization endpoints and scope. The reference for Google’s flow is <a href="https://developers.google.com/identity/protocols/oauth2" class="uri">https://developers.google.com/identity/protocols/oauth2</a>.</p>
-<p>We use the <a href="https://cran.r-project.org/package=httr"><code>httr</code></a> package to run the OAuth2.0 flow and <a href="https://cran.r-project.org/package=jsonlite"><code>jsonlite</code></a> to read the credentials file, so install them first if needed:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="kw">install.packages</span>(<span class="kw">c</span>(<span class="st">&quot;httr&quot;</span>, <span class="st">&quot;jsonlite&quot;</span>))</span></code></pre></div>
+<p>We use the <a href="https://cran.r-project.org/package=httr2"><code>httr2</code></a> package to run the OAuth2.0 flow and <a href="https://cran.r-project.org/package=jsonlite"><code>jsonlite</code></a> to read the credentials file, so install them first if needed:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="kw">install.packages</span>(<span class="kw">c</span>(<span class="st">&quot;httr2&quot;</span>, <span class="st">&quot;jsonlite&quot;</span>))</span></code></pre></div>
 <p><strong>IMPORTANT — libcurl version.</strong> The libcurl feature that transmits the bearer token is only reliable on libcurl &gt;= 7.65.0 (released 2019-05-22). Check the version the <code>curl</code> R package is linked against:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a>curl<span class="op">::</span><span class="kw">curl_version</span>()<span class="op">$</span>version</span></code></pre></div>
-<pre><code>## [1] &quot;7.81.0&quot;</code></pre>
+<pre><code>## [1] &quot;8.14.1&quot;</code></pre>
 <p>If it is older, update libcurl (and reinstall <code>curl</code>) before continuing, otherwise you may get a <code>SASL</code> error during authentication.</p>
 <p>The whole process is:</p>
 <ol style="list-style-type: decimal">
@@ -409,10 +409,9 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <li><p><strong>User type:</strong> choose <strong>External</strong> and click <strong>Create</strong>.</p></li>
 <li><p>Fill in the required fields: <strong>App name</strong>, <strong>User support email</strong>, and, at the bottom, a <strong>Developer contact email</strong>. Save and continue.</p></li>
 <li><p><strong>Scopes:</strong> click <strong>Add or remove scopes</strong>, then, in the <em>“manually add scopes”</em> box, paste:</p>
-<pre><code>https://mail.google.com/</code></pre>
-<p>Click <strong>Add to table</strong>, then <strong>Update</strong> and <strong>Save and continue</strong>. (This is a <em>restricted</em> scope; while your app stays in <strong>Testing</strong> mode it works for test users without Google verification.)</p></li>
-<li><p><strong>Test users:</strong> add the e-mail address of the account you will log in with (e.g. <code>your_user@gmail.com</code>) and save.</p></li>
+<pre><code>https://mail.google.com/</code></pre></li>
 </ol>
+<p>Click <strong>Add to table</strong>, then <strong>Update</strong> and <strong>Save and continue</strong>. (This is a <em>restricted</em> scope; while your app stays in <strong>Testing</strong> mode it works for test users without Google verification.) 4. <strong>Test users:</strong> add the e-mail address of the account you will log in with (e.g. <code>your_user@gmail.com</code>) and save.</p>
 <p>The account you authenticate with in Step 4 <strong>must</strong> be listed here as a test user, otherwise Google returns an <code>access_denied</code> error.</p>
 </div>
 <div id="step-3---create-the-oauth-client-credentials" class="section level2">
@@ -436,34 +435,35 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <h2>Step 4 - Obtain an access token</h2>
 <p>Below are two ways to get a token. <strong>Option A</strong> is the shortest and works out of the box on most desktops. Use <strong>Option B</strong> if Option A fails to start its local web server (common inside RStudio, or on headless/remote machines).</p>
 <p>Both request <code>access_type = &quot;offline&quot;</code> so that a <strong>refresh token</strong> is also returned (see Step 6).</p>
-<div id="option-a---httrs-built-in-flow-recommended" class="section level3">
-<h3>Option A - <code>httr</code>’s built-in flow (recommended)</h3>
-<p><code>httr::oauth2.0_token()</code> opens your browser, runs a local callback server, and caches the token in a <code>.httr-oauth</code> file.</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true"></a><span class="kw">library</span>(httr)</span>
+<div id="option-a---httr2s-built-in-flow-recommended" class="section level3">
+<h3>Option A - <code>httr2</code>’s built-in flow (recommended)</h3>
+<p><code>httr2::oauth_flow_auth_code()</code> opens your browser, runs a local callback server, and returns the token. (<code>httr2</code> is the successor of <code>httr</code>, which is in maintenance mode; the old <code>httr::oauth2.0_token()</code> flow keeps working if you prefer it.)</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true"></a><span class="kw">library</span>(httr2)</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true"></a></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true"></a>gmail_app &lt;-<span class="st"> </span><span class="kw">oauth_app</span>(<span class="st">&quot;mRpostman&quot;</span>,</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true"></a>                       <span class="dt">key    =</span> cred<span class="op">$</span>client_id,</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true"></a>                       <span class="dt">secret =</span> cred<span class="op">$</span>client_secret)</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true"></a></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true"></a>token_obj &lt;-<span class="st"> </span><span class="kw">oauth2.0_token</span>(</span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true"></a>  <span class="dt">endpoint =</span> <span class="kw">oauth_endpoints</span>(<span class="st">&quot;google&quot;</span>),</span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true"></a>  <span class="dt">app      =</span> gmail_app,</span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true"></a>  <span class="dt">scope    =</span> <span class="st">&quot;https://mail.google.com/&quot;</span>,</span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true"></a>  <span class="dt">cache    =</span> <span class="ot">TRUE</span></span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true"></a>)</span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true"></a></span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true"></a>token &lt;-<span class="st"> </span>token_obj<span class="op">$</span>credentials<span class="op">$</span>access_token</span></code></pre></div>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true"></a>client &lt;-<span class="st"> </span><span class="kw">oauth_client</span>(</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true"></a>  <span class="dt">id        =</span> cred<span class="op">$</span>client_id,</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true"></a>  <span class="dt">secret    =</span> cred<span class="op">$</span>client_secret,</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true"></a>  <span class="dt">token_url =</span> <span class="st">&quot;https://oauth2.googleapis.com/token&quot;</span>,</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true"></a>  <span class="dt">name      =</span> <span class="st">&quot;mRpostman&quot;</span>)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true"></a></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true"></a>tok &lt;-<span class="st"> </span><span class="kw">oauth_flow_auth_code</span>(</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true"></a>  client,</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true"></a>  <span class="dt">auth_url    =</span> <span class="st">&quot;https://accounts.google.com/o/oauth2/auth&quot;</span>,</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true"></a>  <span class="dt">scope       =</span> <span class="st">&quot;https://mail.google.com/&quot;</span>,</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true"></a>  <span class="dt">auth_params =</span> <span class="kw">list</span>(<span class="dt">access_type =</span> <span class="st">&quot;offline&quot;</span>, <span class="dt">prompt =</span> <span class="st">&quot;consent&quot;</span>))</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true"></a></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true"></a>token &lt;-<span class="st"> </span>tok<span class="op">$</span>access_token</span></code></pre></div>
 <p>When the browser shows <em>“Google hasn’t verified this app”</em>, click <strong>Advanced &gt; Go to &lt;your app&gt; (unsafe)</strong> — this is expected while the app is in Testing mode — then <strong>Allow</strong>.</p>
 </div>
 <div id="option-b---manual-loopback-flow-no-local-server" class="section level3">
 <h3>Option B - Manual loopback flow (no local server)</h3>
 <p>This avoids the local callback server entirely: you open the authorization URL, approve access, and paste back the <code>code</code> shown in the browser’s address bar.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true"></a><span class="kw">library</span>(httr)</span>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true"></a><span class="kw">library</span>(httr2)</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true"></a></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true"></a>redirect_uri &lt;-<span class="st"> &quot;http://localhost&quot;</span></span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true"></a>scope        &lt;-<span class="st"> &quot;https://mail.google.com/&quot;</span></span>
 <span id="cb8-5"><a href="#cb8-5" aria-hidden="true"></a></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true"></a>auth_url &lt;-<span class="st"> </span><span class="kw">modify_url</span>(<span class="st">&quot;https://accounts.google.com/o/oauth2/auth&quot;</span>,</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true"></a>auth_url &lt;-<span class="st"> </span><span class="kw">url_modify</span>(<span class="st">&quot;https://accounts.google.com/o/oauth2/auth&quot;</span>,</span>
 <span id="cb8-7"><a href="#cb8-7" aria-hidden="true"></a>  <span class="dt">query =</span> <span class="kw">list</span>(<span class="dt">client_id     =</span> cred<span class="op">$</span>client_id,</span>
 <span id="cb8-8"><a href="#cb8-8" aria-hidden="true"></a>               <span class="dt">redirect_uri  =</span> redirect_uri,</span>
 <span id="cb8-9"><a href="#cb8-9" aria-hidden="true"></a>               <span class="dt">response_type =</span> <span class="st">&quot;code&quot;</span>,</span>
@@ -475,16 +475,17 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <p>After you approve, the browser is redirected to <code>http://localhost/?code=...&amp;scope=...</code>. The page will fail to load (“unable to connect”) — that is fine. Copy the value between <code>code=</code> and <code>&amp;scope</code> from the <strong>address bar</strong> and paste it below (authorization codes are single-use and expire in minutes, so exchange it right away):</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true"></a>code_in &lt;-<span class="st"> &quot;PASTE_THE_CODE_HERE&quot;</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true"></a></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true"></a>resp &lt;-<span class="st"> </span><span class="kw">POST</span>(<span class="st">&quot;https://oauth2.googleapis.com/token&quot;</span>, <span class="dt">encode =</span> <span class="st">&quot;form&quot;</span>,</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true"></a>  <span class="dt">body =</span> <span class="kw">list</span>(<span class="dt">code          =</span> code_in,</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true"></a>              <span class="dt">client_id     =</span> cred<span class="op">$</span>client_id,</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true"></a>              <span class="dt">client_secret =</span> cred<span class="op">$</span>client_secret,</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true"></a>              <span class="dt">redirect_uri  =</span> redirect_uri,</span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true"></a>              <span class="dt">grant_type    =</span> <span class="st">&quot;authorization_code&quot;</span>))</span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true"></a></span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true"></a>token_data &lt;-<span class="st"> </span><span class="kw">content</span>(resp)</span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true"></a>token      &lt;-<span class="st"> </span>token_data<span class="op">$</span>access_token</span></code></pre></div>
-<p>Your <code>token</code> should be a long string starting with <code>&quot;ya29.&quot;</code>. If <code>token</code> is <code>NULL</code>, inspect <code>content(resp)</code> — an <code>invalid_grant</code> error means the code was already used or expired, so re-run <code>browseURL(auth_url)</code> to get a fresh one.</p>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true"></a>resp &lt;-<span class="st"> </span><span class="kw">request</span>(<span class="st">&quot;https://oauth2.googleapis.com/token&quot;</span>) <span class="op">|</span><span class="er">&gt;</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true"></a><span class="st">  </span><span class="kw">req_body_form</span>(<span class="dt">code          =</span> code_in,</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true"></a>                <span class="dt">client_id     =</span> cred<span class="op">$</span>client_id,</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true"></a>                <span class="dt">client_secret =</span> cred<span class="op">$</span>client_secret,</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true"></a>                <span class="dt">redirect_uri  =</span> redirect_uri,</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true"></a>                <span class="dt">grant_type    =</span> <span class="st">&quot;authorization_code&quot;</span>) <span class="op">|</span><span class="er">&gt;</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true"></a><span class="st">  </span><span class="kw">req_perform</span>()</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true"></a></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true"></a>token_data &lt;-<span class="st"> </span><span class="kw">resp_body_json</span>(resp)</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true"></a>token      &lt;-<span class="st"> </span>token_data<span class="op">$</span>access_token</span></code></pre></div>
+<p>Your <code>token</code> should be a long string starting with <code>&quot;ya29.&quot;</code>. If <code>token</code> is <code>NULL</code>, inspect <code>content(resp)</code> — an <code>invalid_grant</code> error means the code was already used or expired, so re-run <code>browseURL(auth_url)</code> to get a fresh one. (On an <code>httr2</code> error, read the body with <code>resp_body_json(last_response())</code>.)</p>
 </div>
 </div>
 <div id="step-5---open-the-imap-connection" class="section level2">
@@ -505,17 +506,18 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <div id="step-6---refresh-the-token" class="section level2">
 <h2>Step 6 - Refresh the token</h2>
 <p>Access tokens are short-lived (about 1 hour). The <strong>refresh token</strong> returned in Step 4 (thanks to <code>access_type = &quot;offline&quot;</code>) lets you mint a new access token without going through the browser again.</p>
-<p>If you used <strong>Option A</strong>, <code>httr</code> refreshes automatically; you can also force it:</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true"></a>token_obj<span class="op">$</span><span class="kw">refresh</span>()</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true"></a>token &lt;-<span class="st"> </span>token_obj<span class="op">$</span>credentials<span class="op">$</span>access_token</span></code></pre></div>
+<p>If you used <strong>Option A</strong>, mint a new access token from the refresh token:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true"></a>tok   &lt;-<span class="st"> </span><span class="kw">oauth_flow_refresh</span>(client, <span class="dt">refresh_token =</span> tok<span class="op">$</span>refresh_token)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true"></a>token &lt;-<span class="st"> </span>tok<span class="op">$</span>access_token</span></code></pre></div>
 <p>If you used <strong>Option B</strong>, exchange the stored refresh token directly:</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true"></a>refresh &lt;-<span class="st"> </span><span class="kw">POST</span>(<span class="st">&quot;https://oauth2.googleapis.com/token&quot;</span>, <span class="dt">encode =</span> <span class="st">&quot;form&quot;</span>,</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true"></a>  <span class="dt">body =</span> <span class="kw">list</span>(<span class="dt">client_id     =</span> cred<span class="op">$</span>client_id,</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true"></a>              <span class="dt">client_secret =</span> cred<span class="op">$</span>client_secret,</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true"></a>              <span class="dt">grant_type    =</span> <span class="st">&quot;refresh_token&quot;</span>,</span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true"></a>              <span class="dt">refresh_token =</span> token_data<span class="op">$</span>refresh_token))</span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true"></a></span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true"></a>token &lt;-<span class="st"> </span><span class="kw">content</span>(refresh)<span class="op">$</span>access_token</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true"></a>refresh &lt;-<span class="st"> </span><span class="kw">request</span>(<span class="st">&quot;https://oauth2.googleapis.com/token&quot;</span>) <span class="op">|</span><span class="er">&gt;</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true"></a><span class="st">  </span><span class="kw">req_body_form</span>(<span class="dt">client_id     =</span> cred<span class="op">$</span>client_id,</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true"></a>                <span class="dt">client_secret =</span> cred<span class="op">$</span>client_secret,</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true"></a>                <span class="dt">grant_type    =</span> <span class="st">&quot;refresh_token&quot;</span>,</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true"></a>                <span class="dt">refresh_token =</span> token_data<span class="op">$</span>refresh_token) <span class="op">|</span><span class="er">&gt;</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true"></a><span class="st">  </span><span class="kw">req_perform</span>()</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true"></a></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true"></a>token &lt;-<span class="st"> </span><span class="kw">resp_body_json</span>(refresh)<span class="op">$</span>access_token</span></code></pre></div>
 <p>Then reopen (or update) the connection with the new <code>token</code>. To swap the token on an existing connection object, use <code>con$reset_xoauth2_bearer(token)</code>.</p>
 </div>
 <div id="troubleshooting" class="section level2">
@@ -524,8 +526,9 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <li><strong><code>access_denied</code> / “hasn’t been verified by Google”:</strong> the account you logged in with is not in the consent screen’s <strong>Test users</strong> list (Step 2.4), or it is not the account that owns the project. Add it as a test user.</li>
 <li><strong><code>redirect_uri_mismatch</code>:</strong> your OAuth client is a <em>Web application</em>, not a <em>Desktop app</em>. Recreate it as a <strong>Desktop app</strong> (Step 3).</li>
 <li><strong><code>createTcpServer: address already in use</code> (Option A):</strong> the local callback port is busy — often a leftover server from a previous attempt in the same R session. Run <code>httpuv::stopAllServers()</code> and retry; if that fails, fully quit and reopen RStudio (a mere “Restart R” does not release the port), or switch to <strong>Option B</strong>, which needs no local server.</li>
+<li><strong>Work or institutional accounts (Microsoft 365, Google Workspace):</strong> organizational tenants commonly block third-party OAuth apps by default, so the login fails until the IT administrator approves the app (or the client you registered) for the tenant. This is a property of the tenant’s policy, not of this package — REST clients such as gmailr and Microsoft365R are subject to the same approval. Personal accounts are not affected.</li>
 <li><strong><code>SASL</code> error during authentication:</strong> your libcurl is likely older than 7.65.0. Update it and reinstall the <code>curl</code> R package (see the <a href="#intro">Introduction</a>).</li>
-<li><strong>Other providers:</strong> replace the authorization/token endpoints and the scope with the provider’s values (for Google, <code>oauth_endpoints(&quot;google&quot;)</code> already fills them in), and set <code>url</code> accordingly, e.g. <code>imaps://outlook.office365.com</code> for Office 365.</li>
+<li><strong>Other providers:</strong> replace the authorization/token endpoints and the scope with the provider’s values (for Google, <code>oauth_endpoints(&quot;google&quot;)</code> already fills them in), and set <code>url</code> accordingly, e.g. <code>imaps://outlook.office365.com</code> for Office 365.</li>
 </ul>
 </div>
 

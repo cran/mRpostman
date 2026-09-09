@@ -8,7 +8,7 @@
 #' @examples
 #' \dontrun{
 #' # select folder & search
-#' con$select_folder(name = "INBOX")
+#' con$select_folder(folder = "INBOX")
 #' # search for messages SINCE "30-Aug-2019" AND SMALLER than 512KB.
 #' res <- con$search(request = AND(sent_since(date_char = "30-Aug-2019"),
 #'                                 smaller_than(size = 512000)))
@@ -16,6 +16,8 @@
 #' @export
 #'
 AND <- function(..., negate = FALSE) {
+  lifecycle::deprecate_warn("3.0.0", "AND()",
+    details = "Combine criteria with R's own operators instead: crit1 & crit2.")
   # just a wrapper to paste
 
   # ... must be 2+ args
@@ -40,6 +42,6 @@ AND <- function(..., negate = FALSE) {
 
   }
 
-  return(out)
+  return(as_imap_search(out))
 
 }

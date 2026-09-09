@@ -12,6 +12,13 @@ expunge_int <- function(self, msg_uid, mute, retries) {
 
   check_args(msg_uid = msg_uid, mute = mute, retries = retries)
 
+  # "UID EXPUNGE" is part of the UIDPLUS extension (RFC 4315); a plain EXPUNGE
+  # is core IMAP4rev1 and needs no capability
+  if (!is.null(msg_uid)) {
+    assert_capability(self, "UIDPLUS", command = "expunge(msg_id = ...)",
+                      rfc = "RFC 4315", retries = retries)
+  }
+
   retries <- as.integer(retries)
 
   url <- self$con_params$url
@@ -37,13 +44,9 @@ expunge_int <- function(self, msg_uid, mute, retries) {
                                              retries) # special case here: use_uid = TRUE
 
   # handle sanitizing
-  rm(h)
 
   # final_output <- list("imapconf" = imapconf, "msg_id" = msg_id) # 2nd arg bit different from others
   if (!mute) {
-    if (self$con_params$verbose) {
-      Sys.sleep(0.01)
-    }
     cat(paste0("\n::mRpostman: expunge successfully executed.")) # v0.3.2
     # using the folder name without any transformation
   }

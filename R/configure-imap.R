@@ -4,8 +4,18 @@
 #' @param username A character string containing the username.
 #' @param password A character string containing the user's password.
 #' @param xoauth2_bearer A character string containing the oauth2 bearer token.
-#' @param use_ssl A logical indicating the use or not of Secure Sockets Layer
-#'   encryption when connecting to the IMAP server. Default is \code{TRUE}.
+#' @param oauth_mechanism The SASL mechanism used to send the OAuth 2.0 token:
+#'   \code{"XOAUTH2"} (default; advertised by Gmail, Yahoo, and Microsoft 365)
+#'   or \code{"OAUTHBEARER"} (RFC 7628; advertised by Gmail, but not by the
+#'   Microsoft 365 IMAP server). Check \code{list_server_capabilities()} for
+#'   the \code{AUTH=} tokens of your server. Ignored when authenticating with
+#'   a password.
+#' @param use_ssl A logical. \code{TRUE} (default) requires TLS: an
+#'   \code{imaps://} URL is encrypted from the start, and an \code{imap://}
+#'   URL is upgraded with \code{STARTTLS} before any credential is sent; if
+#'   the server does not offer \code{STARTTLS}, the connection fails (there is
+#'   no silent fallback to plaintext). \code{FALSE} sends everything
+#'   unencrypted, for plain test servers such as the Docker sandbox.
 #' @param verbose If \code{FALSE}, mutes the flow of information between the
 #'   server and the client. Default is \code{FALSE}.
 #' @param buffersize The size in bytes for the receive buffer. Default is
@@ -16,6 +26,18 @@
 #' @param timeout_ms Time in milliseconds (ms) to wait for the execution or
 #'   re-execution of a command. Default is 0, which means that no timeout limit is
 #'   set.
+#' @param use_uid Connection-level default for the \code{use_uid} argument
+#'   of the methods: if \code{TRUE}, operations use the \code{"UID"}
+#'   (unique identifier), stable during the life cycle of a message, instead
+#'   of message sequence numbers. Each call can still override it. Since
+#'   3.0.0 the default is \code{TRUE}: UIDs are stable, sequence numbers
+#'   renumber whenever messages are expunged.
+#' @param mute Connection-level default for the \code{mute} argument of the
+#'   methods: if \code{TRUE}, confirmation messages are suppressed. Each
+#'   call can still override it. Default is \code{FALSE}.
+#' @param retries Connection-level default for the \code{retries} argument
+#'   of the methods (number of attempts to connect and execute a command).
+#'   Each call can still override it. Default is \code{1}.
 #' @param ... Further curl parameters (see \code{curl::curl_options}) that
 #'   can be used with the IMAP protocol. Only for advanced users.
 #' @return A new `ImapCon` object.
@@ -40,20 +62,28 @@ configure_imap <- function(url,
                            username,
                            password = NULL,
                            xoauth2_bearer = NULL,
+                           oauth_mechanism = c("XOAUTH2", "OAUTHBEARER"),
                            use_ssl = TRUE,
                            verbose = FALSE,
                            buffersize = 16000,
                            timeout_ms = 0,
+                           use_uid = TRUE,
+                           mute = FALSE,
+                           retries = 1,
                            ...) {
 
   con <- ImapCon$new(url,
                      username,
                      password = password,
                      xoauth2_bearer = xoauth2_bearer,
+                     oauth_mechanism = oauth_mechanism,
                      use_ssl = use_ssl,
                      verbose = verbose,
                      buffersize = buffersize,
                      timeout_ms = timeout_ms,
+                     use_uid = use_uid,
+                     mute = mute,
+                     retries = retries,
                      ...)
 
   # fresh_connect is not supported anymore because the same handle is used during an

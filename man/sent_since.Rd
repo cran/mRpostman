@@ -24,7 +24,7 @@ Criterion constructor function to be combined in a custom search statement
 \examples{
 \dontrun{
 # select folder & search
-con$select_folder(name = "INBOX")
+con$select_folder(folder = "INBOX")
 # search for messages SENT SINCE "22-Mar-2020" OR containing the STRING
 #  "congratulations" in the subject.
 res <- con$search(request = AND(sent_since(date_char = "22-Mar-2020"),
@@ -33,20 +33,25 @@ res <- con$search(request = AND(sent_since(date_char = "22-Mar-2020"),
 }
 }
 \seealso{
-Other custom search: 
-\code{\link{AND}()},
+Other custom search:
+\code{\link[=AND]{AND()}},
 \code{\link{ImapCon}},
-\code{\link{OR}()},
-\code{\link{before}()},
-\code{\link{flag}()},
-\code{\link{larger_than}()},
-\code{\link{older_than}()},
-\code{\link{on}()},
-\code{\link{sent_before}()},
-\code{\link{sent_on}()},
-\code{\link{since}()},
-\code{\link{smaller_than}()},
-\code{\link{string}()},
-\code{\link{younger_than}()}
+\code{\link[=OR]{OR()}},
+\code{\link[=before]{before()}},
+\code{\link[=filter_stored]{filter_stored()}},
+\code{\link[=flag]{flag()}},
+\code{\link[=fuzzy]{fuzzy()}},
+\code{\link[=larger_than]{larger_than()}},
+\code{\link[=modseq]{modseq()}},
+\code{\link[=older_than]{older_than()}},
+\code{\link[=on]{on()}},
+\code{\link[=saved_before]{saved_before()}},
+\code{\link[=sent_before]{sent_before()}},
+\code{\link[=sent_on]{sent_on()}},
+\code{\link[=since]{since()}},
+\code{\link[=smaller_than]{smaller_than()}},
+\code{\link[=string]{string()}},
+\code{\link[=verbatim]{verbatim()}},
+\code{\link[=younger_than]{younger_than()}}
 }
 \concept{custom search}

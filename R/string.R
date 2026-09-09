@@ -9,7 +9,7 @@
 #' @examples
 #' \dontrun{
 #' # select folder & search
-#' con$select_folder(name = "INBOX")
+#' con$select_folder(folder = "INBOX")
 #' # search for messages containing the string "XYZ@@k-state.edu" in the
 #' #   "FROM" AND the string "@@gmail.com" in the "CC" field.
 #' res <- con$search(request = AND(string(expr = "XYZ@@k-state.edu",
@@ -18,6 +18,8 @@
 #'                                       where = "CC")))
 #' }
 #'
+#' @return A search criterion of class \code{imap_search}, to be combined
+#'   into a search statement (see \code{Ops.imap_search}).
 #' @export
 #'
 string <- function(expr, where, negate = FALSE) {
@@ -41,6 +43,6 @@ string <- function(expr, where, negate = FALSE) {
 
   }
 
-  return(out)
+  return(as_imap_search(out))
 
 }

@@ -3,7 +3,7 @@
 #' @examples
 #' \dontrun{
 #' # select folder & search
-#' con$select_folder(name = "INBOX")
+#' con$select_folder(folder = "INBOX")
 #' # search for messages SINCE "17-Apr-2019" AND SMALLER than 512KB.
 #' res <- con$search(request = OR(on(date_char = "30-Jun-2019"),
 #'                                on(date_char = "22-Mar-2018")))
@@ -15,7 +15,7 @@
 on <- function(date_char, negate = FALSE) {
 
 
-  check_args(date_char, negate)
+  check_args(date_char = date_char, negate = negate)
 
   # setting part of the search string
 
@@ -27,6 +27,6 @@ on <- function(date_char, negate = FALSE) {
 
   }
 
-  return(out)
+  return(as_imap_search(out))
 
 }

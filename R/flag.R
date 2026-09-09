@@ -8,17 +8,19 @@
 #' @examples
 #' \dontrun{
 #' # select folder & search
-#' con$select_folder(name = "INBOX")
+#' con$select_folder(folder = "INBOX")
 #' # search for messages with Flag "UNSEEN" AND NOT Smaller Than  512KB.
 #' res <- con$search(request = AND(flag("UNSEEN"),
 #'                                 smaller_than(size = 512000, negate = TRUE)))
 #' }
+#' @return A search criterion of class \code{imap_search}, to be combined
+#'   into a search statement (see \code{Ops.imap_search}).
 #' @export
 #'
 flag <- function(name, negate = FALSE) {
 
 
-  check_args(name, negate)
+  check_args(name = name, negate = negate)
 
   # setting part of the search string
 
@@ -38,6 +40,6 @@ flag <- function(name, negate = FALSE) {
 
   }
 
-  return(out)
+  return(as_imap_search(out))
 
 }

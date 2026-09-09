@@ -17,9 +17,10 @@
 #' @param retries Number of attempts to connect and execute the command.
 #'   Default is \code{1}.
 #' @noRd
-remove_flags_int <- function(self, msg_id, use_uid, flags_to_unset, mute, retries) {
+remove_flags_int <- function(self, msg_id, use_uid, flags_to_unset, mute, retries,
+                               unchanged_since = NULL) {
 
-  check_args(msg_id = msg_id, use_uid, flags_to_unset = flags_to_unset,
+  check_args(msg_id = msg_id, use_uid = use_uid, flags_to_unset = flags_to_unset,
              mute = mute,
              retries = retries)
 
@@ -35,16 +36,30 @@ remove_flags_int <- function(self, msg_id, use_uid, flags_to_unset, mute, retrie
 
   msg_string = paste0(msg_id, collapse = ",")
 
+  # conditional STORE (CONDSTORE, RFC 7162): only messages whose modification
+  # sequence is not greater than unchanged_since are updated; the others are
+  # reported back in the [MODIFIED ...] response code
+  if (!is.null(unchanged_since)) {
+    assertthat::assert_that(is.numeric(unchanged_since), length(unchanged_since) == 1,
+                            unchanged_since >= 0,
+                            msg='"unchanged_since" must be NULL or a single non-negative number.')
+    assert_capability(self, "CONDSTORE", command = "remove_flags(unchanged_since = ...)",
+                      rfc = "RFC 7162", retries = retries)
+    cond_string <- paste0(" (UNCHANGEDSINCE ", format(unchanged_since, scientific = FALSE), ")")
+  } else {
+    cond_string <- ""
+  }
+
 
   # setting customrequest
   if (isTRUE(use_uid)) {
 
-    customrequest <- paste0("UID STORE ", msg_string, " -FLAGS ", "(", flags_string, ")")
+    customrequest <- paste0("UID STORE ", msg_string, cond_string, " -FLAGS ", "(", flags_string, ")")
 
 
   } else {
 
-    customrequest <- paste0("STORE ", msg_string, " -FLAGS ", "(", flags_string, ")")
+    customrequest <- paste0("STORE ", msg_string, cond_string, " -FLAGS ", "(", flags_string, ")")
 
   }
 
@@ -53,26 +68,26 @@ remove_flags_int <- function(self, msg_id, use_uid, flags_to_unset, mute, retrie
 
   # capture possible errors (in case of non-existent/allowed flags, curl does not assess the server response as an error)
   if (!is.null(response)) {
-    error_check <- grepl(pattern = "^\\* NO ", x = rawToChar(response$headers)) # it will be on headers in this case
-    if (isTRUE(error_check)) {
-      stop(unlist(regmatches(rawToChar(response$headers),
-                             regexec("\\* NO (.*?)\r\n",
-                                     rawToChar(response$headers))))[[2]])
-    } # if a flag "\flag" does not exist, it returns NULL (a regular error that we are used to)
+    no_reason <- find_no_reply(paste(rawToChar(response$headers),
+                                     rawToChar(response$content), sep = "\r\n"))
+    if (!is.na(no_reason)) {
+      # a rejected STORE (e.g. a non-existent flag) is not an error for curl
+      stop("The server rejected the STORE command: ", no_reason, call. = FALSE)
+    }
   }
 
   if (!mute) {
-    if (self$con_params$verbose) {
-      Sys.sleep(0.01)
-    }
     cat(paste0("\n::mRpostman: flag(s) successfully removed.")) # v0.3.2
     # using the folder name without any transformation
   }
 
   # handle sanitizing
-  rm(h)
 
   # return(TRUE)
+  if (!is.null(unchanged_since) && !is.null(response)) {
+    attr(msg_id, "modified") <- parse_modified(
+      paste(rawToChar(response$headers), rawToChar(response$content)))
+  }
   return(msg_id)
 
 }

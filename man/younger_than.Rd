@@ -13,6 +13,10 @@ the search criterion.}
 \item{negate}{If \code{TRUE}, negates the search and seeks for "NOT SEARCH
 CRITERIA". Default is \code{FALSE}.}
 }
+\value{
+A search criterion of class \code{imap_search}, to be combined
+  into a search statement (see \code{Ops.imap_search}).
+}
 \description{
 Criterion constructor function to be combined in a custom search statement
 }
@@ -23,7 +27,7 @@ To be able to use this functionality, the server must support the
 \examples{
 \dontrun{
 # select folder & search
-con$select_folder(name = "INBOX")
+con$select_folder(folder = "INBOX")
 # search for messages containing the string "XYZ@k-state.edu" in the
 #   "FROM" field AND those that are YOUNGER than 3600 seconds (1 hour).
 res <- con$search(request = AND(string(expr = "XYZ@k-state.edu",
@@ -33,20 +37,25 @@ res <- con$search(request = AND(string(expr = "XYZ@k-state.edu",
 
 }
 \seealso{
-Other custom search: 
-\code{\link{AND}()},
+Other custom search:
+\code{\link[=AND]{AND()}},
 \code{\link{ImapCon}},
-\code{\link{OR}()},
-\code{\link{before}()},
-\code{\link{flag}()},
-\code{\link{larger_than}()},
-\code{\link{older_than}()},
-\code{\link{on}()},
-\code{\link{sent_before}()},
-\code{\link{sent_on}()},
-\code{\link{sent_since}()},
-\code{\link{since}()},
-\code{\link{smaller_than}()},
-\code{\link{string}()}
+\code{\link[=OR]{OR()}},
+\code{\link[=before]{before()}},
+\code{\link[=filter_stored]{filter_stored()}},
+\code{\link[=flag]{flag()}},
+\code{\link[=fuzzy]{fuzzy()}},
+\code{\link[=larger_than]{larger_than()}},
+\code{\link[=modseq]{modseq()}},
+\code{\link[=older_than]{older_than()}},
+\code{\link[=on]{on()}},
+\code{\link[=saved_before]{saved_before()}},
+\code{\link[=sent_before]{sent_before()}},
+\code{\link[=sent_on]{sent_on()}},
+\code{\link[=sent_since]{sent_since()}},
+\code{\link[=since]{since()}},
+\code{\link[=smaller_than]{smaller_than()}},
+\code{\link[=string]{string()}},
+\code{\link[=verbatim]{verbatim()}}
 }
 \concept{custom search}

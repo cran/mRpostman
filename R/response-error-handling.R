@@ -2,7 +2,7 @@
 #' @param error_message A \code{character vector} containing the error message
 #'   of the curl request.
 #' @noRd
-response_error_handling <- function(error_message) {
+response_error_handling <- function(error_message, self = NULL) {
 
   pattern_resolving = 'Timeout was reached: Resolving timed out'
 
@@ -12,14 +12,50 @@ response_error_handling <- function(error_message) {
 
   error_check_login <- grepl(pattern = pattern_login, x = error_message)
 
+  # a tagged NO/BAD reply recorded by the debug callback: the server rejected
+  # the command, so retrying is pointless and the reason is worth reporting
+  server_error <- last_server_error(
+    if (!is.null(self) && !is.null(self$con_debug)) self$con_debug$lines)
+
   if (error_check_resolving) {
 
-    stop("Resolving timeout: check your internet connection status or try to increase
-         the timeout_ms argument in ImapCon$new().")
+    stop_mrp(paste0("Resolving timeout: check your internet connection ",
+                    "status or try to increase the timeout_ms argument in ",
+                    "configure_imap()."), "connection_error")
 
   } else if (error_check_login) {
 
-    stop("Login denied: the server returned an authentication error.")
+    stop_mrp("Login denied: the server returned an authentication error.",
+             "connection_error")
+
+  } else if (!is.na(server_error) &&
+             grepl("No mailbox selected|not allowed now|not allowed in this state",
+                   server_error, ignore.case = TRUE)) {
+
+    # the folder selection was lost (e.g. after a failed SELECT or a server
+    # reconnection): let the caller re-select the folder and retry
+    return(NULL)
+
+  } else if (!is.na(server_error)) {
+
+    stop_server_rejected(server_error)
+
+  } else if (grepl("SSL level failed", error_message)) {
+
+    # CURLE_USE_SSL_FAILED: use_ssl = TRUE on an imap:// URL, but the server
+    # does not offer STARTTLS on that port; never fall back to plaintext
+    stop_mrp(starttls_unavailable_msg(), "connection_error")
+
+  } else if (grepl("grew larger than allowed", error_message)) {
+
+    # libcurl >= 8.7 (CURLE_TOO_LARGE): one response line exceeded what
+    # libcurl accepts, typically the id list of a SEARCH matching many
+    # thousands of messages; retrying cannot help, but ESEARCH can
+    stop_mrp(paste0("The response is larger than libcurl accepts in one line ",
+                    "(typically a SEARCH matching many thousands of messages). ",
+                    "Use esearch = TRUE, which condenses the id list, or an ",
+                    "esearch_*() aggregation, or restrict the search criteria."),
+             "response_too_large")
 
   } else {
 
@@ -34,3 +70,10 @@ response_error_handling <- function(error_message) {
 
 }
 
+
+starttls_unavailable_msg <- function() {
+  paste0("The server does not offer STARTTLS on this port, so the TLS you asked ",
+         "for (use_ssl = TRUE) cannot be established. Use an imaps:// URL, or ",
+         "use_ssl = FALSE for a plain server such as the Docker sandbox ",
+         "(credentials are then sent unencrypted).")
+}

@@ -19,6 +19,10 @@
 #'   custodians' folder names. The default,
 #'   \code{"^_?sent(_items|_mail)?$"}, selects the sent-mail folder
 #'   variants. Use \code{".*"} for all folders of the selected custodians.
+#'   A handful of corpus files sit directly under a custodian's directory,
+#'   in no folder; they are taken when the pattern matches the empty string
+#'   (as \code{".*"} does) and their \code{path} is then
+#'   \code{custodian/file}.
 #' @param sent_since,sent_before Optional \code{Date} (or
 #'   \code{"YYYY-MM-DD"} string) limits applied to each message's
 #'   \code{Date:} header before ingestion. \code{NULL} (default) applies no
@@ -35,10 +39,17 @@
 #'   Set to \code{FALSE} for non-interactive use.
 #' @param mute A \code{logical}. Passed to \code{\link{ingest_maildir}}.
 #'   Default is \code{FALSE}.
-#' @return Invisibly, a \code{data.frame} with one row per ingested message:
-#'   \code{custodian}, \code{path} (relative to the corpus root),
+#' @return Invisibly, a \code{data.frame} with one row per selected message:
+#'   \code{custodian}, \code{folder} (the destination folder on the server,
+#'   equal to the custodian name), \code{path} (relative to the corpus
+#'   root, i.e. \code{custodian/folder/file}, or \code{custodian/file}
+#'   for the few files that sit in no folder; a stable message key),
 #'   \code{size}, \code{date} (parsed from the header; \code{NA} when
-#'   unparseable), and \code{appended}.
+#'   unparseable), \code{appended}, and \code{uid} (the UID the server
+#'   assigned to the message, as reported by \code{\link{ingest_maildir}};
+#'   \code{NA} when the upload failed or the server lacks \code{UIDPLUS}).
+#'   Together, \code{folder} and \code{uid} let every row be fetched back
+#'   from the server, and \code{path} ties it to the original file.
 #' @details The corpus was released into the public domain by the U.S.
 #'   Federal Energy Regulatory Commission and is curated at Carnegie Mellon
 #'   University (\url{https://www.cs.cmu.edu/~enron/}); it contains about
@@ -134,7 +145,14 @@ enron_sandbox <- function(con,
 
     dirs <- list.dirs(base, recursive = FALSE, full.names = TRUE)
     sel  <- dirs[grepl(folder_pattern, basename(dirs))]
-    files <- sort(list.files(sel, full.names = TRUE, recursive = TRUE))
+    files <- list.files(sel, full.names = TRUE, recursive = TRUE)
+    # a few corpus files sit directly under the custodian, in no folder: they
+    # belong to the "" folder and are taken when the pattern matches it
+    if (grepl(folder_pattern, "")) {
+      root <- list.files(base, full.names = TRUE, recursive = FALSE)
+      files <- c(files, root[!dir.exists(root)])
+    }
+    files <- sort(files)
 
     dates <- vapply(files, .enron_header_date, character(1))
     dates <- as.Date(dates)
@@ -153,10 +171,12 @@ enron_sandbox <- function(con,
     man <- ingest_maildir(con, folder = cust, files = files, mute = TRUE)
     out[[k]] <- data.frame(
       custodian = cust,
-      path = sub(paste0("^", maildir, .Platform$file.sep), "", man$path),
+      folder = cust,
+      path = .relative_to(man$path, maildir),
       size = man$size,
       date = dates,
       appended = man$appended,
+      uid = man$uid,
       row.names = NULL,
       stringsAsFactors = FALSE)
     if (!mute) {
@@ -187,4 +207,15 @@ enron_sandbox <- function(con,
   months <- c(Jan = 1, Feb = 2, Mar = 3, Apr = 4, May = 5, Jun = 6,
               Jul = 7, Aug = 8, Sep = 9, Oct = 10, Nov = 11, Dec = 12)
   sprintf("%s-%02d-%02d", parts[3], months[[parts[2]]], as.integer(parts[1]))
+}
+
+# A path relative to `root` ("custodian/folder/file"), with "/" separators on
+# every platform. Both sides are normalized first: on Windows the two can
+# differ in separators ("\\" from tempdir(), "/" from list.files()) and in
+# short 8.3 directory names, and the root itself may hold regex
+# metacharacters, so no pattern matching is involved.
+.relative_to <- function(path, root) {
+  p <- normalizePath(path, winslash = "/", mustWork = FALSE)
+  r <- paste0(normalizePath(root, winslash = "/", mustWork = FALSE), "/")
+  ifelse(startsWith(p, r), substring(p, nchar(r) + 1L), p)
 }

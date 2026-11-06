@@ -1191,13 +1191,13 @@ con$fetch_attachments(msg = res)
 \href{#method-get_attachments}{\code{ImapCon$get_attachments()}}:
   Troost, R., Dorner, S., and K. Moore (1997), Communicating
   Presentation Information in Internet Messages: The Content-Disposition
-  Header Field, RFC 2183, August 1997, https://www.rfc-editor.org/rfc/rfc2183.
+  Header Field, RFC 2183, August 1997, https://www.rfc-editor.org/rfc/rfc2183.html.
 
 \href{#method-fetch_attachments}{\code{ImapCon$fetch_attachments()}}:
   Troost, R., Dorner, S., and K. Moore (1997), Communicating
   Presentation Information in Internet Messages: The Content-Disposition
   Header Field, RFC 2183, DOI 10.17487/RFC2183, August 1997,
-  https://www.rfc-editor.org/rfc/rfc2183.
+  https://www.rfc-editor.org/rfc/rfc2183.html.
 }
 \seealso{
 Other custom search:
@@ -4015,7 +4015,10 @@ Default is \code{1}.}
   }
   \subsection{Returns}{
     An \code{integer} vector of message ids in the server-provided
-  (sorted) order.
+  (sorted) order. The server answers in one line carrying every id;
+  when that line is longer than libcurl accepts (a folder with tens of
+  thousands of messages), the command is transparently re-issued on
+  the raw-socket connection, which has no such limit.
   }
   \subsection{Examples}{
     \if{html}{\out{<div class="r example copy">}}
@@ -4064,6 +4067,10 @@ Default is \code{1}.}
   }
   \subsection{Returns}{
     A \code{list} of \code{integer} vectors, one per top-level thread.
+  The server answers in one line carrying every id; when that line is
+  longer than libcurl accepts (a folder with tens of thousands of
+  messages), the command is transparently re-issued on the raw-socket
+  connection, which has no such limit.
   }
   \subsection{Examples}{
     \if{html}{\out{<div class="r example copy">}}

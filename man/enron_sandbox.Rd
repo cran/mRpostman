@@ -29,7 +29,11 @@ root.}
 \item{folder_pattern}{A regular expression matched against the
 custodians' folder names. The default,
 \code{"^_?sent(_items|_mail)?$"}, selects the sent-mail folder
-variants. Use \code{".*"} for all folders of the selected custodians.}
+variants. Use \code{".*"} for all folders of the selected custodians.
+A handful of corpus files sit directly under a custodian's directory,
+in no folder; they are taken when the pattern matches the empty string
+(as \code{".*"} does) and their \code{path} is then
+\code{custodian/file}.}
 
 \item{sent_since, sent_before}{Optional \code{Date} (or
 \code{"YYYY-MM-DD"} string) limits applied to each message's
@@ -54,10 +58,17 @@ Set to \code{FALSE} for non-interactive use.}
 Default is \code{FALSE}.}
 }
 \value{
-Invisibly, a \code{data.frame} with one row per ingested message:
-  \code{custodian}, \code{path} (relative to the corpus root),
+Invisibly, a \code{data.frame} with one row per selected message:
+  \code{custodian}, \code{folder} (the destination folder on the server,
+  equal to the custodian name), \code{path} (relative to the corpus
+  root, i.e. \code{custodian/folder/file}, or \code{custodian/file}
+  for the few files that sit in no folder; a stable message key),
   \code{size}, \code{date} (parsed from the header; \code{NA} when
-  unparseable), and \code{appended}.
+  unparseable), \code{appended}, and \code{uid} (the UID the server
+  assigned to the message, as reported by \code{\link{ingest_maildir}};
+  \code{NA} when the upload failed or the server lacks \code{UIDPLUS}).
+  Together, \code{folder} and \code{uid} let every row be fetched back
+  from the server, and \code{path} ties it to the original file.
 }
 \description{
 Downloads the public Enron e-mail corpus (CMU, May 7 2015

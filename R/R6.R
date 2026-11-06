@@ -119,6 +119,7 @@ ImapCon <- R6::R6Class("ImapCon",
       self$con_params <- out$con_params
       self$con_handle <- out$con_handle
       self$con_debug <- out$con_debug
+      self$con_opts <- out$con_opts
       private$auth <- list(password = password, xoauth2_bearer = xoauth2_bearer,
                            oauth_mechanism = toupper(oauth_mechanism)[1])
 
@@ -289,6 +290,7 @@ ImapCon <- R6::R6Class("ImapCon",
     disconnect = function() {
       self$con_handle <- NULL
       self$con_pool <- NULL
+      self$con_opts <- NULL
       self$con_params$folder <- NA
       private$auth <- NULL
       invisible(TRUE)
@@ -1826,7 +1828,10 @@ ImapCon <- R6::R6Class("ImapCon",
     #' @param retries Number of attempts to connect and execute the command.
     #'   Default is \code{1}.
     #' @return An \code{integer} vector of message ids in the server-provided
-    #'   (sorted) order.
+    #'   (sorted) order. The server answers in one line carrying every id;
+    #'   when that line is longer than libcurl accepts (a folder with tens of
+    #'   thousands of messages), the command is transparently re-issued on
+    #'   the raw-socket connection, which has no such limit.
     #' @examples
     #' \dontrun{
     #' con$select_folder("INBOX")
@@ -1838,7 +1843,7 @@ ImapCon <- R6::R6Class("ImapCon",
       use_uid <- conn_default(use_uid, self, "use_uid", TRUE)
       retries <- conn_default(retries, self, "retries", 1)
       out <- sort_int(self, by, reverse, criteria, use_uid, char_set, retries,
-                      return = return)
+                      return = return, auth = private$auth)
       return(out)
     },
 
@@ -1858,6 +1863,10 @@ ImapCon <- R6::R6Class("ImapCon",
     #' @param retries Number of attempts to connect and execute the command.
     #'   Default is \code{1}.
     #' @return A \code{list} of \code{integer} vectors, one per top-level thread.
+    #'   The server answers in one line carrying every id; when that line is
+    #'   longer than libcurl accepts (a folder with tens of thousands of
+    #'   messages), the command is transparently re-issued on the raw-socket
+    #'   connection, which has no such limit.
     #' @examples
     #' \dontrun{
     #' con$select_folder("INBOX")
@@ -1867,7 +1876,8 @@ ImapCon <- R6::R6Class("ImapCon",
                       use_uid = NULL, char_set = "UTF-8", retries = NULL) {
       use_uid <- conn_default(use_uid, self, "use_uid", TRUE)
       retries <- conn_default(retries, self, "retries", 1)
-      out <- thread_int(self, algorithm, criteria, use_uid, char_set, retries)
+      out <- thread_int(self, algorithm, criteria, use_uid, char_set, retries,
+                        auth = private$auth)
       return(out)
     },
 
@@ -3592,7 +3602,7 @@ ImapCon <- R6::R6Class("ImapCon",
     #' @references \href{#method-get_attachments}{\code{ImapCon$get_attachments()}}:
     #'   Troost, R., Dorner, S., and K. Moore (1997), Communicating
     #'   Presentation Information in Internet Messages: The Content-Disposition
-    #'   Header Field, RFC 2183, August 1997, https://www.rfc-editor.org/rfc/rfc2183.
+    #'   Header Field, RFC 2183, August 1997, https://www.rfc-editor.org/rfc/rfc2183.html.
     #' @return \code{TRUE} if the operation is successful. The files are saved
     #' locally.
     #' @family attachments
@@ -3766,7 +3776,7 @@ ImapCon <- R6::R6Class("ImapCon",
     #'   Troost, R., Dorner, S., and K. Moore (1997), Communicating
     #'   Presentation Information in Internet Messages: The Content-Disposition
     #'   Header Field, RFC 2183, DOI 10.17487/RFC2183, August 1997,
-    #'   https://www.rfc-editor.org/rfc/rfc2183.
+    #'   https://www.rfc-editor.org/rfc/rfc2183.html.
     #' @return A \code{list} with the fetch contents.
     #' @family fetch
     #' @examples
